@@ -12,7 +12,7 @@ var B_VERSION = "1.0.0"
 
 func CheckForUpdates() {
 	latest_script, err := http.get(
-		"https://raw.githubusercontent.com/cass-dlcm/splatstats-uploader/main/golang_version/src/splatstatsuploader.go"
+		"https://raw.githubusercontent.com/cass-dlcm/splatstats-uploader-go/main/splatstatsuploader.go"
 	)
 	if err {
 		fmt.Println("Error retrieving the latest version.")
