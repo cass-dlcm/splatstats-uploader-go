@@ -14,8 +14,7 @@ import (
 	"golang.org/x/term"
 )
 
-var A_VERSION = "1.5.10"
-var B_VERSION = "1.0.1"
+var VERSION = "1.0.2"
 
 func CheckForUpdates() {
 	latest_script, err := http.Get("https://raw.githubusercontent.com/cass-dlcm/splatstats-uploader-go/main/splatstatsuploader.go")
@@ -24,9 +23,9 @@ func CheckForUpdates() {
 	}
 	defer latest_script.Body.Close()
 	body, _ := io.ReadAll(latest_script.Body)
-	re := regexp.MustCompile("B_VERSION = \"([\\d.]*)\"")
+	re := regexp.MustCompile("VERSION = \"([\\d.]*)\"")
 	new_version := re.FindString(string(body))
-	v1, err := version.NewVersion(B_VERSION)
+	v1, err := version.NewVersion(VERSION)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 	}
@@ -74,13 +73,12 @@ func SetLanguage() {
 	viper.WriteConfig()
 }
 
-func SetApiToken() {
+func SetApiToken(client *http.Client) {
 	var username string
 	fmt.Println("SplatStats username: ")
 	fmt.Scanln(&username)
 	password, _ := term.ReadPassword(int(os.Stdin.Fd()))
 	url := "http://localhost:8000/auth/api-token/"
-	client := &http.Client{}
 	auth_json, _ := json.Marshal(map[string]string{
 		"username": username, "password": string(password),
 	})
@@ -126,8 +124,10 @@ func main() {
 	viper.SetDefault("session_token", "")
 	viper.SetDefault("user_lang", "")
 
-	if !(viper.IsSet("api_key")) {
-		SetApiToken()
+	client := &http.Client{}
+
+	if !(viper.IsSet("api_key")) || viper.GetString("api_key") == "" {
+		SetApiToken(client)
 	}
 
 	if !(viper.IsSet("user_lang")) || viper.GetString("user_lang") == "" {
