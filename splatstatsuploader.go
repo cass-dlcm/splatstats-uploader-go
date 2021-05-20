@@ -14,7 +14,7 @@ import (
 	"golang.org/x/term"
 )
 
-var VERSION = "1.0.2"
+var VERSION = "1.0.3"
 
 func CheckForUpdates() {
 	latest_script, err := http.Get("https://raw.githubusercontent.com/cass-dlcm/splatstats-uploader-go/main/splatstatsuploader.go")
@@ -77,15 +77,27 @@ func SetApiToken(client *http.Client) {
 	var username string
 	fmt.Println("SplatStats username: ")
 	fmt.Scanln(&username)
-	password, _ := term.ReadPassword(int(os.Stdin.Fd()))
+	password, err := term.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		fmt.Println(err)
+	}
 	url := "http://localhost:8000/auth/api-token/"
-	auth_json, _ := json.Marshal(map[string]string{
+	auth_json, err := json.Marshal(map[string]string{
 		"username": username, "password": string(password),
 	})
+	if err != nil {
+		fmt.Println(err)
+	}
 	auth_body := bytes.NewReader(auth_json)
-	req, _ := http.NewRequest("POST", url, auth_body)
+	req, err := http.NewRequest("POST", url, auth_body)
+	if err != nil {
+		fmt.Println(err)
+	}
 	req.Header.Set("Content-Type", "application/json")
-	resp, _ := client.Do(req)
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+	}
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(resp.Body)
 	newStr := buf.String()
