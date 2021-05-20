@@ -3,11 +3,14 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"regexp"
+
+	"cass-dlcm.dev/splatstatsuploader/helpers"
 
 	"github.com/hashicorp/go-version"
 	"github.com/spf13/viper"
@@ -105,6 +108,23 @@ func SetApiToken(client *http.Client) {
 	viper.WriteConfig()
 }
 
+func GetFlags() (int, bool, bool, bool) {
+	m := flag.Int("m", -1, "To monitor for new match results.")
+	f := flag.Bool("f", false, "To upload battles/shifts from files.")
+	s := flag.Bool("s", false, "To save battles/shifts to files.")
+	salmon := flag.Bool("salmon", false, "To upload salmon run matches.")
+	flag.Parse()
+	if *f && *s {
+		fmt.Println("Cannout use -f and -s together. Exiting.")
+		os.Exit(1)
+	}
+	if *f && *m != -1 {
+		fmt.Println("Cannot use -f and -m together. Exiting")
+		os.Exit(1)
+	}
+	return *m, *f, *s, *salmon
+}
+
 func main() {
 
 	CheckForUpdates()
@@ -144,5 +164,14 @@ func main() {
 
 	if !(viper.IsSet("user_lang")) || viper.GetString("user_lang") == "" {
 		SetLanguage()
+	}
+
+	m, f, s, salmon := GetFlags()
+	if m != -1 {
+		helpers.Monitor(m, s, salmon, viper.GetString("api_key"), VERSION, client)
+	} else if f {
+		helpers.File(salmon, viper.GetString("api_key"), VERSION, client)
+	} else {
+		helpers.GetSplatnet(s, salmon, viper.GetString("api_key"), VERSION, client)
 	}
 }
