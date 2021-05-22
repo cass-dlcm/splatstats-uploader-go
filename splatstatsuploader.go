@@ -183,7 +183,7 @@ func main() {
 
 	m, f, s, salmon := GetFlags()
 	if m != -1 {
-		helpers.Monitor(m, s, salmon, viper.GetString("api_key"), VERSION, client)
+		helpers.Monitor(m, s, salmon, viper.GetString("api_key"), VERSION, app_head, client)
 	} else if f {
 		helpers.File(salmon, viper.GetString("api_key"), VERSION, client)
 	} else {
