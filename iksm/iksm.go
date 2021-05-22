@@ -360,7 +360,16 @@ func getSplatoonToken(userLang string, idResponse idResponseS, userInfo userInfo
 	return splatoonToken
 }
 
-func getSplatoonAccessToken() {
+type splatoonAccessTokenS struct {
+	Correlationid map[string]interface{} `json:"correlationId"`
+	Result struct {
+		Accesstoken string `json:"accessToken"`
+		Expiresin   int    `json:"expiresIn"`
+	} `json:"result"`
+	Status map[string]interface{} `json:"status"`
+}
+
+func getSplatoonAccessToken(userLang string, splatoonToken splatoonTokenS, guid string, timestamp int, version string, client *http.Client) splatoonAccessTokenS {
 	idToken := splatoonToken.Result.Webapiservercredential.Accesstoken
 	flapgApp := callFlapgApi(idToken, guid, timestamp, "app", version, client).Result
 	appHead := map[string]string{
@@ -401,7 +410,7 @@ func getSplatoonAccessToken() {
 	if err != nil {
 		panic(err)
 	}
-	var splatoonAccessToken map[string]map[string]string
+	var splatoonAccessToken splatoonAccessTokenS
 	json.NewDecoder(resp.Body).Decode(&splatoonAccessToken)
 	return splatoonAccessToken
 }
@@ -415,13 +424,13 @@ func getCookie(version string, client *http.Client) (string, string) {
 	userInfo := getUserInfo(userLang, idResponse, client)
 	nickname := userInfo.Nickname
 	splatoonToken := getSplatoonToken(userLang, idResponse, userInfo, guid, timestamp, version, client)
-	
-	appHead = map[string]string{
+	splatoonAccessToken := getSplatoonAccessToken(userLang, splatoonToken, guid, timestamp, version, client)
+	appHead := map[string]string{
 		"Host":                    "app.splatoon2.nintendo.net",
 		"X-IsAppAnalyticsOptedIn": "false",
 		"Accept":                  "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
 		"Accept-Encoding":         "gzip deflate",
-		"X-GameWebToken":          splatoonAccessToken["result"]["accessToken"],
+		"X-GameWebToken":          splatoonAccessToken.Result.Accesstoken,
 		"Accept-Language":         userLang,
 		"X-IsAnalyticsOptedIn":    "false",
 		"Connection":              "keep-alive",
@@ -429,15 +438,15 @@ func getCookie(version string, client *http.Client) (string, string) {
 		"User-Agent":              "Mozilla/5.0 (Linux; Android 7.1.2; Pixel Build/NJH47D; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/59.0.3071.125 Mobile Safari/537.36",
 		"X-Requested-With":        "com.nintendo.znca",
 	}
-	url = "https://app.splatoon2.nintendo.net/?lang=" + userLang
-	req, err = http.NewRequest("GET", url, nil)
+	url := "https://app.splatoon2.nintendo.net/?lang=" + userLang
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		panic(err)
 	}
 	for key, element := range appHead {
 		req.Header.Add(key, element)
 	}
-	resp, err = client.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}
