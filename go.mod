@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/frankenbeanies/uuid4 v0.0.0-20180313125435-68b799ec299a // indirect
 	github.com/hashicorp/go-version v1.3.0
+	github.com/mitchellh/gox v1.0.1 // indirect
 	github.com/shopspring/decimal v1.2.0
 	github.com/spf13/viper v1.7.1
 	golang.org/x/sys v0.0.0-20210514084401-e8d321eab015 // indirect

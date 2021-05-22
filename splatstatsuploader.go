@@ -38,7 +38,7 @@ func CheckForUpdates() {
 		fmt.Fprintln(os.Stderr, err)
 	}
 	if v1.LessThan(v2) {
-		fmt.Println("New version availbile at https://github.com/cass-dlcm/splatstats-uploader-go.")
+		fmt.Println("New version availbile at https://github.com/cass-dlcm/splatstats-uploader-go/releases/latest.")
 		fmt.Println("Please download the new version before continuing.")
 		latest_script.Body.Close()
 		os.Exit(0)
