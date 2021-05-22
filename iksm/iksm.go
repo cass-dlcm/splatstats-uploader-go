@@ -74,7 +74,6 @@ func GetSessionToken(session_token_code string, auth_code_verifier string, clien
 	return data.SessionToken
 }
 
-
 func GetHashFromS2sApi(id_token string, timestamp int, version string, client *http.Client) string {
 	api_app_head := map[string]string{"Content-Type": "application/x-www-form-urlencoded", "User-Agent": "splatstatsuploader/" + version}
 	api_body := map[string]string{"naIdToken": id_token, "timestamp": fmt.Sprint(timestamp)}
@@ -423,51 +422,51 @@ func GetCookie(version string, client *http.Client) (string, string) {
 }
 
 func GenNewCookie(reason string, version string, client *http.Client) {
-    // Attempts to generate a new cookie in case the provided one is invalid.
+	// Attempts to generate a new cookie in case the provided one is invalid.
 
-    manual := false
+	manual := false
 
-    if reason == "blank" {
-        fmt.Println("Blank cookie.")
-	} else if reason == "auth" {  // authentication error
-        fmt.Println("The stored cookie has expired.")
-	} else {  // server error or player hasn't battled before
-        fmt.Println("Cannot access SplatNet 2 without having played at least one battle online.")
-        os.Exit(1)
+	if reason == "blank" {
+		fmt.Println("Blank cookie.")
+	} else if reason == "auth" { // authentication error
+		fmt.Println("The stored cookie has expired.")
+	} else { // server error or player hasn't battled before
+		fmt.Println("Cannot access SplatNet 2 without having played at least one battle online.")
+		os.Exit(1)
 	}
-    if viper.GetString("session_token") == "" {
-        fmt.Println("session_token is blank. Please log in to your Nintendo Account to obtain your session_token.")
-        new_token := LogIn(version)
-        if new_token == nil {
+	if viper.GetString("session_token") == "" {
+		fmt.Println("session_token is blank. Please log in to your Nintendo Account to obtain your session_token.")
+		new_token := LogIn(version)
+		if new_token == nil {
 			fmt.Println("There was a problem logging you in. Please try again later.")
 		} else {
-            if *new_token == "skip" {	// user has opted to manually enter cookie
-                manual = true
-                fmt.Println("\nYou have opted against automatic cookie generation and must manually input your iksm_session cookie.\n")
+			if *new_token == "skip" { // user has opted to manually enter cookie
+				manual = true
+				fmt.Println("\nYou have opted against automatic cookie generation and must manually input your iksm_session cookie.\n")
 			} else {
-                fmt.Println("\nWrote session_token to config.txt.")
+				fmt.Println("\nWrote session_token to config.txt.")
 			}
-            viper.Set("session_token", *new_token)
+			viper.Set("session_token", *new_token)
 			viper.WriteConfig()
 		}
 	} else if viper.Get("session_token") == "skip" {
-        manual = true
-        fmt.Println("\nYou have opted against automatic cookie generation and must manually input your iksm_session cookie. You may clear this setting by removing \"skip\" from the session_token field in config.txt.\n")
+		manual = true
+		fmt.Println("\nYou have opted against automatic cookie generation and must manually input your iksm_session cookie. You may clear this setting by removing \"skip\" from the session_token field in config.txt.\n")
 	}
 
 	var new_cookie string
 	var acc_name string
-    if manual {
-        new_cookie = EnterCookie()
+	if manual {
+		new_cookie = EnterCookie()
 	} else {
-        fmt.Println("Attempting to generate new cookie...")
-        acc_name, new_cookie = GetCookie(version, client)
+		fmt.Println("Attempting to generate new cookie...")
+		acc_name, new_cookie = GetCookie(version, client)
 	}
-    viper.Set("cookie", new_cookie)
-    viper.WriteConfig()
-    if manual {
+	viper.Set("cookie", new_cookie)
+	viper.WriteConfig()
+	if manual {
 		fmt.Println("Wrote iksm_session cookie to config.yaml.")
-    } else {
+	} else {
 		fmt.Println("Wrote iksm_session cookie for " + acc_name + " to config.yaml.")
 	}
 }

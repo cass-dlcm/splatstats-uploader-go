@@ -9,8 +9,8 @@ import (
 	"os"
 	"time"
 
-	"cass-dlcm.dev/splatstatsuploader/types"
 	"cass-dlcm.dev/splatstatsuploader/iksm"
+	"cass-dlcm.dev/splatstatsuploader/types"
 	"github.com/shopspring/decimal"
 	"github.com/spf13/viper"
 )
@@ -139,7 +139,7 @@ func File(salmon bool, api_key string, version string, client *http.Client) {
 
 func GetSplatnet(s bool, salmon bool, api_key string, version string, app_head map[string]string, client *http.Client) {
 	if viper.GetString("cookie") == "" {
-        iksm.GenNewCookie("blank", version, client)
+		iksm.GenNewCookie("blank", version, client)
 	}
 	if salmon {
 		fmt.Println("Pulling Salmon Run data from online...")
