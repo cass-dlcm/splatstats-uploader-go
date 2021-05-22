@@ -15,8 +15,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Monitor(m int, s bool, salmon bool, api_key string, version string, app_head map[string]string, client *http.Client) {
-	GetSplatnet(s, salmon, api_key, version, app_head, client)
+func Monitor(m int, s bool, salmon bool, apiKey string, version string, appHead map[string]string, client *http.Client) {
+	GetSplatnet(s, salmon, apiKey, version, appHead, client)
 	for {
 		timer := time.NewTimer(time.Duration(m) * time.Second)
 		<-timer.C
@@ -24,7 +24,7 @@ func Monitor(m int, s bool, salmon bool, api_key string, version string, app_hea
 			fmt.Println("Pulling Salmon Run data from online...")
 			url := "https://app.splatoon2.nintendo.net/api/coop_results"
 			req, err := http.NewRequest("GET", url, nil)
-			for key, element := range app_head {
+			for key, element := range appHead {
 				req.Header.Set(key, element)
 			}
 			if err != nil {
@@ -37,7 +37,7 @@ func Monitor(m int, s bool, salmon bool, api_key string, version string, app_hea
 			}
 			var data types.ShiftList
 			json.NewDecoder(resp.Body).Decode(&data)
-			uploadSalmon(data.Results[0], api_key, version, client)
+			uploadSalmon(data.Results[0], apiKey, version, client)
 			if s {
 				file, err := json.MarshalIndent(data.Results[0], "", " ")
 				if err != nil {
@@ -52,7 +52,7 @@ func Monitor(m int, s bool, salmon bool, api_key string, version string, app_hea
 			fmt.Println("Pulling data from online...") // grab data from SplatNet 2
 			url := "https://app.splatoon2.nintendo.net/api/results"
 			req, err := http.NewRequest("GET", url, nil)
-			for key, element := range app_head {
+			for key, element := range appHead {
 				req.Header.Set(key, element)
 			}
 			if err != nil {
@@ -67,7 +67,7 @@ func Monitor(m int, s bool, salmon bool, api_key string, version string, app_hea
 			json.NewDecoder(resp.Body).Decode(&data)
 			url = "https://app.splatoon2.nintendo.net/api/results/" + *data.Results[0].BattleNumber
 			req, err = http.NewRequest("GET", url, nil)
-			for key, element := range app_head {
+			for key, element := range appHead {
 				req.Header.Set(key, element)
 			}
 			if err != nil {
@@ -80,7 +80,7 @@ func Monitor(m int, s bool, salmon bool, api_key string, version string, app_hea
 			}
 			var battle types.Battle
 			json.NewDecoder(resp.Body).Decode(&battle)
-			uploadBattle(battle, api_key, version, client)
+			uploadBattle(battle, apiKey, version, client)
 			if s {
 				file, err := json.MarshalIndent(battle, "", " ")
 				if err != nil {
@@ -95,7 +95,7 @@ func Monitor(m int, s bool, salmon bool, api_key string, version string, app_hea
 	}
 }
 
-func File(salmon bool, api_key string, version string, client *http.Client) {
+func File(salmon bool, apiKey string, version string, client *http.Client) {
 	if salmon {
 		files, err := ioutil.ReadDir("./two_salmon/")
 		if err != nil {
@@ -113,7 +113,7 @@ func File(salmon bool, api_key string, version string, client *http.Client) {
 				panic(err)
 			}
 			json.Unmarshal(byteValue, &shift)
-			uploadSalmon(shift, api_key, version, client)
+			uploadSalmon(shift, apiKey, version, client)
 		}
 	} else {
 		files, err := ioutil.ReadDir("./two_battle/")
@@ -132,12 +132,12 @@ func File(salmon bool, api_key string, version string, client *http.Client) {
 				panic(err)
 			}
 			json.Unmarshal(byteValue, &battle)
-			uploadBattle(battle, api_key, version, client)
+			uploadBattle(battle, apiKey, version, client)
 		}
 	}
 }
 
-func GetSplatnet(s bool, salmon bool, api_key string, version string, app_head map[string]string, client *http.Client) {
+func GetSplatnet(s bool, salmon bool, apiKey string, version string, appHead map[string]string, client *http.Client) {
 	if viper.GetString("cookie") == "" {
 		iksm.GenNewCookie("blank", version, client)
 	}
@@ -145,7 +145,7 @@ func GetSplatnet(s bool, salmon bool, api_key string, version string, app_head m
 		fmt.Println("Pulling Salmon Run data from online...")
 		url := "https://app.splatoon2.nintendo.net/api/coop_results"
 		req, err := http.NewRequest("GET", url, nil)
-		for key, element := range app_head {
+		for key, element := range appHead {
 			req.Header.Set(key, element)
 		}
 		if err != nil {
@@ -160,11 +160,11 @@ func GetSplatnet(s bool, salmon bool, api_key string, version string, app_head m
 		json.NewDecoder(resp.Body).Decode(&data)
 		if data.Code != nil {
 			iksm.GenNewCookie("auth", version, client)
-			GetSplatnet(s, salmon, api_key, version, app_head, client)
+			GetSplatnet(s, salmon, apiKey, version, appHead, client)
 			return
 		}
 		for _, shift := range data.Results {
-			uploadSalmon(shift, api_key, version, client)
+			uploadSalmon(shift, apiKey, version, client)
 			if s {
 				file, err := json.MarshalIndent(shift, "", " ")
 				if err != nil {
@@ -180,7 +180,7 @@ func GetSplatnet(s bool, salmon bool, api_key string, version string, app_head m
 		fmt.Println("Pulling data from online...") // grab data from SplatNet 2
 		url := "https://app.splatoon2.nintendo.net/api/results"
 		req, err := http.NewRequest("GET", url, nil)
-		for key, element := range app_head {
+		for key, element := range appHead {
 			req.Header.Set(key, element)
 		}
 		if err != nil {
@@ -195,13 +195,13 @@ func GetSplatnet(s bool, salmon bool, api_key string, version string, app_head m
 		json.NewDecoder(resp.Body).Decode(&data)
 		if data.Code != nil {
 			iksm.GenNewCookie("auth", version, client)
-			GetSplatnet(s, salmon, api_key, version, app_head, client)
+			GetSplatnet(s, salmon, apiKey, version, appHead, client)
 			return
 		}
-		for _, battle_simple := range data.Results {
-			url = "https://app.splatoon2.nintendo.net/api/results/" + *battle_simple.BattleNumber
+		for _, battleSimple := range data.Results {
+			url = "https://app.splatoon2.nintendo.net/api/results/" + *battleSimple.BattleNumber
 			req, err := http.NewRequest("GET", url, nil)
-			for key, element := range app_head {
+			for key, element := range appHead {
 				req.Header.Set(key, element)
 			}
 			if err != nil {
@@ -214,13 +214,13 @@ func GetSplatnet(s bool, salmon bool, api_key string, version string, app_head m
 			}
 			var battle types.Battle
 			json.NewDecoder(resp.Body).Decode(&battle)
-			uploadBattle(battle, api_key, version, client)
+			uploadBattle(battle, apiKey, version, client)
 			if s {
 				file, err := json.MarshalIndent(battle, "", " ")
 				if err != nil {
 					panic(err)
 				}
-				err = ioutil.WriteFile("two_battle/"+*battle_simple.BattleNumber+".json", file, 0644)
+				err = ioutil.WriteFile("two_battle/"+*battleSimple.BattleNumber+".json", file, 0644)
 				if err != nil {
 					panic(err)
 				}
@@ -229,7 +229,7 @@ func GetSplatnet(s bool, salmon bool, api_key string, version string, app_head m
 	}
 }
 
-func uploadSalmon(shift types.Shift, api_key string, version string, client *http.Client) {
+func uploadSalmon(shift types.Shift, apiKey string, version string, client *http.Client) {
 	shiftUpload := types.ShiftUpload{}
 	shiftUpload.SplatnetJSON = shift
 	tru := true
@@ -491,14 +491,14 @@ func uploadSalmon(shift types.Shift, api_key string, version string, client *htt
 	}
 	url := "https://splatstats.cass-dlcm.dev/two_salmon/api/shifts/"
 	auth := map[string]string{
-		"Authorization": "Token " + api_key,
+		"Authorization": "Token " + apiKey,
 		"Content-Type":  "application/json",
 	}
-	body_marshalled, err := json.Marshal(shiftUpload)
+	bodyMarshalled, err := json.Marshal(shiftUpload)
 	if err != nil {
 		panic(err)
 	}
-	req, err := http.NewRequest("POST", url, bytes.NewReader(body_marshalled))
+	req, err := http.NewRequest("POST", url, bytes.NewReader(bodyMarshalled))
 	if err != nil {
 		panic(err)
 	}
@@ -525,7 +525,7 @@ func uploadSalmon(shift types.Shift, api_key string, version string, client *htt
 	}
 }
 
-func uploadBattle(battle types.Battle, api_key string, version string, client *http.Client) {
+func uploadBattle(battle types.Battle, apiKey string, version string, client *http.Client) {
 	battleUpload := types.BattleUpload{}
 	battleUpload.SplatnetJSON = battle
 	tru := true
@@ -965,7 +965,7 @@ func uploadBattle(battle types.Battle, api_key string, version string, client *h
 
 	url := "https://splatstats.cass-dlcm.dev/two_battles/api/battles/"
 	auth := map[string]string{
-		"Authorization": "Token " + api_key,
+		"Authorization": "Token " + apiKey,
 		"Content-Type":  "application/json",
 	}
 	body_marshalled, err := json.Marshal(battleUpload)

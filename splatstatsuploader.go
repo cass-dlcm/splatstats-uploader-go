@@ -18,34 +18,34 @@ import (
 	"golang.org/x/term"
 )
 
-var VERSION = "1.1.0"
+var prog_version = "1.1.0"
 
-func CheckForUpdates() {
-	latest_script, err := http.Get("https://raw.githubusercontent.com/cass-dlcm/splatstats-uploader-go/main/splatstatsuploader.go")
+func checkForUpdates() {
+	latestScript, err := http.Get("https://raw.githubusercontent.com/cass-dlcm/splatstats-uploader-go/main/splatstatsuploader.go")
 	if err != nil {
 		fmt.Println("Error retrieving the latest version.")
 	}
-	defer latest_script.Body.Close()
-	body, _ := io.ReadAll(latest_script.Body)
-	re := regexp.MustCompile("VERSION = \"([\\d.]*)\"")
-	new_version := re.FindString(string(body))
-	v1, err := version.NewVersion(VERSION)
+	defer latestScript.Body.Close()
+	body, _ := io.ReadAll(latestScript.Body)
+	re := regexp.MustCompile("version = \"([\\d.]*)\"")
+	newVersion := re.FindString(string(body))
+	v1, err := version.NewVersion(prog_version)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 	}
-	v2, err := version.NewVersion(new_version[13 : len(new_version)-1])
+	v2, err := version.NewVersion(newVersion[13 : len(newVersion)-1])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 	}
 	if v1.LessThan(v2) {
 		fmt.Println("New version availbile at https://github.com/cass-dlcm/splatstats-uploader-go/releases/latest.")
 		fmt.Println("Please download the new version before continuing.")
-		latest_script.Body.Close()
+		latestScript.Body.Close()
 		os.Exit(0)
 	}
 }
 
-func SetLanguage() {
+func setLanguage() {
 	fmt.Println("Default locale is en-US. Press Enter to accept, or enter your own (see readme for list).")
 	var locale string
 	// Taking input from user
@@ -53,7 +53,7 @@ func SetLanguage() {
 	if locale == "" {
 		viper.Set("user_lang", "en-US")
 	} else {
-		language_list := map[string]string{
+		languageList := map[string]string{
 			"en-US": "en-US",
 			"es-MX": "es-MX",
 			"fr-CA": "fr-CA",
@@ -66,18 +66,18 @@ func SetLanguage() {
 			"nl-NL": "nl-NL",
 			"ru-RU": "ru-RU",
 		}
-		_, exists := language_list[locale]
+		_, exists := languageList[locale]
 		for !exists {
 			fmt.Println("Invalid language code. Please try entering it again.")
 			fmt.Scanln(&locale)
-			_, exists = language_list[locale]
+			_, exists = languageList[locale]
 		}
 		viper.Set("user_lang", locale)
 	}
 	viper.WriteConfig()
 }
 
-func SetApiToken(client *http.Client) {
+func setApiToken(client *http.Client) {
 	var username string
 	fmt.Println("SplatStats username: ")
 	fmt.Scanln(&username)
@@ -86,14 +86,14 @@ func SetApiToken(client *http.Client) {
 		fmt.Println(err)
 	}
 	url := "http://localhost:8000/auth/api-token/"
-	auth_json, err := json.Marshal(map[string]string{
+	authJson, err := json.Marshal(map[string]string{
 		"username": username, "password": string(password),
 	})
 	if err != nil {
 		fmt.Println(err)
 	}
-	auth_body := bytes.NewReader(auth_json)
-	req, err := http.NewRequest("POST", url, auth_body)
+	authBody := bytes.NewReader(authJson)
+	req, err := http.NewRequest("POST", url, authBody)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -109,7 +109,7 @@ func SetApiToken(client *http.Client) {
 	viper.WriteConfig()
 }
 
-func GetFlags() (int, bool, bool, bool) {
+func getFlags() (int, bool, bool, bool) {
 	m := flag.Int("m", -1, "To monitor for new match results.")
 	f := flag.Bool("f", false, "To upload battles/shifts from files.")
 	s := flag.Bool("s", false, "To save battles/shifts to files.")
@@ -128,7 +128,7 @@ func GetFlags() (int, bool, bool, bool) {
 
 func main() {
 
-	CheckForUpdates()
+	checkForUpdates()
 
 	// Set the file name of the configurations file
 	viper.SetConfigName("config")
@@ -160,16 +160,16 @@ func main() {
 	client := &http.Client{}
 
 	if !(viper.IsSet("api_key")) || viper.GetString("api_key") == "" {
-		SetApiToken(client)
+		setApiToken(client)
 	}
 
 	if !(viper.IsSet("user_lang")) || viper.GetString("user_lang") == "" {
-		SetLanguage()
+		setLanguage()
 	}
 
 	_, timezone := time.Now().Zone()
 	timezone = -timezone / 60
-	app_head := map[string]string{
+	appHead := map[string]string{
 		"Host":              "app.splatoon2.nintendo.net",
 		"x-unique-id":       "32449507786579989235",
 		"x-requested-with":  "XMLHttpRequest",
@@ -181,12 +181,12 @@ func main() {
 		"Accept-Language":   viper.GetString("user_lang"),
 	}
 
-	m, f, s, salmon := GetFlags()
+	m, f, s, salmon := getFlags()
 	if m != -1 {
-		helpers.Monitor(m, s, salmon, viper.GetString("api_key"), VERSION, app_head, client)
+		helpers.Monitor(m, s, salmon, viper.GetString("api_key"), prog_version, appHead, client)
 	} else if f {
-		helpers.File(salmon, viper.GetString("api_key"), VERSION, client)
+		helpers.File(salmon, viper.GetString("api_key"), prog_version, client)
 	} else {
-		helpers.GetSplatnet(s, salmon, viper.GetString("api_key"), VERSION, app_head, client)
+		helpers.GetSplatnet(s, salmon, viper.GetString("api_key"), prog_version, appHead, client)
 	}
 }
