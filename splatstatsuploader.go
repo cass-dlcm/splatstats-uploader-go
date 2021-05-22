@@ -18,7 +18,7 @@ import (
 	"golang.org/x/term"
 )
 
-var prog_version = "1.1.0"
+var progVersion = "1.1.1"
 
 func checkForUpdates() {
 	latestScript, err := http.Get("https://raw.githubusercontent.com/cass-dlcm/splatstats-uploader-go/main/splatstatsuploader.go")
@@ -27,9 +27,9 @@ func checkForUpdates() {
 	}
 	defer latestScript.Body.Close()
 	body, _ := io.ReadAll(latestScript.Body)
-	re := regexp.MustCompile("version = \"([\\d.]*)\"")
+	re := regexp.MustCompile("Version = \"([\\d.]*)\"")
 	newVersion := re.FindString(string(body))
-	v1, err := version.NewVersion(prog_version)
+	v1, err := version.NewVersion(progVersion)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 	}
@@ -183,10 +183,10 @@ func main() {
 
 	m, f, s, salmon := getFlags()
 	if m != -1 {
-		helpers.Monitor(m, s, salmon, viper.GetString("api_key"), prog_version, appHead, client)
+		helpers.Monitor(m, s, salmon, viper.GetString("api_key"), progVersion, appHead, client)
 	} else if f {
-		helpers.File(salmon, viper.GetString("api_key"), prog_version, client)
+		helpers.File(salmon, viper.GetString("api_key"), progVersion, client)
 	} else {
-		helpers.GetSplatnet(s, salmon, viper.GetString("api_key"), prog_version, appHead, client)
+		helpers.GetSplatnet(s, salmon, viper.GetString("api_key"), progVersion, appHead, client)
 	}
 }

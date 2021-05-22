@@ -968,11 +968,11 @@ func uploadBattle(battle types.Battle, apiKey string, version string, client *ht
 		"Authorization": "Token " + apiKey,
 		"Content-Type":  "application/json",
 	}
-	body_marshalled, err := json.Marshal(battleUpload)
+	bodyMarshalled, err := json.Marshal(battleUpload)
 	if err != nil {
 		panic(err)
 	}
-	req, err := http.NewRequest("POST", url, bytes.NewReader(body_marshalled))
+	req, err := http.NewRequest("POST", url, bytes.NewReader(bodyMarshalled))
 	if err != nil {
 		panic(err)
 	}
