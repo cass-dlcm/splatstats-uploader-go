@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"time"
 
 	"cass-dlcm.dev/splatstatsuploader/helpers"
 
@@ -166,12 +167,26 @@ func main() {
 		SetLanguage()
 	}
 
+	_, timezone := time.Now().Zone()
+	timezone = -timezone / 60
+	app_head := map[string]string{
+		"Host":              "app.splatoon2.nintendo.net",
+		"x-unique-id":       "32449507786579989235",
+		"x-requested-with":  "XMLHttpRequest",
+		"x-timezone-offset": fmt.Sprint(timezone),
+		"User-Agent":        "Mozilla/5.0 (Linux; Android 7.1.2; Pixel Build/NJH47D; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/59.0.3071.125 Mobile Safari/537.36",
+		"Accept":            "*/*",
+		"Referer":           "https://app.splatoon2.nintendo.net/home",
+		"Accept-Encoding":   "gzip deflate",
+		"Accept-Language":   viper.GetString("user_lang"),
+	}
+
 	m, f, s, salmon := GetFlags()
 	if m != -1 {
 		helpers.Monitor(m, s, salmon, viper.GetString("api_key"), VERSION, client)
 	} else if f {
 		helpers.File(salmon, viper.GetString("api_key"), VERSION, client)
 	} else {
-		helpers.GetSplatnet(s, salmon, viper.GetString("api_key"), VERSION, client)
+		helpers.GetSplatnet(s, salmon, viper.GetString("api_key"), VERSION, app_head, client)
 	}
 }
