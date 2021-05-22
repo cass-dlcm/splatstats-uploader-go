@@ -15,82 +15,95 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Monitors JSON for changes/new battles/shifts and uploads them.
 func Monitor(m int, s bool, salmon bool, apiKey string, version string, appHead map[string]string, client *http.Client) {
-	GetSplatnet(s, salmon, apiKey, version, appHead, client)
+	if salmon {
+		GetSplatnetSalmon(s, apiKey, version, appHead, client)
+	} else {
+		GetSplatnetBattle(s, apiKey, version, appHead, client)
+	}
 	for {
 		timer := time.NewTimer(time.Duration(m) * time.Second)
 		<-timer.C
 		if salmon {
-			fmt.Println("Pulling Salmon Run data from online...")
-			url := "https://app.splatoon2.nintendo.net/api/coop_results"
-			req, err := http.NewRequest("GET", url, nil)
-			for key, element := range appHead {
-				req.Header.Set(key, element)
-			}
-			if err != nil {
-				panic(err)
-			}
-			req.AddCookie(&http.Cookie{Name: "iksm_session", Value: viper.GetString("cookie")})
-			resp, err := client.Do(req)
-			if err != nil {
-				panic(err)
-			}
-			var data types.ShiftList
-			json.NewDecoder(resp.Body).Decode(&data)
-			uploadSalmon(data.Results[0], apiKey, version, client)
-			if s {
-				file, err := json.MarshalIndent(data.Results[0], "", " ")
-				if err != nil {
-					panic(err)
-				}
-				err = ioutil.WriteFile("two_salmon/"+fmt.Sprint(*data.Results[0].JobID)+".json", file, 0644)
-				if err != nil {
-					panic(err)
-				}
-			}
+			uploadSingleSalmon(s, apiKey, version, appHead, client)
 		} else {
-			fmt.Println("Pulling data from online...") // grab data from SplatNet 2
-			url := "https://app.splatoon2.nintendo.net/api/results"
-			req, err := http.NewRequest("GET", url, nil)
-			for key, element := range appHead {
-				req.Header.Set(key, element)
-			}
-			if err != nil {
-				panic(err)
-			}
-			req.AddCookie(&http.Cookie{Name: "iksm_session", Value: viper.GetString("cookie")})
-			resp, err := client.Do(req)
-			if err != nil {
-				panic(err)
-			}
-			var data types.BattleList
-			json.NewDecoder(resp.Body).Decode(&data)
-			url = "https://app.splatoon2.nintendo.net/api/results/" + *data.Results[0].BattleNumber
-			req, err = http.NewRequest("GET", url, nil)
-			for key, element := range appHead {
-				req.Header.Set(key, element)
-			}
-			if err != nil {
-				panic(err)
-			}
-			req.AddCookie(&http.Cookie{Name: "iksm_session", Value: viper.GetString("cookie")})
-			resp, err = client.Do(req)
-			if err != nil {
-				panic(err)
-			}
-			var battle types.Battle
-			json.NewDecoder(resp.Body).Decode(&battle)
-			uploadBattle(battle, apiKey, version, client)
-			if s {
-				file, err := json.MarshalIndent(battle, "", " ")
-				if err != nil {
-					panic(err)
-				}
-				err = ioutil.WriteFile("two_battle/"+*data.Results[0].BattleNumber+".json", file, 0644)
-				if err != nil {
-					panic(err)
-				}
-			}
+			uploadSingleBattle(s, apiKey, version, appHead, client)
+		}
+	}
+}
+
+func uploadSingleBattle(s bool, apiKey string, version string, appHead map[string]string, client *http.Client) {
+	fmt.Println("Pulling data from online...") // grab data from SplatNet 2
+	url := "https://app.splatoon2.nintendo.net/api/results"
+	req, err := http.NewRequest("GET", url, nil)
+	for key, element := range appHead {
+		req.Header.Set(key, element)
+	}
+	if err != nil {
+		panic(err)
+	}
+	req.AddCookie(&http.Cookie{Name: "iksm_session", Value: viper.GetString("cookie")})
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	var data types.BattleList
+	json.NewDecoder(resp.Body).Decode(&data)
+	url = "https://app.splatoon2.nintendo.net/api/results/" + *data.Results[0].BattleNumber
+	req, err = http.NewRequest("GET", url, nil)
+	for key, element := range appHead {
+		req.Header.Set(key, element)
+	}
+	if err != nil {
+		panic(err)
+	}
+	req.AddCookie(&http.Cookie{Name: "iksm_session", Value: viper.GetString("cookie")})
+	resp, err = client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	var battle types.Battle
+	json.NewDecoder(resp.Body).Decode(&battle)
+	uploadBattle(battle, apiKey, version, client)
+	if s {
+		file, err := json.MarshalIndent(battle, "", " ")
+		if err != nil {
+			panic(err)
+		}
+		err = ioutil.WriteFile("two_battle/"+*data.Results[0].BattleNumber+".json", file, 0644)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
+func uploadSingleSalmon(s bool, apiKey string, version string, appHead map[string]string, client *http.Client) {
+	fmt.Println("Pulling Salmon Run data from online...")
+	url := "https://app.splatoon2.nintendo.net/api/coop_results"
+	req, err := http.NewRequest("GET", url, nil)
+	for key, element := range appHead {
+		req.Header.Set(key, element)
+	}
+	if err != nil {
+		panic(err)
+	}
+	req.AddCookie(&http.Cookie{Name: "iksm_session", Value: viper.GetString("cookie")})
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	var data types.ShiftList
+	json.NewDecoder(resp.Body).Decode(&data)
+	uploadSalmon(data.Results[0], apiKey, version, client)
+	if s {
+		file, err := json.MarshalIndent(data.Results[0], "", " ")
+		if err != nil {
+			panic(err)
+		}
+		err = ioutil.WriteFile("two_salmon/"+fmt.Sprint(*data.Results[0].JobID)+".json", file, 0644)
+		if err != nil {
+			panic(err)
 		}
 	}
 }
@@ -137,93 +150,93 @@ func File(salmon bool, apiKey string, version string, client *http.Client) {
 	}
 }
 
-func GetSplatnet(s bool, salmon bool, apiKey string, version string, appHead map[string]string, client *http.Client) {
+func GetSplatnetBattle(s bool, apiKey string, version string, appHead map[string]string, client *http.Client) {
+	fmt.Println("Pulling data from online...") // grab data from SplatNet 2
+	url := "https://app.splatoon2.nintendo.net/api/results"
+	req, err := http.NewRequest("GET", url, nil)
+	for key, element := range appHead {
+		req.Header.Set(key, element)
+	}
+	if err != nil {
+		panic(err)
+	}
+	req.AddCookie(&http.Cookie{Name: "iksm_session", Value: viper.GetString("cookie")})
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	var data types.BattleList
+	json.NewDecoder(resp.Body).Decode(&data)
+	if data.Code != nil {
+		iksm.GenNewCookie("auth", version, client)
+		GetSplatnetBattle(s, apiKey, version, appHead, client)
+		return
+	}
+	for _, battleSimple := range data.Results {
+		url = "https://app.splatoon2.nintendo.net/api/results/" + *battleSimple.BattleNumber
+		req, err := http.NewRequest("GET", url, nil)
+		for key, element := range appHead {
+			req.Header.Set(key, element)
+		}
+		if err != nil {
+			panic(err)
+		}
+		req.AddCookie(&http.Cookie{Name: "iksm_session", Value: viper.GetString("cookie")})
+		resp, err := client.Do(req)
+		if err != nil {
+			panic(err)
+		}
+		var battle types.Battle
+		json.NewDecoder(resp.Body).Decode(&battle)
+		uploadBattle(battle, apiKey, version, client)
+		if s {
+			file, err := json.MarshalIndent(battle, "", " ")
+			if err != nil {
+				panic(err)
+			}
+			err = ioutil.WriteFile("two_battle/"+*battleSimple.BattleNumber+".json", file, 0644)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
+}
+
+func GetSplatnetSalmon(s bool, apiKey string, version string, appHead map[string]string, client *http.Client) {
 	if viper.GetString("cookie") == "" {
 		iksm.GenNewCookie("blank", version, client)
 	}
-	if salmon {
-		fmt.Println("Pulling Salmon Run data from online...")
-		url := "https://app.splatoon2.nintendo.net/api/coop_results"
-		req, err := http.NewRequest("GET", url, nil)
-		for key, element := range appHead {
-			req.Header.Set(key, element)
-		}
-		if err != nil {
-			panic(err)
-		}
-		req.AddCookie(&http.Cookie{Name: "iksm_session", Value: viper.GetString("cookie")})
-		resp, err := client.Do(req)
-		if err != nil {
-			panic(err)
-		}
-		var data types.ShiftList
-		json.NewDecoder(resp.Body).Decode(&data)
-		if data.Code != nil {
-			iksm.GenNewCookie("auth", version, client)
-			GetSplatnet(s, salmon, apiKey, version, appHead, client)
-			return
-		}
-		for _, shift := range data.Results {
-			uploadSalmon(shift, apiKey, version, client)
-			if s {
-				file, err := json.MarshalIndent(shift, "", " ")
-				if err != nil {
-					panic(err)
-				}
-				err = ioutil.WriteFile("two_salmon/"+fmt.Sprint(*shift.JobID)+".json", file, 0644)
-				if err != nil {
-					panic(err)
-				}
-			}
-		}
-	} else {
-		fmt.Println("Pulling data from online...") // grab data from SplatNet 2
-		url := "https://app.splatoon2.nintendo.net/api/results"
-		req, err := http.NewRequest("GET", url, nil)
-		for key, element := range appHead {
-			req.Header.Set(key, element)
-		}
-		if err != nil {
-			panic(err)
-		}
-		req.AddCookie(&http.Cookie{Name: "iksm_session", Value: viper.GetString("cookie")})
-		resp, err := client.Do(req)
-		if err != nil {
-			panic(err)
-		}
-		var data types.BattleList
-		json.NewDecoder(resp.Body).Decode(&data)
-		if data.Code != nil {
-			iksm.GenNewCookie("auth", version, client)
-			GetSplatnet(s, salmon, apiKey, version, appHead, client)
-			return
-		}
-		for _, battleSimple := range data.Results {
-			url = "https://app.splatoon2.nintendo.net/api/results/" + *battleSimple.BattleNumber
-			req, err := http.NewRequest("GET", url, nil)
-			for key, element := range appHead {
-				req.Header.Set(key, element)
-			}
+	fmt.Println("Pulling Salmon Run data from online...")
+	url := "https://app.splatoon2.nintendo.net/api/coop_results"
+	req, err := http.NewRequest("GET", url, nil)
+	for key, element := range appHead {
+		req.Header.Set(key, element)
+	}
+	if err != nil {
+		panic(err)
+	}
+	req.AddCookie(&http.Cookie{Name: "iksm_session", Value: viper.GetString("cookie")})
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	var data types.ShiftList
+	json.NewDecoder(resp.Body).Decode(&data)
+	if data.Code != nil {
+		iksm.GenNewCookie("auth", version, client)
+		GetSplatnetSalmon(s, apiKey, version, appHead, client)
+		return
+	}
+	for _, shift := range data.Results {
+		uploadSalmon(shift, apiKey, version, client)
+		if s {
+			file, err := json.MarshalIndent(shift, "", " ")
 			if err != nil {
 				panic(err)
 			}
-			req.AddCookie(&http.Cookie{Name: "iksm_session", Value: viper.GetString("cookie")})
-			resp, err := client.Do(req)
+			err = ioutil.WriteFile("two_salmon/"+fmt.Sprint(*shift.JobID)+".json", file, 0644)
 			if err != nil {
 				panic(err)
-			}
-			var battle types.Battle
-			json.NewDecoder(resp.Body).Decode(&battle)
-			uploadBattle(battle, apiKey, version, client)
-			if s {
-				file, err := json.MarshalIndent(battle, "", " ")
-				if err != nil {
-					panic(err)
-				}
-				err = ioutil.WriteFile("two_battle/"+*battleSimple.BattleNumber+".json", file, 0644)
-				if err != nil {
-					panic(err)
-				}
 			}
 		}
 	}

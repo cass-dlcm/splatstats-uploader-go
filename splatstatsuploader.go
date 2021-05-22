@@ -187,6 +187,10 @@ func main() {
 	} else if f {
 		helpers.File(salmon, viper.GetString("api_key"), progVersion, client)
 	} else {
-		helpers.GetSplatnet(s, salmon, viper.GetString("api_key"), progVersion, appHead, client)
+		if salmon {
+			helpers.GetSplatnetSalmon(s, viper.GetString("api_key"), progVersion, appHead, client)
+		} else {
+			helpers.GetSplatnetBattle(s, viper.GetString("api_key"), progVersion, appHead, client)
+		}
 	}
 }

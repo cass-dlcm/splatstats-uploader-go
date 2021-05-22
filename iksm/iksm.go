@@ -19,8 +19,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Prompts the user to enter their iksm_session cookie
 func enterCookie() string {
-	// Prompts the user to enter their iksm_session cookie
 	var newCookie string
 	fmt.Println("Go to the page below to find instructions to obtain your iksm_session cookie:\nhttps://github.com/frozenpandaman/splatnet2statink/wiki/mitmproxy-instructions\nEnter it here: ")
 	fmt.Scanln(&newCookie)
@@ -31,6 +31,7 @@ func enterCookie() string {
 	return newCookie
 }
 
+// Helper function for logIn().
 func getSessionToken(sessionTokenCode string, authCodeVerifier string, client *http.Client) interface{} {
 	appHead := map[string]string{
 		"User-Agent":      "OnlineLounge/1.11.0 NASDKAPI Android",
@@ -74,6 +75,7 @@ func getSessionToken(sessionTokenCode string, authCodeVerifier string, client *h
 	return data.SessionToken
 }
 
+// Passes an idToken and timestamp to the s2s API and fetches the resultant hash from the response.
 func getHashFromS2sApi(idToken string, timestamp int, version string, client *http.Client) string {
 	apiAppHead := map[string]string{"Content-Type": "application/x-www-form-urlencoded", "User-Agent": "splatstatsuploader/" + version}
 	apiBody := map[string]string{"naIdToken": idToken, "timestamp": fmt.Sprint(timestamp)}
@@ -110,6 +112,7 @@ type flapgApiData struct {
 	} `json:"result"`
 }
 
+// Passes in headers to the flapg API (Android emulator) and fetches the response.
 func callFlapgApi(idToken string, guid string, timestamp int, fType string, version string, client *http.Client) flapgApiData {
 	apiAppHead := map[string]string{
 		"x-token": idToken,
@@ -135,10 +138,15 @@ func callFlapgApi(idToken string, guid string, timestamp int, fType string, vers
 	return data
 }
 
-func getCookie(version string, client *http.Client) (string, string) {
-	timestamp := int(time.Now().Unix())
-	guid := uuid4.New().String()
-	userLang := viper.GetString("user_lang")
+type idResponseS struct {
+	AccessToken string   `json:"access_token"`
+	ExpiresIn   int      `json:"expires_in"`
+	IDToken     string   `json:"id_token"`
+	Scope       []string `json:"scope"`
+	TokenType   string   `json:"token_type"`
+}
+
+func getIdResponse(userLang string, sessionToken string, client *http.Client) idResponseS {
 	appHead := map[string]string{
 		"Host":            "accounts.nintendo.com",
 		"Accept-Encoding": "gzip deflate",
@@ -151,7 +159,7 @@ func getCookie(version string, client *http.Client) (string, string) {
 	}
 	body := map[string]string{
 		"client_id":     "71b963c1b7b6d119", // Splatoon 2 service
-		"session_token": viper.GetString("session_token"),
+		"session_token": sessionToken,
 		"grant_type":    "urn:ietf:params:oauth:grant-type:jwt-bearer-session-token",
 	}
 	bodyMarshalled, err := json.Marshal(body)
@@ -170,16 +178,90 @@ func getCookie(version string, client *http.Client) (string, string) {
 	if err != nil {
 		panic(err)
 	}
-	type IdResponse struct {
-		AccessToken string   `json:"access_token"`
-		ExpiresIn   int      `json:"expires_in"`
-		IDToken     string   `json:"id_token"`
-		Scope       []string `json:"scope"`
-		TokenType   string   `json:"token_type"`
-	}
-	var idResponse IdResponse
+
+	var idResponse idResponseS
 	json.NewDecoder(resp.Body).Decode(&idResponse)
-	appHead = map[string]string{
+	return idResponse
+}
+
+type userInfoS struct {
+	Analyticsoptedin          bool `json:"analyticsOptedIn"`
+	Analyticsoptedinupdatedat int  `json:"analyticsOptedInUpdatedAt"`
+	Analyticspermissions      struct {
+		Internalanalysis struct {
+			Permitted bool `json:"permitted"`
+			Updatedat int  `json:"updatedAt"`
+		} `json:"internalAnalysis"`
+		Targetmarketing struct {
+			Permitted bool `json:"permitted"`
+			Updatedat int  `json:"updatedAt"`
+		} `json:"targetMarketing"`
+	} `json:"analyticsPermissions"`
+	Birthday      string `json:"birthday"`
+	Candidatemiis []struct {
+		Updatedat     int    `json:"updatedAt"`
+		Favoritecolor string `json:"favoriteColor"`
+		Type          string `json:"type"`
+		Clientid      string `json:"clientId"`
+		Storedata     struct {
+			Num3 string `json:"3"`
+		} `json:"storeData"`
+		ID               string `json:"id"`
+		Imageuritemplate string `json:"imageUriTemplate"`
+		Imageorigin      string `json:"imageOrigin"`
+		Etag             string `json:"etag"`
+	} `json:"candidateMiis"`
+	Clientfriendsoptedin          bool   `json:"clientFriendsOptedIn"`
+	Clientfriendsoptedinupdatedat int    `json:"clientFriendsOptedInUpdatedAt"`
+	Country                       string `json:"country"`
+	Createdat                     int    `json:"createdAt"`
+	Eachemailoptedin              struct {
+		Deals struct {
+			Optedin   bool `json:"optedIn"`
+			Updatedat int  `json:"updatedAt"`
+		} `json:"deals"`
+		Survey struct {
+			Optedin   bool `json:"optedIn"`
+			Updatedat int  `json:"updatedAt"`
+		} `json:"survey"`
+	} `json:"eachEmailOptedIn"`
+	Emailoptedin          bool   `json:"emailOptedIn"`
+	Emailoptedinupdatedat int    `json:"emailOptedInUpdatedAt"`
+	Emailverified         bool   `json:"emailVerified"`
+	Gender                string `json:"gender"`
+	ID                    string `json:"id"`
+	Ischild               bool   `json:"isChild"`
+	Language              string `json:"language"`
+	Mii                   struct {
+		Clientid string `json:"clientId"`
+		Coredata struct {
+			Num4 string `json:"4"`
+		} `json:"coreData"`
+		Etag             string `json:"etag"`
+		Favoritecolor    string `json:"favoriteColor"`
+		ID               string `json:"id"`
+		Imageorigin      string `json:"imageOrigin"`
+		Imageuritemplate string `json:"imageUriTemplate"`
+		Storedata        struct {
+			Num3 string `json:"3"`
+		} `json:"storeData"`
+		Type      string `json:"type"`
+		Updatedat int    `json:"updatedAt"`
+	} `json:"mii"`
+	Nickname   string      `json:"nickname"`
+	Region     interface{} `json:"region"`
+	Screenname string      `json:"screenName"`
+	Timezone   struct {
+		ID               string `json:"id"`
+		Name             string `json:"name"`
+		Utcoffset        string `json:"utcOffset"`
+		Utcoffsetseconds int    `json:"utcOffsetSeconds"`
+	} `json:"timezone"`
+	Updatedat int `json:"updatedAt"`
+}
+
+func getUserInfo(userLang string, idResponse idResponseS, client *http.Client) userInfoS {
+	appHead := map[string]string{
 		"User-Agent":      "OnlineLounge/1.11.0 NASDKAPI Android",
 		"Accept-Language": userLang,
 		"Accept":          "application/json",
@@ -188,97 +270,51 @@ func getCookie(version string, client *http.Client) (string, string) {
 		"Connection":      "Keep-Alive",
 		"Accept-Encoding": "gzip deflate",
 	}
-	url = "https://api.accounts.nintendo.com/2.0.0/users/me"
-	req, err = http.NewRequest("GET", url, nil)
+	url := "https://api.accounts.nintendo.com/2.0.0/users/me"
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		panic(err)
 	}
 	for key, element := range appHead {
 		req.Header.Add(key, element)
 	}
-	resp, err = client.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}
-	type UserInfo struct {
-		Analyticsoptedin          bool `json:"analyticsOptedIn"`
-		Analyticsoptedinupdatedat int  `json:"analyticsOptedInUpdatedAt"`
-		Analyticspermissions      struct {
-			Internalanalysis struct {
-				Permitted bool `json:"permitted"`
-				Updatedat int  `json:"updatedAt"`
-			} `json:"internalAnalysis"`
-			Targetmarketing struct {
-				Permitted bool `json:"permitted"`
-				Updatedat int  `json:"updatedAt"`
-			} `json:"targetMarketing"`
-		} `json:"analyticsPermissions"`
-		Birthday      string `json:"birthday"`
-		Candidatemiis []struct {
-			Updatedat     int    `json:"updatedAt"`
-			Favoritecolor string `json:"favoriteColor"`
-			Type          string `json:"type"`
-			Clientid      string `json:"clientId"`
-			Storedata     struct {
-				Num3 string `json:"3"`
-			} `json:"storeData"`
-			ID               string `json:"id"`
-			Imageuritemplate string `json:"imageUriTemplate"`
-			Imageorigin      string `json:"imageOrigin"`
-			Etag             string `json:"etag"`
-		} `json:"candidateMiis"`
-		Clientfriendsoptedin          bool   `json:"clientFriendsOptedIn"`
-		Clientfriendsoptedinupdatedat int    `json:"clientFriendsOptedInUpdatedAt"`
-		Country                       string `json:"country"`
-		Createdat                     int    `json:"createdAt"`
-		Eachemailoptedin              struct {
-			Deals struct {
-				Optedin   bool `json:"optedIn"`
-				Updatedat int  `json:"updatedAt"`
-			} `json:"deals"`
-			Survey struct {
-				Optedin   bool `json:"optedIn"`
-				Updatedat int  `json:"updatedAt"`
-			} `json:"survey"`
-		} `json:"eachEmailOptedIn"`
-		Emailoptedin          bool   `json:"emailOptedIn"`
-		Emailoptedinupdatedat int    `json:"emailOptedInUpdatedAt"`
-		Emailverified         bool   `json:"emailVerified"`
-		Gender                string `json:"gender"`
-		ID                    string `json:"id"`
-		Ischild               bool   `json:"isChild"`
-		Language              string `json:"language"`
-		Mii                   struct {
-			Clientid string `json:"clientId"`
-			Coredata struct {
-				Num4 string `json:"4"`
-			} `json:"coreData"`
-			Etag             string `json:"etag"`
-			Favoritecolor    string `json:"favoriteColor"`
-			ID               string `json:"id"`
-			Imageorigin      string `json:"imageOrigin"`
-			Imageuritemplate string `json:"imageUriTemplate"`
-			Storedata        struct {
-				Num3 string `json:"3"`
-			} `json:"storeData"`
-			Type      string `json:"type"`
-			Updatedat int    `json:"updatedAt"`
-		} `json:"mii"`
-		Nickname   string      `json:"nickname"`
-		Region     interface{} `json:"region"`
-		Screenname string      `json:"screenName"`
-		Timezone   struct {
-			ID               string `json:"id"`
-			Name             string `json:"name"`
-			Utcoffset        string `json:"utcOffset"`
-			Utcoffsetseconds int    `json:"utcOffsetSeconds"`
-		} `json:"timezone"`
-		Updatedat int `json:"updatedAt"`
-	}
-	var userInfo UserInfo
+	var userInfo userInfoS
 	json.NewDecoder(resp.Body).Decode(&userInfo)
-	nickname := userInfo.Nickname
-	appHead = map[string]string{
+	return userInfo
+}
+
+type splatoonTokenS struct {
+	Correlationid struct {
+	} `json:"correlationId"`
+	Result struct {
+		Firebasecredential struct {
+			Accesstoken interface{} `json:"accessToken"`
+			Expiresin   int         `json:"expiresIn"`
+		} `json:"firebaseCredential"`
+		User struct {
+			ID         int64  `json:"id"`
+			Imageuri   string `json:"imageUri"`
+			Membership struct {
+				Active bool `json:"active"`
+			} `json:"membership"`
+			Name      string `json:"name"`
+			Supportid string `json:"supportId"`
+		} `json:"user"`
+		Webapiservercredential struct {
+			Accesstoken string `json:"accessToken"`
+			Expiresin   int    `json:"expiresIn"`
+		} `json:"webApiServerCredential"`
+	} `json:"result"`
+	Status struct {
+	} `json:"status"`
+}
+
+func getSplatoonToken(userLang string, idResponse idResponseS, userInfo userInfoS, guid string, timestamp int, version string, client *http.Client) splatoonTokenS {
+	appHead := map[string]string{
 		"Host":             "api-lp1.znc.srv.nintendo.net",
 		"Accept-Language":  userLang,
 		"User-Agent":       "com.nintendo.znca/1.11.0 (Android/7.1.2)",
@@ -303,52 +339,31 @@ func getCookie(version string, client *http.Client) (string, string) {
 	}
 	newBody := make(map[string]interface{})
 	newBody["parameter"] = parameter
-	url = "https://api-lp1.znc.srv.nintendo.net/v1/Account/Login"
+	url := "https://api-lp1.znc.srv.nintendo.net/v1/Account/Login"
 	newBodyJson, err := json.Marshal(newBody)
 	if err != nil {
 		panic(err)
 	}
-	req, err = http.NewRequest("POST", url, bytes.NewReader(newBodyJson))
+	req, err := http.NewRequest("POST", url, bytes.NewReader(newBodyJson))
 	if err != nil {
 		panic(err)
 	}
 	for key, element := range appHead {
 		req.Header.Add(key, element)
 	}
-	resp, err = client.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}
-	type SplatoonToken struct {
-		Correlationid struct {
-		} `json:"correlationId"`
-		Result struct {
-			Firebasecredential struct {
-				Accesstoken interface{} `json:"accessToken"`
-				Expiresin   int         `json:"expiresIn"`
-			} `json:"firebaseCredential"`
-			User struct {
-				ID         int64  `json:"id"`
-				Imageuri   string `json:"imageUri"`
-				Membership struct {
-					Active bool `json:"active"`
-				} `json:"membership"`
-				Name      string `json:"name"`
-				Supportid string `json:"supportId"`
-			} `json:"user"`
-			Webapiservercredential struct {
-				Accesstoken string `json:"accessToken"`
-				Expiresin   int    `json:"expiresIn"`
-			} `json:"webApiServerCredential"`
-		} `json:"result"`
-		Status struct {
-		} `json:"status"`
-	}
-	var splatoonToken SplatoonToken
+	var splatoonToken splatoonTokenS
 	json.NewDecoder(resp.Body).Decode(&splatoonToken)
-	idToken = splatoonToken.Result.Webapiservercredential.Accesstoken
+	return splatoonToken
+}
+
+func getSplatoonAccessToken() {
+	idToken := splatoonToken.Result.Webapiservercredential.Accesstoken
 	flapgApp := callFlapgApi(idToken, guid, timestamp, "app", version, client).Result
-	appHead = map[string]string{
+	appHead := map[string]string{
 		"Host":             "api-lp1.znc.srv.nintendo.net",
 		"User-Agent":       "com.nintendo.znca/1.11.0 (Android/7.1.2)",
 		"Accept":           "application/json",
@@ -362,7 +377,7 @@ func getCookie(version string, client *http.Client) (string, string) {
 		"Accept-Language": userLang,
 	}
 	newBody2 := map[string]map[string]interface{}{}
-	parameter = map[string]interface{}{
+	parameter := map[string]interface{}{
 		"id":                5741031244955648,
 		"f":                 flapgApp.F,
 		"registrationToken": flapgApp.P1,
@@ -370,24 +385,37 @@ func getCookie(version string, client *http.Client) (string, string) {
 		"requestId":         flapgApp.P3,
 	}
 	newBody2["parameter"] = parameter
-	url = "https://api-lp1.znc.srv.nintendo.net/v2/Game/GetWebServiceToken"
+	url := "https://api-lp1.znc.srv.nintendo.net/v2/Game/GetWebServiceToken"
 	bodyJson, err := json.Marshal(newBody2)
 	if err != nil {
 		panic(err)
 	}
-	req, err = http.NewRequest("POST", url, bytes.NewReader(bodyJson))
+	req, err := http.NewRequest("POST", url, bytes.NewReader(bodyJson))
 	if err != nil {
 		panic(err)
 	}
 	for key, element := range appHead {
 		req.Header.Add(key, element)
 	}
-	resp, err = client.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}
 	var splatoonAccessToken map[string]map[string]string
 	json.NewDecoder(resp.Body).Decode(&splatoonAccessToken)
+	return splatoonAccessToken
+}
+
+// Returns a new cookie.
+func getCookie(version string, client *http.Client) (string, string) {
+	timestamp := int(time.Now().Unix())
+	guid := uuid4.New().String()
+	userLang := viper.GetString("user_lang")
+	idResponse := getIdResponse(userLang, viper.GetString("session_token"), client)
+	userInfo := getUserInfo(userLang, idResponse, client)
+	nickname := userInfo.Nickname
+	splatoonToken := getSplatoonToken(userLang, idResponse, userInfo, guid, timestamp, version, client)
+	
 	appHead = map[string]string{
 		"Host":                    "app.splatoon2.nintendo.net",
 		"X-IsAppAnalyticsOptedIn": "false",
@@ -421,9 +449,8 @@ func getCookie(version string, client *http.Client) (string, string) {
 	return nickname, ""
 }
 
+// Attempts to generate a new cookie in case the provided one is invalid.
 func GenNewCookie(reason string, version string, client *http.Client) {
-	// Attempts to generate a new cookie in case the provided one is invalid.
-
 	manual := false
 
 	if reason == "blank" {
@@ -471,6 +498,7 @@ func GenNewCookie(reason string, version string, client *http.Client) {
 	}
 }
 
+// Logs in to a Nintendo Account and returns a session_token.
 func logIn(version string) *string {
 	authStateUnencoded := make([]byte, 36)
 	_, err := rand.Read(authStateUnencoded)
