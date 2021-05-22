@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Monitors JSON for changes/new battles/shifts and uploads them.
+// Monitor monitors JSON for changes/new battles/shifts and uploads them.
 func Monitor(m int, s bool, salmon bool, apiKey string, version string, appHead map[string]string, client *http.Client) {
 	if salmon {
 		GetSplatnetSalmon(s, apiKey, version, appHead, client)

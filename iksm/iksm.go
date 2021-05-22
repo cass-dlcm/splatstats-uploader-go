@@ -458,7 +458,7 @@ func getCookie(version string, client *http.Client) (string, string) {
 	return nickname, ""
 }
 
-// Attempts to generate a new cookie in case the provided one is invalid.
+// GenNewCookie attempts to generate a new cookie in case the provided one is invalid.
 func GenNewCookie(reason string, version string, client *http.Client) {
 	manual := false
 
