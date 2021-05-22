@@ -1150,6 +1150,7 @@ type BattleUpload struct {
 }
 
 type BattleList struct {
+	Code *string `json:"code"`
 	UniqueID string `json:"unique_id"`
 	Summary  struct {
 		AssistCountAverage  float64 `json:"assist_count_average"`
@@ -1165,6 +1166,7 @@ type BattleList struct {
 }
 
 type ShiftList struct {
+	Code *string `json:"code"`
 	Summary struct {
 		Card struct {
 			GoldenIkuraTotal int `json:"golden_ikura_total"`

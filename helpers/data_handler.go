@@ -158,6 +158,11 @@ func GetSplatnet(s bool, salmon bool, api_key string, version string, app_head m
 		}
 		var data types.ShiftList
 		json.NewDecoder(resp.Body).Decode(&data)
+		if data.Code != nil {
+			iksm.GenNewCookie("auth", version, client)
+			GetSplatnet(s, salmon, api_key, version, app_head, client)
+			return
+		}
 		for _, shift := range data.Results {
 			uploadSalmon(shift, api_key, version, client)
 			if s {
@@ -188,6 +193,11 @@ func GetSplatnet(s bool, salmon bool, api_key string, version string, app_head m
 		}
 		var data types.BattleList
 		json.NewDecoder(resp.Body).Decode(&data)
+		if data.Code != nil {
+			iksm.GenNewCookie("auth", version, client)
+			GetSplatnet(s, salmon, api_key, version, app_head, client)
+			return
+		}
 		for _, battle_simple := range data.Results {
 			url = "https://app.splatoon2.nintendo.net/api/results/" + *battle_simple.BattleNumber
 			req, err := http.NewRequest("GET", url, nil)

@@ -55,14 +55,14 @@ func GetSessionToken(session_token_code string, auth_code_verifier string, clien
 	url := "https://accounts.nintendo.com/connect/1.0.0/api/session_token"
 	req, err := http.NewRequest("POST", url, body_marshalled)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	for key, element := range app_head {
 		req.Header.Add(key, element)
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	defer resp.Body.Close()
 	type SessionTokenData struct {
@@ -71,7 +71,6 @@ func GetSessionToken(session_token_code string, auth_code_verifier string, clien
 	}
 	var data SessionTokenData
 	json.NewDecoder(resp.Body).Decode(&data)
-	fmt.Println(data)
 	return data.SessionToken
 }
 
@@ -84,17 +83,16 @@ func GetHashFromS2sApi(id_token string, timestamp int, version string, client *h
 		req_data.Set(key, element)
 	}
 	body_marshalled := strings.NewReader(req_data.Encode())
-	fmt.Println(req_data.Encode())
 	req, err := http.NewRequest("POST", "https://elifessler.com/s2s/api/gen2", body_marshalled)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	for key, element := range api_app_head {
 		req.Header.Add(key, element)
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	type S2sApiHash struct {
 		Hash string `json:"hash"`
@@ -124,14 +122,14 @@ func CallFlapgApi(id_token string, guid string, timestamp int, f_type string, ve
 	}
 	req, err := http.NewRequest("GET", "https://flapg.com/ika2/api/login?public", nil)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	for key, element := range api_app_head {
 		req.Header.Add(key, element)
 	}
 	// resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	var data FlapgApiData
 	// json.NewDecoder(resp.Body).Decode(&data)
@@ -159,19 +157,19 @@ func GetCookie(version string, client *http.Client) (string, string) {
 	}
 	body_marshalled, err := json.Marshal(body)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	url := "https://accounts.nintendo.com/connect/1.0.0/api/token"
 	req, err := http.NewRequest("POST", url, bytes.NewReader(body_marshalled))
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	for key, element := range app_head {
 		req.Header.Add(key, element)
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	type IdResponse struct {
 		AccessToken string   `json:"access_token"`
@@ -182,7 +180,6 @@ func GetCookie(version string, client *http.Client) (string, string) {
 	}
 	var id_response IdResponse
 	json.NewDecoder(resp.Body).Decode(&id_response)
-	fmt.Println(id_response)
 	app_head = map[string]string{
 		"User-Agent":      "OnlineLounge/1.11.0 NASDKAPI Android",
 		"Accept-Language": user_lang,
@@ -195,14 +192,14 @@ func GetCookie(version string, client *http.Client) (string, string) {
 	url = "https://api.accounts.nintendo.com/2.0.0/users/me"
 	req, err = http.NewRequest("GET", url, nil)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	for key, element := range app_head {
 		req.Header.Add(key, element)
 	}
 	resp, err = client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	type UserInfo struct {
 		Analyticsoptedin          bool `json:"analyticsOptedIn"`
@@ -310,18 +307,18 @@ func GetCookie(version string, client *http.Client) (string, string) {
 	url = "https://api-lp1.znc.srv.nintendo.net/v1/Account/Login"
 	new_body_json, err := json.Marshal(new_body)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	req, err = http.NewRequest("POST", url, bytes.NewReader(new_body_json))
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	for key, element := range app_head {
 		req.Header.Add(key, element)
 	}
 	resp, err = client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	type SplatoonToken struct {
 		Correlationid struct {
@@ -350,7 +347,6 @@ func GetCookie(version string, client *http.Client) (string, string) {
 	}
 	var splatoon_token SplatoonToken
 	json.NewDecoder(resp.Body).Decode(&splatoon_token)
-	fmt.Println(splatoon_token)
 	id_token = splatoon_token.Result.Webapiservercredential.Accesstoken
 	flapg_app := CallFlapgApi(id_token, guid, timestamp, "app", version, client).Result
 	app_head = map[string]string{
@@ -378,18 +374,18 @@ func GetCookie(version string, client *http.Client) (string, string) {
 	url = "https://api-lp1.znc.srv.nintendo.net/v2/Game/GetWebServiceToken"
 	body_json, err := json.Marshal(new_body_2)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	req, err = http.NewRequest("POST", url, bytes.NewReader(body_json))
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	for key, element := range app_head {
 		req.Header.Add(key, element)
 	}
 	resp, err = client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	var splatoon_access_token map[string]map[string]string
 	json.NewDecoder(resp.Body).Decode(&splatoon_access_token)
@@ -409,14 +405,14 @@ func GetCookie(version string, client *http.Client) (string, string) {
 	url = "https://app.splatoon2.nintendo.net/?lang=" + user_lang
 	req, err = http.NewRequest("GET", url, nil)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	for key, element := range app_head {
 		req.Header.Add(key, element)
 	}
 	resp, err = client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	for _, cookie := range resp.Cookies() {
 		if cookie.Name == "iksm_session" {
@@ -480,13 +476,13 @@ func LogIn(version string) *string {
 	auth_state_unencoded := make([]byte, 36)
 	_, err := rand.Read(auth_state_unencoded)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	auth_state := base64.RawURLEncoding.EncodeToString(auth_state_unencoded)
 	auth_code_verifier_unencoded := make([]byte, 32)
 	_, err = rand.Read(auth_code_verifier_unencoded)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	auth_code_verifier := base64.RawURLEncoding.EncodeToString(auth_code_verifier_unencoded)
 	auth_code_hash := sha256.Sum256([]byte(strings.ReplaceAll(auth_code_verifier, "=", "")))
@@ -518,7 +514,7 @@ func LogIn(version string) *string {
 	url := "https://accounts.nintendo.com/connect/1.0.0/authorize"
 	req, err := http.NewRequest("GET", url, strings.NewReader(data.Encode()))
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	q := req.URL.Query()
 	for key, element := range body {
