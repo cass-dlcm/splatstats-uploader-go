@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"cass-dlcm.dev/splatstatsuploader/types"
+	"cass-dlcm.dev/splatstatsuploader/iksm"
 	"github.com/shopspring/decimal"
 	"github.com/spf13/viper"
 )
@@ -137,6 +138,9 @@ func File(salmon bool, api_key string, version string, client *http.Client) {
 }
 
 func GetSplatnet(s bool, salmon bool, api_key string, version string, app_head map[string]string, client *http.Client) {
+	if viper.GetString("cookie") == "" {
+        iksm.GenNewCookie("blank", version, client)
+	}
 	if salmon {
 		fmt.Println("Pulling Salmon Run data from online...")
 		url := "https://app.splatoon2.nintendo.net/api/coop_results"
