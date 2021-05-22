@@ -362,7 +362,7 @@ func getSplatoonToken(userLang string, idResponse idResponseS, userInfo userInfo
 
 type splatoonAccessTokenS struct {
 	Correlationid map[string]interface{} `json:"correlationId"`
-	Result struct {
+	Result        struct {
 		Accesstoken string `json:"accessToken"`
 		Expiresin   int    `json:"expiresIn"`
 	} `json:"result"`
