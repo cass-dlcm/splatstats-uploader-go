@@ -25,12 +25,11 @@ jobs:
         run: |
           mkdir -p builds/compressed
           go get github.com/mitchellh/gox
-          gox --output "builds/drs-{{.OS}}-{{.Arch}}"
-
-      - name: Upload Binaries
-        if: always()
-        run: |
+          gox --output "builds/drs-{{.OS}}-{{.Arch}}" -osarch="darwin/amd64 linux/amd64 freebsd/amd64 openbsd/amd64 windows/amd64 netbsd/amd64 linux/mips64 linux/s390x linux/mips64le" 
           cd builds
           find . -maxdepth 1 -type f -execdir zip 'compressed/{}.zip' '{}' \;
+
+      - name: Upload Binaries
+        run: |
           go get github.com/tcnksm/ghr
           ghr -t ${{ secrets.GITHUB_TOKEN }} --delete Latest builds/compressed/
