@@ -194,7 +194,7 @@ func GetSplatnetBattle(s bool, apiKey string, version string, appHead map[string
 			if err != nil {
 				panic(err)
 			}
-			err = ioutil.WriteFile("two_battle/"+*battleSimple.BattleNumber+".json", file, 0644)
+			err = ioutil.WriteFile("two_battle/"+*data.Results[i].BattleNumber+".json", file, 0644)
 			if err != nil {
 				panic(err)
 			}
