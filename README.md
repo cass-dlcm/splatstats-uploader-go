@@ -2,6 +2,7 @@ splatstats-uploader-go
 =====================
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/cass-dlcm/splatstats-uploader-go)](https://goreportcard.com/report/github.com/cass-dlcm/splatstats-uploader-go) [![Generate release-artifacts](https://github.com/cass-dlcm/splatstats-uploader-go/actions/workflows/release.yml/badge.svg)](https://github.com/cass-dlcm/splatstats-uploader-go/actions/workflows/release.yml)
+[![DeepSource](https://deepsource.io/gh/cass-dlcm/splatstats-uploader-go.svg/?label=active+issues&show_trend=true)](https://deepsource.io/gh/cass-dlcm/splatstats-uploader-go/?ref=repository-badge)
 
 splatstats-uploader-go is a program that uploads battle data from the SplatNet 2 app ("Nintendo Switch Online") to [SplatStats](https://splatstats.cass-dlcm.dev/), a site for recording, visualizing, and aggregating statistics from *Splatoon 2*.
 
