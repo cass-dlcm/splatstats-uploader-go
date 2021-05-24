@@ -172,8 +172,8 @@ func GetSplatnetBattle(s bool, apiKey string, version string, appHead map[string
 		GetSplatnetBattle(s, apiKey, version, appHead, client)
 		return
 	}
-	for _, battleSimple := range data.Results {
-		url = "https://app.splatoon2.nintendo.net/api/results/" + *battleSimple.BattleNumber
+	for i := range data.Results {
+		url = "https://app.splatoon2.nintendo.net/api/results/" + *data.Results[i].BattleNumber
 		req, err := http.NewRequest("GET", url, nil)
 		for key, element := range appHead {
 			req.Header.Set(key, element)
@@ -227,14 +227,14 @@ func GetSplatnetSalmon(s bool, apiKey string, version string, appHead map[string
 		GetSplatnetSalmon(s, apiKey, version, appHead, client)
 		return
 	}
-	for _, shift := range data.Results {
-		uploadSalmon(&shift, apiKey, version, client)
+	for i := range data.Results {
+		uploadSalmon(&data.Results[i], apiKey, version, client)
 		if s {
-			file, err := json.MarshalIndent(shift, "", " ")
+			file, err := json.MarshalIndent(data.Results[i], "", " ")
 			if err != nil {
 				panic(err)
 			}
-			err = ioutil.WriteFile("two_salmon/"+fmt.Sprint(*shift.JobID)+".json", file, 0644)
+			err = ioutil.WriteFile("two_salmon/"+fmt.Sprint(*data.Results[i].JobID)+".json", file, 0644)
 			if err != nil {
 				panic(err)
 			}
@@ -552,11 +552,11 @@ func uploadBattle(battle *types.Battle, apiKey string, version string, client *h
 	win := *(*battle).MyTeamResult.Key == "victory"
 	battleUpload.Win = &win
 	hasDC := fal
-	for _, player := range (*battle).MyTeamMembers {
-		hasDC = hasDC || (*player.GamePaintPoint == 0 && *player.KillCount == 0 && *player.SpecialCount == 0 && *player.DeathCount == 0 && *player.AssistCount == 0)
+	for i := range (*battle).MyTeamMembers {
+		hasDC = hasDC || (*(*battle).MyTeamMembers[i].GamePaintPoint == 0 && *(*battle).MyTeamMembers[i].KillCount == 0 && *(*battle).MyTeamMembers[i].SpecialCount == 0 && *(*battle).MyTeamMembers[i].DeathCount == 0 && *(*battle).MyTeamMembers[i].AssistCount == 0)
 	}
-	for _, player := range (*battle).OtherTeamMembers {
-		hasDC = hasDC || (*player.GamePaintPoint == 0 && *player.KillCount == 0 && *player.SpecialCount == 0 && *player.DeathCount == 0 && *player.AssistCount == 0)
+	for i := range (*battle).OtherTeamMembers {
+		hasDC = hasDC || (*(*battle).MyTeamMembers[i].GamePaintPoint == 0 && *(*battle).MyTeamMembers[i].KillCount == 0 && *(*battle).MyTeamMembers[i].SpecialCount == 0 && *(*battle).MyTeamMembers[i].DeathCount == 0 && *(*battle).MyTeamMembers[i].AssistCount == 0)
 	}
 	battleUpload.HasDisconnectedPlayer = &hasDC
 	battleUpload.Time = (*battle).StartTime

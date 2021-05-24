@@ -18,7 +18,7 @@ import (
 	"golang.org/x/term"
 )
 
-var progVersion = "1.4.1"
+var progVersion = "1.4.2"
 
 func checkForUpdates() {
 	latestScript, err := http.Get("https://raw.githubusercontent.com/cass-dlcm/splatstats-uploader-go/main/splatstatsuploader.go")
