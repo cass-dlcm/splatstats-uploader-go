@@ -18,7 +18,7 @@ import (
 	"golang.org/x/term"
 )
 
-var progVersion = "1.1.4"
+var progVersion = "1.4.1"
 
 func checkForUpdates() {
 	latestScript, err := http.Get("https://raw.githubusercontent.com/cass-dlcm/splatstats-uploader-go/main/splatstatsuploader.go")
@@ -33,11 +33,13 @@ func checkForUpdates() {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 	}
-	v2, err := version.NewVersion(newVersion[13 : len(newVersion)-1])
+	v2, err := version.NewVersion(newVersion[11 : len(newVersion)-1])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 	}
 	if v1.LessThan(v2) {
+		fmt.Println(v1)
+		fmt.Println(v2)
 		fmt.Println("New version availbile at https://github.com/cass-dlcm/splatstats-uploader-go/releases/latest.")
 		fmt.Println("Please download the new version before continuing.")
 		latestScript.Body.Close()
