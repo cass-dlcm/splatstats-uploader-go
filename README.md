@@ -1,7 +1,8 @@
 splatstats-uploader-go
 =====================
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/cass-dlcm/splatstats-uploader-go)](https://goreportcard.com/report/github.com/cass-dlcm/splatstats-uploader-go) [![Generate release-artifacts](https://github.com/cass-dlcm/splatstats-uploader-go/actions/workflows/release.yml/badge.svg)](https://github.com/cass-dlcm/splatstats-uploader-go/actions/workflows/release.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/cass-dlcm/splatstats-uploader-go)](https://goreportcard.com/report/github.com/cass-dlcm/splatstats-uploader-go)
+[![Generate release-artifacts](https://github.com/cass-dlcm/splatstats-uploader-go/actions/workflows/release.yml/badge.svg)](https://github.com/cass-dlcm/splatstats-uploader-go/actions/workflows/release.yml)
 [![DeepSource](https://deepsource.io/gh/cass-dlcm/splatstats-uploader-go.svg/?label=active+issues&show_trend=true)](https://deepsource.io/gh/cass-dlcm/splatstats-uploader-go/?ref=repository-badge)
 
 splatstats-uploader-go is a program that uploads battle data from the SplatNet 2 app ("Nintendo Switch Online") to [SplatStats](https://splatstats.cass-dlcm.dev/), a site for recording, visualizing, and aggregating statistics from *Splatoon 2*.
@@ -9,12 +10,12 @@ splatstats-uploader-go is a program that uploads battle data from the SplatNet 2
 ## Usage
 
 ```
-$ ./splatstatsuploader [-M [N]] [-f] [-s] [--salmon]
+$ ./splatstatsuploader [-M N] [-f] [-s] [--salmon]
 ```
 
-The `-M` flag runs the program in monitoring mode, uploading new battle results as you play matches. The script checks for new battles every `N` seconds; if no `N` is provided, the script defaults to 300 (5 minutes).
+The `-M` flag runs the program in monitoring mode, uploading new battle results as you play matches. The script checks for new battles every `N` seconds.
 
-The `-f` flag sends battle data to splatstats from a folder of SplatNet 2 JSON files.
+The `-f` flag sends battle data to SplatStats from a folder of SplatNet 2 JSON files.
 
 The `-s` flag saves battle data downloaded from SplatNet 2 to a folder.
 
@@ -28,7 +29,7 @@ Running `./splatstatsuploader -M 900` from the command line launches the script 
 
 - [ ] Full automation of SplatNet cookie generation/acquisition via user log-in
 - [ ] Complete battle stats
-  - [x] Gamemode, stage, weapon
+  - [x] Game mode, stage, weapon
   - [x] Result, final count/percent, turf inked
   - [x] Kills, deaths, assists, specials
   - [x] Rank, level & star emblems (&#9733;), X Rank & Power, weapon freshness
@@ -42,7 +43,7 @@ Running `./splatstatsuploader -M 900` from the command line launches the script 
 
 1. Download the program from [the releases page](https://github.com/cass-dlcm/splatstatsuploader-go/releases).
 
-2. Navigate to the newly-created directory (`cd splatstats-uploader/`) in the commmand line.
+2. Navigate to the newly-created directory (`cd splatstats-uploader/`) in the command line.
 
 3. Running the program for the first time will prompt you to enter your SplatStats username and password. If you're using the app in a language other than English, you may enter your [language code](https://github.com/frozenpandaman/splatnet2statink/wiki/languages) (locale) as well.
 
