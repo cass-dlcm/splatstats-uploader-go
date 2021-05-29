@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -24,15 +23,15 @@ func doSelfUpdate() {
 	v := semver.MustParse(progVersion)
 	latest, err := selfupdate.UpdateSelf(v, "cass-dlcm/splatstats-uploader-go")
 	if err != nil {
-		log.Println("Binary update failed:", err)
+		fmt.Println("Binary update failed:", err)
 		return
 	}
 	if latest.Version.Equals(v) {
 		// latest version is the same as current version. It means current binary is up to date.
-		log.Println("Current binary is the latest version", progVersion)
+		fmt.Println("Current binary is the latest version", progVersion)
 	} else {
-		log.Println("Successfully updated to version", latest.Version)
-		log.Println("Release note:\n", latest.ReleaseNotes)
+		fmt.Println("Successfully updated to version", latest.Version)
+		fmt.Println("Release note:\n", latest.ReleaseNotes)
 	}
 }
 
