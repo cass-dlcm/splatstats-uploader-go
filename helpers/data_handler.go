@@ -513,17 +513,19 @@ func shiftSetTeammate2(shift *types.Shift, shiftUpload *types.ShiftUpload) {
 		(*shiftUpload).Teammate2SteelheadKills = (*shift).OtherResults[2].BossKillCounts.Steelhead.Count
 		(*shiftUpload).Teammate2StingerKills = (*shift).OtherResults[2].BossKillCounts.Stinger.Count
 		(*shiftUpload).Teammate2W1Specials = (*shift).OtherResults[2].SpecialCounts[0]
-		(*shiftUpload).Teammate2WeaponW1 = (*shift).OtherResults[2].WeaponList[0].ID
-		if len((*shift).OtherResults[2].WeaponList) > 1 {
-			(*shiftUpload).Teammate2WeaponW2 = (*shift).OtherResults[2].WeaponList[1].ID
-			if len((*shift).OtherResults[2].WeaponList) > 2 {
-				(*shiftUpload).Teammate2WeaponW3 = (*shift).OtherResults[2].WeaponList[2].ID
-			}
-		}
 		if len((*shift).OtherResults[2].SpecialCounts) > 1 {
 			(*shiftUpload).Teammate2W2Specials = (*shift).OtherResults[2].SpecialCounts[1]
 			if len((*shift).OtherResults[2].SpecialCounts) > 2 {
 				(*shiftUpload).Teammate2W3Specials = (*shift).OtherResults[2].SpecialCounts[2]
+			}
+		}
+		if len((*shift).OtherResults[2].WeaponList) > 0 {
+			(*shiftUpload).Teammate2WeaponW1 = (*shift).OtherResults[2].WeaponList[0].ID
+			if len((*shift).OtherResults[2].WeaponList) > 1 {
+				(*shiftUpload).Teammate2WeaponW2 = (*shift).OtherResults[2].WeaponList[1].ID
+				if len((*shift).OtherResults[2].WeaponList) > 2 {
+					(*shiftUpload).Teammate2WeaponW3 = (*shift).OtherResults[2].WeaponList[2].ID
+				}
 			}
 		}
 	}
