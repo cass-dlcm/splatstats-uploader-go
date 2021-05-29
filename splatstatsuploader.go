@@ -17,7 +17,7 @@ import (
 	"golang.org/x/term"
 )
 
-var progVersion = "1.5.1"
+var progVersion = "1.5.2"
 
 func doSelfUpdate() {
 	v := semver.MustParse(progVersion)
@@ -75,7 +75,7 @@ func setApiToken(client *http.Client) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	url := "http://localhost:8000/auth/api-token/"
+	url := "https://splatstats.cass-dlcm.dev/auth/api-token/"
 	authJson, err := json.Marshal(map[string]string{
 		"username": username, "password": string(password),
 	})
