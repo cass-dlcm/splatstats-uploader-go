@@ -1,6 +1,7 @@
 package main
 
 import (
+	"archive/zip"
 	"bytes"
 	"encoding/json"
 	"flag"
@@ -19,7 +20,7 @@ import (
 	"golang.org/x/term"
 )
 
-var progVersion = "1.4.5"
+var progVersion = "1.4.6"
 
 func checkForUpdates() {
 	latestScript, err := http.Get("https://raw.githubusercontent.com/cass-dlcm/splatstats-uploader-go/main/splatstatsuploader.go")
@@ -53,6 +54,35 @@ func checkForUpdates() {
 			panic(err)
 		}
 		fmt.Println("Downloaded: " + fileUrl)
+		r, err := zip.OpenReader("splatstatsuploader.zip")
+		if err != nil {
+			panic(err)
+		}
+		defer r.Close()
+		for _, f := range r.File {
+			rc, err := f.Open()
+			if err != nil {
+				panic(err)
+			}
+			defer rc.Close()
+
+			path := f.Name
+			if f.FileInfo().IsDir() {
+				os.MkdirAll(path, f.Mode())
+			} else {
+				f, err := os.OpenFile(
+					path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+				if err != nil {
+					panic(err)
+				}
+				defer f.Close()
+
+				_, err = io.Copy(f, rc)
+				if err != nil {
+					panic(err)
+				}
+			}
+		}
 		os.Exit(0)
 	}
 }
