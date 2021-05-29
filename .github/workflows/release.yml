@@ -29,6 +29,13 @@ jobs:
           cd builds
           find . -maxdepth 1 -type f -execdir zip 'compressed/{}.zip' '{}' \;
 
+      - name: VirusTotal Scan
+        uses: crazy-max/ghaction-virustotal@v2
+        with:
+          vt_api_key: ${{ secrets.VT_API_KEY }}
+          files: |
+           builds/compressed/*
+
       - name: 'Get Previous tag'
         id: previoustag
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
