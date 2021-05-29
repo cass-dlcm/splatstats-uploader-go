@@ -36,4 +36,4 @@ jobs:
       - name: Upload Binaries
         run: |
           go get github.com/tcnksm/ghr
-          ghr -t ${{ secrets.GITHUB_TOKEN }} --replace version: ${{ steps.previoustag.outputs.tag }} builds/compressed/
+          ghr -t ${{ secrets.GITHUB_TOKEN }} --replace ${{ steps.previoustag.outputs.tag }} builds/compressed/
