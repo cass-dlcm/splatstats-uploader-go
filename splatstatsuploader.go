@@ -1,113 +1,39 @@
 package main
 
 import (
-	"archive/zip"
 	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io"
+	"log"
 	"net/http"
 	"os"
-	"regexp"
-	"runtime"
 	"time"
 
 	"cass-dlcm.dev/splatstatsuploader/helpers"
 
-	"github.com/hashicorp/go-version"
+	"github.com/blang/semver"
+	"github.com/rhysd/go-github-selfupdate/selfupdate"
 	"github.com/spf13/viper"
 	"golang.org/x/term"
 )
 
-var progVersion = "1.4.7"
+var progVersion = "1.4.8"
 
-func checkForUpdates() {
-	latestScript, err := http.Get("https://raw.githubusercontent.com/cass-dlcm/splatstats-uploader-go/main/splatstatsuploader.go")
+func doSelfUpdate() {
+	v := semver.MustParse(progVersion)
+	latest, err := selfupdate.UpdateSelf(v, "cass-dlcm/splatstats-uploader-go")
 	if err != nil {
-		fmt.Println("Error retrieving the latest version.")
+		log.Println("Binary update failed:", err)
+		return
 	}
-	defer latestScript.Body.Close()
-	body, _ := io.ReadAll(latestScript.Body)
-	re := regexp.MustCompile("Version = \"([\\d.]*)\"")
-	newVersion := re.FindString(string(body))
-	v1, err := version.NewVersion(progVersion)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if latest.Version.Equals(v) {
+		// latest version is the same as current version. It means current binary is up to date.
+		log.Println("Current binary is the latest version", progVersion)
+	} else {
+		log.Println("Successfully updated to version", latest.Version)
+		log.Println("Release note:\n", latest.ReleaseNotes)
 	}
-	v2, err := version.NewVersion(newVersion[11 : len(newVersion)-1])
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
-	if v1.LessThan(v2) {
-		fmt.Println(v1)
-		fmt.Println(v2)
-		latestScript.Body.Close()
-		var fileUrl string
-		if runtime.GOOS == "windows" {
-			fileUrl = "https://github.com/cass-dlcm/splatstats-uploader-go/releases/download/Latest/splatstatsuploader-windows-amd64.exe.zip"
-		} else {
-			fileUrl = "https://github.com/cass-dlcm/splatstats-uploader-go/releases/download/Latest/splatstatsuploader-" + runtime.GOOS + "-" + runtime.GOARCH + ".zip"
-		}
-		err := DownloadFile("splatstatsuploader.zip", fileUrl)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println("Downloaded: " + fileUrl)
-		r, err := zip.OpenReader("splatstatsuploader.zip")
-		if err != nil {
-			panic(err)
-		}
-		defer r.Close()
-		for _, f := range r.File {
-			rc, err := f.Open()
-			if err != nil {
-				panic(err)
-			}
-			defer rc.Close()
-
-			path := f.Name
-			if f.FileInfo().IsDir() {
-				os.MkdirAll(path, f.Mode())
-			} else {
-				f, err := os.OpenFile(
-					path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-				if err != nil {
-					panic(err)
-				}
-				defer f.Close()
-
-				_, err = io.Copy(f, rc)
-				if err != nil {
-					panic(err)
-				}
-			}
-		}
-		os.Exit(0)
-	}
-}
-
-// DownloadFile will download a url to a local file. It's efficient because it will
-// write as it downloads and not load the whole file into memory.
-func DownloadFile(filepath string, url string) error {
-
-	// Get the data
-	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	// Create the file
-	out, err := os.Create(filepath)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	// Write the body to file
-	_, err = io.Copy(out, resp.Body)
-	return err
 }
 
 func setLanguage() {
@@ -193,7 +119,7 @@ func getFlags() (int, bool, bool, bool) {
 
 func main() {
 
-	checkForUpdates()
+	doSelfUpdate()
 
 	// Set the file name of the configurations file
 	viper.SetConfigName("config")
