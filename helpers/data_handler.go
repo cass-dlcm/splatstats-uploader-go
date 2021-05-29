@@ -364,7 +364,7 @@ func uploadSalmon(shift *types.Shift, apiKey string, version string, client *htt
 	if resp.StatusCode == 400 && bodyString == "{\"non_field_errors\":[\"The fields player_id, job_id must make a unique set.\"]}" {
 		fmt.Printf("Shift #%d already uploaded\n", *shiftUpload.JobID)
 	} else if resp.StatusCode == 201 {
-		fmt.Printf("Shift #%d uploaded to %s\n", *shiftUpload.JobID, resp.Header.Get("location"))
+		fmt.Printf("Shift #%d uploaded to %s\n", *shiftUpload.JobID, resp.Header.Get("location")[0:44]+resp.Header.Get("location")[55:])
 	} else {
 		fmt.Println(resp.Status)
 		fmt.Println(bodyString)
@@ -589,7 +589,7 @@ func uploadBattle(battle *types.Battle, apiKey string, version string, client *h
 	if resp.StatusCode == 400 && bodyString == "{\"non_field_errors\":[\"The fields player_splatnet_id, battle_number must make a unique set.\"]}" {
 		fmt.Printf("Battle #%s already uploaded\n", *battleUpload.BattleNumber)
 	} else if resp.StatusCode == 201 {
-		fmt.Printf("Battle #%s uploaded to %s\n", *battleUpload.BattleNumber, resp.Header.Get("location"))
+		fmt.Printf("Battle #%s uploaded to %s\n", *battleUpload.BattleNumber, resp.Header.Get("location")[0:45]+resp.Header.Get("location")[57:])
 	} else {
 		fmt.Println(resp.Status)
 		fmt.Println(bodyString)
@@ -603,7 +603,7 @@ func battleSetHasDc(battle *types.Battle, battleUpload *types.BattleUpload) {
 		hasDC = hasDC || (*(*battle).MyTeamMembers[i].GamePaintPoint == 0 && *(*battle).MyTeamMembers[i].KillCount == 0 && *(*battle).MyTeamMembers[i].SpecialCount == 0 && *(*battle).MyTeamMembers[i].DeathCount == 0 && *(*battle).MyTeamMembers[i].AssistCount == 0)
 	}
 	for i := range (*battle).OtherTeamMembers {
-		hasDC = hasDC || (*(*battle).MyTeamMembers[i].GamePaintPoint == 0 && *(*battle).MyTeamMembers[i].KillCount == 0 && *(*battle).MyTeamMembers[i].SpecialCount == 0 && *(*battle).MyTeamMembers[i].DeathCount == 0 && *(*battle).MyTeamMembers[i].AssistCount == 0)
+		hasDC = hasDC || (*(*battle).OtherTeamMembers[i].GamePaintPoint == 0 && *(*battle).OtherTeamMembers[i].KillCount == 0 && *(*battle).OtherTeamMembers[i].SpecialCount == 0 && *(*battle).OtherTeamMembers[i].DeathCount == 0 && *(*battle).OtherTeamMembers[i].AssistCount == 0)
 	}
 	battleUpload.HasDisconnectedPlayer = &hasDC
 }
