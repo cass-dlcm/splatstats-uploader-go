@@ -19,7 +19,7 @@ import (
 	"golang.org/x/term"
 )
 
-var progVersion = "1.4.4"
+var progVersion = "1.4.5"
 
 func checkForUpdates() {
 	latestScript, err := http.Get("https://raw.githubusercontent.com/cass-dlcm/splatstats-uploader-go/main/splatstatsuploader.go")
@@ -42,7 +42,12 @@ func checkForUpdates() {
 		fmt.Println(v1)
 		fmt.Println(v2)
 		latestScript.Body.Close()
-		fileUrl := "https://github.com/cass-dlcm/splatstats-uploader-go/releases/download/Latest/splatstatsuploader-" + runtime.GOOS + "-" + runtime.GOARCH + ".zip"
+		var fileUrl string
+		if runtime.GOOS == "windows" {
+			fileUrl = "https://github.com/cass-dlcm/splatstats-uploader-go/releases/download/Latest/splatstatsuploader-windows-amd64.exe.zip"
+		} else {
+			fileUrl = "https://github.com/cass-dlcm/splatstats-uploader-go/releases/download/Latest/splatstatsuploader-" + runtime.GOOS + "-" + runtime.GOARCH + ".zip"
+		}
 		err := DownloadFile("splatstatsuploader.zip", fileUrl)
 		if err != nil {
 			panic(err)
