@@ -43,7 +43,7 @@ Running `./splatstatsuploader -M 900` from the command line launches the script 
 
 1. Download the program from [the releases page](https://github.com/cass-dlcm/splatstatsuploader-go/releases).
 
-2. Navigate to the newly-created directory (`cd splatstats-uploader/`) in the command line.
+2. Run the program as shown in the [usage](#usage) section above.
 
 3. Running the program for the first time will prompt you to enter your SplatStats username and password. If you're using the app in a language other than English, you may enter your [language code](https://github.com/frozenpandaman/splatnet2statink/wiki/languages) (locale) as well.
 

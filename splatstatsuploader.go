@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"runtime"
 	"time"
 
 	"cass-dlcm.dev/splatstatsuploader/helpers"
@@ -18,7 +19,7 @@ import (
 	"golang.org/x/term"
 )
 
-var progVersion = "1.4.3"
+var progVersion = "1.4.4"
 
 func checkForUpdates() {
 	latestScript, err := http.Get("https://raw.githubusercontent.com/cass-dlcm/splatstats-uploader-go/main/splatstatsuploader.go")
@@ -40,11 +41,38 @@ func checkForUpdates() {
 	if v1.LessThan(v2) {
 		fmt.Println(v1)
 		fmt.Println(v2)
-		fmt.Println("New version availbile at https://github.com/cass-dlcm/splatstats-uploader-go/releases/latest.")
-		fmt.Println("Please download the new version before continuing.")
 		latestScript.Body.Close()
+		fileUrl := "https://github.com/cass-dlcm/splatstats-uploader-go/releases/download/Latest/splatstatsuploader-" + runtime.GOOS + "-" + runtime.GOARCH + ".zip"
+		err := DownloadFile("splatstatsuploader.zip", fileUrl)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("Downloaded: " + fileUrl)
 		os.Exit(0)
 	}
+}
+
+// DownloadFile will download a url to a local file. It's efficient because it will
+// write as it downloads and not load the whole file into memory.
+func DownloadFile(filepath string, url string) error {
+
+	// Get the data
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Create the file
+	out, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	// Write the body to file
+	_, err = io.Copy(out, resp.Body)
+	return err
 }
 
 func setLanguage() {
@@ -118,7 +146,7 @@ func getFlags() (int, bool, bool, bool) {
 	salmon := flag.Bool("salmon", false, "To upload salmon run matches.")
 	flag.Parse()
 	if *f && *s {
-		fmt.Println("Cannout use -f and -s together. Exiting.")
+		fmt.Println("Cannot use -f and -s together. Exiting.")
 		os.Exit(1)
 	}
 	if *f && *m != -1 {
