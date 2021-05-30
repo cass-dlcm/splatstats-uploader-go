@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	"cass-dlcm.dev/splatstatsuploader/helpers"
+	"cass-dlcm.dev/splatstatsuploader/data"
 
 	"github.com/blang/semver"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
@@ -17,7 +17,7 @@ import (
 	"golang.org/x/term"
 )
 
-var progVersion = "1.5.3"
+var progVersion = "1.5.4"
 
 func doSelfUpdate() {
 	v := semver.MustParse(progVersion)
@@ -173,14 +173,14 @@ func main() {
 
 	m, f, s, salmon := getFlags()
 	if m != -1 {
-		helpers.Monitor(m, s, salmon, viper.GetString("api_key"), progVersion, appHead, client)
+		data.Monitor(m, s, salmon, viper.GetString("api_key"), progVersion, appHead, client)
 	} else if f {
-		helpers.File(salmon, viper.GetString("api_key"), progVersion, client)
+		data.File(salmon, viper.GetString("api_key"), progVersion, client)
 	} else {
 		if salmon {
-			helpers.GetSplatnetSalmon(s, viper.GetString("api_key"), progVersion, appHead, client)
+			data.GetSplatnetSalmon(s, viper.GetString("api_key"), progVersion, appHead, client)
 		} else {
-			helpers.GetSplatnetBattle(s, viper.GetString("api_key"), progVersion, appHead, client)
+			data.GetSplatnetBattle(s, viper.GetString("api_key"), progVersion, appHead, client)
 		}
 	}
 }

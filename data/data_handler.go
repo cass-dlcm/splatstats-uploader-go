@@ -1,4 +1,4 @@
-package helpers
+package data
 
 import (
 	"bytes"
@@ -11,6 +11,7 @@ import (
 
 	"cass-dlcm.dev/splatstatsuploader/iksm"
 	"cass-dlcm.dev/splatstatsuploader/types"
+
 	"github.com/shopspring/decimal"
 	"github.com/spf13/viper"
 )
@@ -95,17 +96,34 @@ func uploadSingleSalmon(s bool, apiKey string, version string, appHead map[strin
 	}
 	var data types.ShiftList
 	json.NewDecoder(resp.Body).Decode(&data)
-	uploadSalmon(&data.Results[0], apiKey, version, client)
-	if s {
-		file, err := json.MarshalIndent(data.Results[0], "", " ")
-		if err != nil {
-			panic(err)
-		}
-		err = ioutil.WriteFile("two_salmon/"+fmt.Sprint(*data.Results[0].JobID)+".json", file, 0644)
-		if err != nil {
-			panic(err)
-		}
+	url = "https://app.splatoon2.nintendo.net/api/coop_results/" + fmt.Sprint(*(data.Results[0].JobID))
+	req, err = http.NewRequest("GET", url, nil)
+	for key, element := range appHead {
+		req.Header.Set(key, element)
 	}
+	if err != nil {
+		panic(err)
+	}
+	req.AddCookie(&http.Cookie{Name: "iksm_session", Value: viper.GetString("cookie")})
+	resp, err = client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	var shift types.Shift
+	if s {
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			panic(err)
+		}
+		err = ioutil.WriteFile("two_salmon/"+fmt.Sprint(*(data.Results[i].JobID))+".json", bodyBytes, 0644)
+		if err != nil {
+			panic(err)
+		}
+		json.Unmarshal(bodyBytes, &shift)
+	} else {
+		json.NewDecoder(resp.Body).Decode(&shift)
+	}
+	uploadSalmon(&shift, apiKey, version, client)
 }
 
 func File(salmon bool, apiKey string, version string, client *http.Client) {
