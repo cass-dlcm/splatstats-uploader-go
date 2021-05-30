@@ -115,7 +115,7 @@ func uploadSingleSalmon(s bool, apiKey string, version string, appHead map[strin
 		if err != nil {
 			panic(err)
 		}
-		err = ioutil.WriteFile("two_salmon/"+fmt.Sprint(*(data.Results[i].JobID))+".json", bodyBytes, 0644)
+		err = ioutil.WriteFile("two_salmon/"+fmt.Sprint(*(data.Results[0].JobID))+".json", bodyBytes, 0644)
 		if err != nil {
 			panic(err)
 		}
