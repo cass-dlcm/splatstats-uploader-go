@@ -187,18 +187,20 @@ func GetSplatnetBattle(s bool, apiKey string, version string, appHead map[string
 			panic(err)
 		}
 		var battle types.Battle
-		json.NewDecoder(resp.Body).Decode(&battle)
-		uploadBattle(&battle, apiKey, version, client)
 		if s {
-			file, err := json.MarshalIndent(battle, "", " ")
+			bodyBytes, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
 				panic(err)
 			}
-			err = ioutil.WriteFile("two_battle/"+*data.Results[i].BattleNumber+".json", file, 0644)
+			err = ioutil.WriteFile("two_battle/"+*data.Results[i].BattleNumber+".json", bodyBytes, 0644)
 			if err != nil {
 				panic(err)
 			}
+			json.Unmarshal(bodyBytes, &battle)
+		} else {
+			json.NewDecoder(resp.Body).Decode(&battle)
 		}
+		uploadBattle(&battle, apiKey, version, client)
 	}
 }
 
@@ -228,17 +230,34 @@ func GetSplatnetSalmon(s bool, apiKey string, version string, appHead map[string
 		return
 	}
 	for i := range data.Results {
-		uploadSalmon(&data.Results[i], apiKey, version, client)
-		if s {
-			file, err := json.MarshalIndent(data.Results[i], "", " ")
-			if err != nil {
-				panic(err)
-			}
-			err = ioutil.WriteFile("two_salmon/"+fmt.Sprint(*data.Results[i].JobID)+".json", file, 0644)
-			if err != nil {
-				panic(err)
-			}
+		url = "https://app.splatoon2.nintendo.net/api/coop_results/" + fmt.Sprint(*(data.Results[i].JobID))
+		req, err := http.NewRequest("GET", url, nil)
+		for key, element := range appHead {
+			req.Header.Set(key, element)
 		}
+		if err != nil {
+			panic(err)
+		}
+		req.AddCookie(&http.Cookie{Name: "iksm_session", Value: viper.GetString("cookie")})
+		resp, err := client.Do(req)
+		if err != nil {
+			panic(err)
+		}
+		var shift types.Shift
+		if s {
+			bodyBytes, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				panic(err)
+			}
+			err = ioutil.WriteFile("two_salmon/"+fmt.Sprint(*(data.Results[i].JobID))+".json", bodyBytes, 0644)
+			if err != nil {
+				panic(err)
+			}
+			json.Unmarshal(bodyBytes, &shift)
+		} else {
+			json.NewDecoder(resp.Body).Decode(&shift)
+		}
+		uploadSalmon(&shift, apiKey, version, client)
 	}
 }
 
@@ -252,6 +271,7 @@ func uploadSalmon(shift *types.Shift, apiKey string, version string, client *htt
 	shiftUpload.DangerRate = (*shift).DangerRate
 	shiftUpload.DrizzlerCount = (*shift).BossCounts.Drizzler.Count
 	shiftUpload.FailureWave = (*shift).JobResult.FailureWave
+	shiftUpload.JobScore = (*shift).JobScore
 	shiftUpload.FlyfishCount = (*shift).BossCounts.Flyfish.Count
 	shiftUpload.GoldieCount = (*shift).BossCounts.Goldie.Count
 	shiftUpload.GradePoint = (*shift).GradePoint
@@ -373,23 +393,23 @@ func uploadSalmon(shift *types.Shift, apiKey string, version string, client *htt
 }
 
 func salmonPlayerWeaponSpecials(shift *types.Shift, shiftUpload *types.ShiftUpload) {
-	(*shiftUpload).PlayerW1Specials = (*shift).MyResult.SpecialCounts[0]
-	(*shiftUpload).PlayerWeaponW1 = (*shift).MyResult.WeaponList[0].ID
-	if len((*shift).MyResult.SpecialCounts) > 1 {
-		(*shiftUpload).PlayerW2Specials = (*shift).MyResult.SpecialCounts[1]
-		(*shiftUpload).PlayerWeaponW2 = (*shift).MyResult.WeaponList[1].ID
-		if len((*shift).MyResult.SpecialCounts) > 2 {
-			(*shiftUpload).PlayerW3Specials = (*shift).MyResult.SpecialCounts[2]
-			(*shiftUpload).PlayerWeaponW3 = (*shift).MyResult.WeaponList[2].ID
-		} else {
-			(*shiftUpload).PlayerW3Specials = nil
-			(*shiftUpload).PlayerWeaponW3 = nil
+	if len((*shift).MyResult.WeaponList) > 0 {
+		(*shiftUpload).PlayerWeaponW1 = (*shift).MyResult.WeaponList[0].ID
+		if len((*shift).MyResult.WeaponList) > 1 {
+			(*shiftUpload).PlayerWeaponW2 = (*shift).MyResult.WeaponList[1].ID
+			if len((*shift).MyResult.WeaponList) > 2 {
+				(*shiftUpload).PlayerWeaponW3 = (*shift).MyResult.WeaponList[2].ID
+			}
 		}
-	} else {
-		(*shiftUpload).PlayerW2Specials = nil
-		(*shiftUpload).PlayerW3Specials = nil
-		(*shiftUpload).PlayerWeaponW2 = nil
-		(*shiftUpload).PlayerWeaponW3 = nil
+	}
+	if len((*shift).MyResult.SpecialCounts) > 0 {
+		(*shiftUpload).PlayerW1Specials = (*shift).MyResult.SpecialCounts[0]
+		if len((*shift).MyResult.SpecialCounts) > 1 {
+			(*shiftUpload).PlayerW2Specials = (*shift).MyResult.SpecialCounts[1]
+			if len((*shift).MyResult.SpecialCounts) > 2 {
+				(*shiftUpload).PlayerW3Specials = (*shift).MyResult.SpecialCounts[2]
+			}
+		}
 	}
 }
 

@@ -757,6 +757,7 @@ type Battle struct {
 
 type ShiftUpload struct {
 	DangerRate              float64 `json:"danger_rate"`
+	JobScore                *int    `json:"job_score,omitempty"`
 	DrizzlerCount           *int    `json:"drizzler_count,omitempty"`
 	Endtime                 *string `json:"endtime,omitempty"`
 	FailureWave             *int    `json:"failure_wave,omitempty"`
