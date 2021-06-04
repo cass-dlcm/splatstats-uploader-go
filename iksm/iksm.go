@@ -3,6 +3,7 @@ package iksm
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
@@ -19,15 +20,30 @@ import (
 	"github.com/spf13/viper"
 )
 
+var optOutStr = "skip"
+
 // Prompts the user to enter their iksm_session cookie
 func enterCookie() string {
 	var newCookie string
-	fmt.Println("Go to the page below to find instructions to obtain your iksm_session cookie:\nhttps://github.com/frozenpandaman/splatnet2statink/wiki/mitmproxy-instructions\nEnter it here: ")
-	fmt.Scanln(&newCookie)
-	for len(newCookie) != 40 {
-		fmt.Println("Cookie is invalid. Please enter it again.\nCookie: ")
-		fmt.Scanln(&newCookie)
+
+	if _, err := fmt.Println("Go to the page below to find instructions to obtain your iksm_session cookie:\nhttps://github.com/frozenpandaman/splatnet2statink/wiki/mitmproxy-instructions\nEnter it here: "); err != nil {
+		panic(err)
 	}
+
+	if _, err := fmt.Scanln(&newCookie); err != nil {
+		panic(err)
+	}
+
+	for len(newCookie) != 40 {
+		if _, err := fmt.Println("Cookie is invalid. Please enter it again.\nCookie: "); err != nil {
+			panic(err)
+		}
+
+		if _, err := fmt.Scanln(&newCookie); err != nil {
+			panic(err)
+		}
+	}
+
 	return newCookie
 }
 
@@ -49,29 +65,48 @@ func getSessionToken(sessionTokenCode string, authCodeVerifier string, client *h
 		"session_token_code_verifier": strings.ReplaceAll(authCodeVerifier, "=", ""),
 	}
 	reqData := url.Values{}
+
 	for key, element := range body {
 		reqData.Set(key, element)
 	}
+
 	bodyMarshalled := strings.NewReader(reqData.Encode())
-	url := "https://accounts.nintendo.com/connect/1.0.0/api/session_token"
-	req, err := http.NewRequest("POST", url, bodyMarshalled)
+	reqUrl := "https://accounts.nintendo.com/connect/1.0.0/api/session_token"
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx,"POST", reqUrl, bodyMarshalled)
 	if err != nil {
 		panic(err)
 	}
+
 	for key, element := range appHead {
 		req.Header.Add(key, element)
 	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}
-	defer resp.Body.Close()
+
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
 	type SessionTokenData struct {
 		Code         string `json:"code"`
 		SessionToken string `json:"session_token"`
 	}
+
 	var data SessionTokenData
-	json.NewDecoder(resp.Body).Decode(&data)
+
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		panic(err)
+	}
+
 	return data.SessionToken
 }
 
@@ -80,26 +115,45 @@ func getHashFromS2sApi(idToken string, timestamp int, version string, client *ht
 	apiAppHead := map[string]string{"Content-Type": "application/x-www-form-urlencoded", "User-Agent": "splatstatsuploader/" + version}
 	apiBody := map[string]string{"naIdToken": idToken, "timestamp": fmt.Sprint(timestamp)}
 	reqData := url.Values{}
+
 	for key, element := range apiBody {
 		reqData.Set(key, element)
 	}
+
 	bodyMarshalled := strings.NewReader(reqData.Encode())
-	req, err := http.NewRequest("POST", "https://elifessler.com/s2s/api/gen2", bodyMarshalled)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx,"POST", "https://elifessler.com/s2s/api/gen2", bodyMarshalled)
 	if err != nil {
 		panic(err)
 	}
+
 	for key, element := range apiAppHead {
 		req.Header.Add(key, element)
 	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}
+
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
 	type S2sApiHash struct {
 		Hash string `json:"hash"`
 	}
+
 	var apiResponse S2sApiHash
-	json.NewDecoder(resp.Body).Decode(&apiResponse)
+	if err := json.NewDecoder(resp.Body).Decode(&apiResponse); err != nil {
+		panic(err)
+	}
+
 	return apiResponse.Hash
 }
 
@@ -122,19 +176,35 @@ func callFlapgApi(idToken string, guid string, timestamp int, fType string, vers
 		"x-ver":   "3",
 		"x-iid":   fType,
 	}
-	req, err := http.NewRequest("GET", "https://flapg.com/ika2/api/login?public", nil)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx,"GET", "https://flapg.com/ika2/api/login?public", nil)
 	if err != nil {
 		panic(err)
 	}
+
 	for key, element := range apiAppHead {
 		req.Header.Add(key, element)
 	}
-	// resp, err := client.Do(req)
+
+	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}
+
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
+	//panic("Cookie generation not yet implemented.")
+
 	var data flapgApiData
-	// json.NewDecoder(resp.Body).Decode(&data)
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {panic(err)}
+
 	return data
 }
 
@@ -162,25 +232,42 @@ func getIdResponse(userLang string, sessionToken string, client *http.Client) id
 		"session_token": sessionToken,
 		"grant_type":    "urn:ietf:params:oauth:grant-type:jwt-bearer-session-token",
 	}
+
 	bodyMarshalled, err := json.Marshal(body)
 	if err != nil {
 		panic(err)
 	}
-	url := "https://accounts.nintendo.com/connect/1.0.0/api/token"
-	req, err := http.NewRequest("POST", url, bytes.NewReader(bodyMarshalled))
+
+	reqUrl := "https://accounts.nintendo.com/connect/1.0.0/api/token"
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx,"POST", reqUrl, bytes.NewReader(bodyMarshalled))
 	if err != nil {
 		panic(err)
 	}
+
 	for key, element := range appHead {
 		req.Header.Add(key, element)
 	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}
 
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
 	var idResponse idResponseS
-	json.NewDecoder(resp.Body).Decode(&idResponse)
+	if err := json.NewDecoder(resp.Body).Decode(&idResponse); err != nil {
+		panic(err)
+	}
+
 	return idResponse
 }
 
@@ -270,20 +357,36 @@ func getUserInfo(userLang string, idResponse idResponseS, client *http.Client) u
 		"Connection":      "Keep-Alive",
 		"Accept-Encoding": "gzip deflate",
 	}
-	url := "https://api.accounts.nintendo.com/2.0.0/users/me"
-	req, err := http.NewRequest("GET", url, nil)
+	reqUrl := "https://api.accounts.nintendo.com/2.0.0/users/me"
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx,"GET", reqUrl, nil)
 	if err != nil {
 		panic(err)
 	}
+
 	for key, element := range appHead {
 		req.Header.Add(key, element)
 	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}
+
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
 	var userInfo userInfoS
-	json.NewDecoder(resp.Body).Decode(&userInfo)
+	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
+		panic(err)
+	}
+
 	return userInfo
 }
 
@@ -339,24 +442,41 @@ func getSplatoonToken(userLang string, idResponse idResponseS, userInfo userInfo
 	}
 	newBody := make(map[string]interface{})
 	newBody["parameter"] = parameter
-	url := "https://api-lp1.znc.srv.nintendo.net/v1/Account/Login"
+	reqUrl := "https://api-lp1.znc.srv.nintendo.net/v1/Account/Login"
+
 	newBodyJson, err := json.Marshal(newBody)
 	if err != nil {
 		panic(err)
 	}
-	req, err := http.NewRequest("POST", url, bytes.NewReader(newBodyJson))
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, "POST", reqUrl, bytes.NewReader(newBodyJson))
 	if err != nil {
 		panic(err)
 	}
+
 	for key, element := range appHead {
 		req.Header.Add(key, element)
 	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}
+
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
 	var splatoonToken splatoonTokenS
-	json.NewDecoder(resp.Body).Decode(&splatoonToken)
+	if err := json.NewDecoder(resp.Body).Decode(&splatoonToken); err != nil {
+		panic(err)
+	}
+
 	return splatoonToken
 }
 
@@ -394,24 +514,41 @@ func getSplatoonAccessToken(userLang string, splatoonToken splatoonTokenS, guid 
 		"requestId":         flapgApp.P3,
 	}
 	newBody2["parameter"] = parameter
-	url := "https://api-lp1.znc.srv.nintendo.net/v2/Game/GetWebServiceToken"
+	reqUrl := "https://api-lp1.znc.srv.nintendo.net/v2/Game/GetWebServiceToken"
+
 	bodyJson, err := json.Marshal(newBody2)
 	if err != nil {
 		panic(err)
 	}
-	req, err := http.NewRequest("POST", url, bytes.NewReader(bodyJson))
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx,"POST", reqUrl, bytes.NewReader(bodyJson))
 	if err != nil {
 		panic(err)
 	}
+
 	for key, element := range appHead {
 		req.Header.Add(key, element)
 	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}
+
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
 	var splatoonAccessToken splatoonAccessTokenS
-	json.NewDecoder(resp.Body).Decode(&splatoonAccessToken)
+	if err := json.NewDecoder(resp.Body).Decode(&splatoonAccessToken); err != nil {
+		panic(err)
+	}
+
 	return splatoonAccessToken
 }
 
@@ -438,88 +575,140 @@ func getCookie(version string, client *http.Client) (string, string) {
 		"User-Agent":              "Mozilla/5.0 (Linux; Android 7.1.2; Pixel Build/NJH47D; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/59.0.3071.125 Mobile Safari/537.36",
 		"X-Requested-With":        "com.nintendo.znca",
 	}
-	url := "https://app.splatoon2.nintendo.net/?lang=" + userLang
-	req, err := http.NewRequest("GET", url, nil)
+	reqUrl := "https://app.splatoon2.nintendo.net/?lang=" + userLang
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx,"GET", reqUrl, nil)
 	if err != nil {
 		panic(err)
 	}
+
 	for key, element := range appHead {
 		req.Header.Add(key, element)
 	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}
+
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
 	for _, cookie := range resp.Cookies() {
 		if cookie.Name == "iksm_session" {
 			return nickname, cookie.Value
 		}
 	}
+
 	return nickname, ""
+}
+
+func printCookieGenReason(reason string) {
+	if reason == "blank" {
+		if _, err := fmt.Println("Blank cookie."); err != nil {
+			panic(err)
+		}
+	} else if reason == "auth" { // authentication error
+		if _, err := fmt.Println("The stored cookie has expired."); err != nil {
+			panic(err)
+		}
+	} else { // server error or player hasn't battled before
+		if _, err := fmt.Println("Cannot access SplatNet 2 without having played at least one battle online."); err != nil {
+			panic(err)
+		}
+		os.Exit(1)
+	}
+}
+
+func setCookie(cookie string, accName ...string) {
+	viper.Set("cookie", cookie)
+
+	if err := viper.WriteConfig(); err != nil {
+		panic(err)
+	}
+
+	if len(accName) == 0 {
+		if _, err := fmt.Println("Wrote iksm_session cookie to config.yaml."); err != nil {
+			panic(err)
+		}
+	} else {
+		if _, err := fmt.Println("Wrote iksm_session cookie for " + accName[0] + " to config.yaml."); err != nil {
+			panic(err)
+		}
+	}
+}
+
+func setSessionToken(client *http.Client) {
+	if viper.GetString("session_token") == "" {
+		if _, err := fmt.Println("session_token is blank. Please log in to your Nintendo Account to obtain your session_token."); err != nil {
+			panic(err)
+		}
+
+		newToken := logIn(client)
+		if newToken == nil {
+			if _, err := fmt.Println("There was a problem logging you in. Please try again later."); err != nil {
+				panic(err)
+			}
+		} else {
+			if *newToken == optOutStr { // user has opted to manually enter cookie
+				if _, err := fmt.Println("\nYou have opted against automatic cookie generation and must manually input your iksm_session cookie."); err != nil {
+					panic(err)
+				}
+			} else {
+				if _, err := fmt.Println("\nWrote session_token to config.txt."); err != nil {
+					panic(err)
+				}
+			}
+			viper.Set("session_token", *newToken)
+			if err := viper.WriteConfig(); err != nil {
+				panic(err)
+			}
+		}
+	} else if viper.Get("session_token") == optOutStr {
+		if _, err := fmt.Println("\nYou have opted against automatic cookie generation and must manually input your iksm_session cookie. You may clear this setting by removing \"" + optOutStr + "\" from the session_token field in config.txt."); err != nil {
+			panic(err)
+		}
+	}
 }
 
 // GenNewCookie attempts to generate a new cookie in case the provided one is invalid.
 func GenNewCookie(reason string, version string, client *http.Client) {
-	manual := false
+	printCookieGenReason(reason)
 
-	if reason == "blank" {
-		fmt.Println("Blank cookie.")
-	} else if reason == "auth" { // authentication error
-		fmt.Println("The stored cookie has expired.")
-	} else { // server error or player hasn't battled before
-		fmt.Println("Cannot access SplatNet 2 without having played at least one battle online.")
-		os.Exit(1)
-	}
-	if viper.GetString("session_token") == "" {
-		fmt.Println("session_token is blank. Please log in to your Nintendo Account to obtain your session_token.")
-		newToken := logIn(version)
-		if newToken == nil {
-			fmt.Println("There was a problem logging you in. Please try again later.")
-		} else {
-			if *newToken == "skip" { // user has opted to manually enter cookie
-				manual = true
-				fmt.Println("\nYou have opted against automatic cookie generation and must manually input your iksm_session cookie.\n")
-			} else {
-				fmt.Println("\nWrote session_token to config.txt.")
-			}
-			viper.Set("session_token", *newToken)
-			viper.WriteConfig()
+	setSessionToken(client)
+
+	if viper.Get("session_token") == optOutStr {
+		newCookie := enterCookie()
+		setCookie(newCookie)
+	} else {
+		if _, err := fmt.Println("Attempting to generate new cookie..."); err != nil {
+			panic(err)
 		}
-	} else if viper.Get("session_token") == "skip" {
-		manual = true
-		fmt.Println("\nYou have opted against automatic cookie generation and must manually input your iksm_session cookie. You may clear this setting by removing \"skip\" from the session_token field in config.txt.\n")
-	}
-
-	var newCookie string
-	var accName string
-	if manual {
-		newCookie = enterCookie()
-	} else {
-		fmt.Println("Attempting to generate new cookie...")
-		accName, newCookie = getCookie(version, client)
-	}
-	viper.Set("cookie", newCookie)
-	viper.WriteConfig()
-	if manual {
-		fmt.Println("Wrote iksm_session cookie to config.yaml.")
-	} else {
-		fmt.Println("Wrote iksm_session cookie for " + accName + " to config.yaml.")
+		accName, newCookie := getCookie(version, client)
+		setCookie(newCookie, accName)
 	}
 }
 
 // Logs in to a Nintendo Account and returns a session_token.
-func logIn(version string) *string {
+func logIn(client *http.Client) *string {
 	authStateUnencoded := make([]byte, 36)
-	_, err := rand.Read(authStateUnencoded)
-	if err != nil {
+	if _, err := rand.Read(authStateUnencoded); err != nil {
 		panic(err)
 	}
+
 	authState := base64.RawURLEncoding.EncodeToString(authStateUnencoded)
 	authCodeVerifierUnencoded := make([]byte, 32)
-	_, err = rand.Read(authCodeVerifierUnencoded)
-	if err != nil {
+
+	if _, err := rand.Read(authCodeVerifierUnencoded); err != nil {
 		panic(err)
 	}
+
 	authCodeVerifier := base64.RawURLEncoding.EncodeToString(authCodeVerifierUnencoded)
 	authCodeHash := sha256.Sum256([]byte(strings.ReplaceAll(authCodeVerifier, "=", "")))
 	authCodeChallenge := base64.RawURLEncoding.EncodeToString(authCodeHash[:])
@@ -544,32 +733,53 @@ func logIn(version string) *string {
 		"theme":                               "login_form",
 	}
 	data := url.Values{}
+
 	for key, element := range body {
 		data.Set(key, element)
 	}
-	url := "https://accounts.nintendo.com/connect/1.0.0/authorize"
-	req, err := http.NewRequest("GET", url, strings.NewReader(data.Encode()))
+
+	reqUrl := "https://accounts.nintendo.com/connect/1.0.0/authorize"
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx,"GET", reqUrl, strings.NewReader(data.Encode()))
 	if err != nil {
 		panic(err)
 	}
+
 	q := req.URL.Query()
+
 	for key, element := range body {
 		q.Add(key, element)
 	}
+
 	req.URL.RawQuery = q.Encode()
+
 	for key, element := range appHead {
 		req.Header.Add(key, element)
 	}
-	client := &http.Client{}
+
 	postLogin := req.URL.String()
-	fmt.Println("Navigate to this URL in your browser:")
-	fmt.Println(postLogin)
-	fmt.Println("Log in, right click the \"Select this account\" button, copy the link address, and paste it below:")
+
+	if _, err := fmt.Println("Navigate to this URL in your browser:"); err != nil {
+		panic(err)
+	}
+
+	if _, err := fmt.Println(postLogin); err != nil {
+		panic(err)
+	}
+
+	if _, err := fmt.Println("Log in, right click the \"Select this account\" button, copy the link address, and paste it below:"); err != nil {
+		panic(err)
+	}
+
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	useAccountUrl := scanner.Text()
 	re := regexp.MustCompile("de=(.*)&")
 	sessionTokenCode := re.FindAllStringSubmatch(useAccountUrl, -1)
 	sessionToken := getSessionToken(sessionTokenCode[0][1], authCodeVerifier, client).(string)
+
 	return &sessionToken
 }

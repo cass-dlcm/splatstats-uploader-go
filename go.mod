@@ -5,7 +5,7 @@ go 1.16
 require (
 	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/frankenbeanies/uuid4 v0.0.0-20180313125435-68b799ec299a
-	github.com/hashicorp/go-version v1.3.0
+	github.com/pkg/errors v0.8.1
 	github.com/rhysd/go-github-selfupdate v1.2.3 // indirect
 	github.com/shopspring/decimal v1.2.0
 	github.com/spf13/afero v1.1.2 // indirect
