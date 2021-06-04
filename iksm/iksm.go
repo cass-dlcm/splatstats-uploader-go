@@ -76,7 +76,7 @@ func getSessionToken(sessionTokenCode string, authCodeVerifier string, client *h
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx,"POST", reqUrl, bodyMarshalled)
+	req, err := http.NewRequestWithContext(ctx, "POST", reqUrl, bodyMarshalled)
 	if err != nil {
 		panic(err)
 	}
@@ -125,7 +125,7 @@ func getHashFromS2sApi(idToken string, timestamp int, version string, client *ht
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx,"POST", "https://elifessler.com/s2s/api/gen2", bodyMarshalled)
+	req, err := http.NewRequestWithContext(ctx, "POST", "https://elifessler.com/s2s/api/gen2", bodyMarshalled)
 	if err != nil {
 		panic(err)
 	}
@@ -180,7 +180,7 @@ func callFlapgApi(idToken string, guid string, timestamp int, fType string, vers
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx,"GET", "https://flapg.com/ika2/api/login?public", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://flapg.com/ika2/api/login?public", nil)
 	if err != nil {
 		panic(err)
 	}
@@ -203,7 +203,9 @@ func callFlapgApi(idToken string, guid string, timestamp int, fType string, vers
 	//panic("Cookie generation not yet implemented.")
 
 	var data flapgApiData
-	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {panic(err)}
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		panic(err)
+	}
 
 	return data
 }
@@ -243,7 +245,7 @@ func getIdResponse(userLang string, sessionToken string, client *http.Client) id
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx,"POST", reqUrl, bytes.NewReader(bodyMarshalled))
+	req, err := http.NewRequestWithContext(ctx, "POST", reqUrl, bytes.NewReader(bodyMarshalled))
 	if err != nil {
 		panic(err)
 	}
@@ -362,7 +364,7 @@ func getUserInfo(userLang string, idResponse idResponseS, client *http.Client) u
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx,"GET", reqUrl, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", reqUrl, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -524,7 +526,7 @@ func getSplatoonAccessToken(userLang string, splatoonToken splatoonTokenS, guid 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx,"POST", reqUrl, bytes.NewReader(bodyJson))
+	req, err := http.NewRequestWithContext(ctx, "POST", reqUrl, bytes.NewReader(bodyJson))
 	if err != nil {
 		panic(err)
 	}
@@ -580,7 +582,7 @@ func getCookie(version string, client *http.Client) (string, string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx,"GET", reqUrl, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", reqUrl, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -743,7 +745,7 @@ func logIn(client *http.Client) *string {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx,"GET", reqUrl, strings.NewReader(data.Encode()))
+	req, err := http.NewRequestWithContext(ctx, "GET", reqUrl, strings.NewReader(data.Encode()))
 	if err != nil {
 		panic(err)
 	}
