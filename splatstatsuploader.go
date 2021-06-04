@@ -120,7 +120,7 @@ func setApiToken(client *http.Client) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx,"POST", url, authBody)
+	req, err := http.NewRequestWithContext(ctx, "POST", url, authBody)
 	if err != nil {
 		fmt.Println(err)
 	}

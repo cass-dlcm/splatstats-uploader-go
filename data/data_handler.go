@@ -31,7 +31,6 @@ func Monitor(m int, s bool, salmon bool, apiKey string, version string, appHead 
 		timer := time.NewTimer(time.Duration(m) * time.Second)
 		<-timer.C
 
-
 		if salmon {
 			uploadLatestSalmon(s, apiKey, appHead, client)
 		} else {
@@ -50,7 +49,7 @@ func uploadLatestBattle(s bool, apiKey string, appHead map[string]string, client
 
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx,"GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -86,7 +85,7 @@ func uploadSingleBattle(s bool, apiKey string, appHead map[string]string, battle
 
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx,"GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -131,7 +130,7 @@ func uploadSingleSalmon(s bool, apiKey string, appHead map[string]string, jobId 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx,"GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -189,7 +188,7 @@ func uploadLatestSalmon(s bool, apiKey string, appHead map[string]string, client
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx,"GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -291,7 +290,7 @@ func GetSplatnetBattle(s bool, apiKey string, version string, appHead map[string
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx,"GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -345,7 +344,7 @@ func GetSplatnetSalmon(s bool, apiKey string, version string, appHead map[string
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx,"GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -480,7 +479,7 @@ func uploadSalmon(shift *types.Shift, apiKey string, client *http.Client) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx,"POST", url, bytes.NewReader(bodyMarshalled))
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(bodyMarshalled))
 	if err != nil {
 		panic(err)
 	}
@@ -756,7 +755,7 @@ func uploadBattle(battle *types.Battle, apiKey string, client *http.Client) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx,"POST", url, bytes.NewReader(bodyMarshalled))
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(bodyMarshalled))
 	if err != nil {
 		panic(err)
 	}
@@ -858,7 +857,7 @@ func battleSetPlayer(battle *types.Battle, battleUpload *types.BattleUpload) {
 		(*battleUpload).PlayerHeadgearSub0 = (*battle).PlayerResult.Player.HeadSkills.Subs[0].ID
 
 		if len((*battle).PlayerResult.Player.HeadSkills.Subs) > 1 {
-	 		(*battleUpload).PlayerHeadgearSub1 = (*battle).PlayerResult.Player.HeadSkills.Subs[1].ID
+			(*battleUpload).PlayerHeadgearSub1 = (*battle).PlayerResult.Player.HeadSkills.Subs[1].ID
 
 			if len((*battle).PlayerResult.Player.HeadSkills.Subs) > 2 {
 				(*battleUpload).PlayerHeadgearSub2 = (*battle).PlayerResult.Player.HeadSkills.Subs[2].ID
