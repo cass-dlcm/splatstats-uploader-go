@@ -189,25 +189,25 @@ func callFlapgApi(idToken string, guid string, timestamp int, fType string, vers
 		req.Header.Add(key, element)
 	}
 
-	resp, err := client.Do(req)
-	if err != nil {
-		panic(err)
-	}
+	// resp, err := client.Do(req)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	//
+	// defer func() {
+	// 	if err := resp.Body.Close(); err != nil {
+	// 		panic(err)
+	// 	}
+	// }()
 
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			panic(err)
-		}
-	}()
+	// var data flapgApiData
+	// if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+	// 	panic(err)
+	// }
+	//
+	// return data
 
-	//panic("Cookie generation not yet implemented.")
-
-	var data flapgApiData
-	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		panic(err)
-	}
-
-	return data
+	panic("Cookie generation not yet implemented.")
 }
 
 type idResponseS struct {

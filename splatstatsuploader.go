@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"cass-dlcm.dev/splatstatsuploader/data"
-
 	"github.com/blang/semver"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 	"github.com/spf13/viper"

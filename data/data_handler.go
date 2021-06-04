@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"io/fs"
 	"io/ioutil"
 	"net/http"
@@ -14,7 +13,7 @@ import (
 
 	"cass-dlcm.dev/splatstatsuploader/iksm"
 	"cass-dlcm.dev/splatstatsuploader/types"
-
+	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 	"github.com/spf13/viper"
 )
@@ -493,16 +492,13 @@ func uploadSalmon(shift *types.Shift, apiKey string, client *http.Client) {
 		panic(err)
 	}
 
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			panic(err)
-		}
-	}()
-
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(err)
-		fmt.Println(err)
+		panic(errors.Wrap(err, resp.Body.Close().Error()))
+	}
+
+	if err := resp.Body.Close(); err != nil {
+		panic(err)
 	}
 
 	bodyString := string(body)
