@@ -32,20 +32,33 @@ func enterStatinkApiKey() {
 	}
 }
 
-func MigrateSalmon(apiKey string, client *http.Client) {
-	var allData []types.ShiftStatInk
+func Migrate(s bool, salmon bool, apiKey string, client *http.Client) {
+	if salmon {
+		var allData []types.ShiftStatInk
 
-	downloadShifts(&allData, client)
+		downloadShifts(s, &allData, client)
 
-	for i := range allData {
-		var shift types.ShiftUpload
+		for i := range allData {
+			var shift types.ShiftUpload
 
-		transformShift(&allData[i], &shift)
-		data.UploadSalmon(&shift, apiKey, client)
+			transformShift(&allData[i], &shift)
+			data.UploadSalmon(&shift, apiKey, client)
+		}
+	} else {
+		var allData []types.BattleStatInk
+
+		downloadBattles(&allData, client)
+
+		for i := range allData {
+			var battle types.BattleUpload
+
+			transformBattle(&allData[i], &battle)
+			data.UploadBattle(&battle, apiKey, client)
+		}
 	}
 }
 
-func downloadShifts(allData *[]types.ShiftStatInk, client *http.Client) {
+func downloadShifts(s bool, allData *[]types.ShiftStatInk, client *http.Client) {
 	if viper.GetString("statink_api_key") == "" {
 		enterStatinkApiKey()
 	}
@@ -95,10 +108,21 @@ func downloadShifts(allData *[]types.ShiftStatInk, client *http.Client) {
 		}
 
 		previousID = currentID
-		currentID = tempData[len(tempData)-1].ID
+		if len(tempData) > 0 {
+			currentID = tempData[len(tempData)-1].ID
+		}
 
 		for i := range tempData {
 			*allData = append(*allData, tempData[i])
+			if s {
+				shiftMarshal, err := json.Marshal(tempData[i])
+				if err != nil {
+					panic(err)
+				}
+				if err := ioutil.WriteFile("two_salmon_statink/"+fmt.Sprint(tempData[i].SplatnetNumber)+".json", shiftMarshal, 0600); err != nil {
+					panic(err)
+				}
+			}
 		}
 	}
 }
@@ -118,7 +142,7 @@ func transformShift(statInkShift *types.ShiftStatInk, shiftUpload *types.ShiftUp
 	*(*shiftUpload).ScheduleStarttime = (*statInkShift).ShiftStartAt.Iso8601.Format("2006-01-02 15:04:05")
 	*(*shiftUpload).GradePointDelta = (*statInkShift).TitleExpAfter - (*statInkShift).TitleExp
 	*(*shiftUpload).GradePoint = (*statInkShift).TitleExpAfter
-	*(*shiftUpload).JobFailureReason = (*statInkShift).FailReason
+	*(*shiftUpload).JobFailureReason = (*statInkShift).FailReason.Key
 	*(*shiftUpload).IsClear = (*statInkShift).IsCleared
 	*(*shiftUpload).FailureWave = (*statInkShift).ClearWaves
 	*(*shiftUpload).JobID = (*statInkShift).SplatnetNumber
@@ -168,6 +192,9 @@ func transformPlayerDataSalmon(statInkShift *types.ShiftStatInk, shiftUpload *ty
 	*(*shiftUpload).PlayerPowerEggs = (*statInkShift).MyData.PowerEggCollected
 	*(*shiftUpload).PlayerName = (*statInkShift).MyData.Name
 	*(*shiftUpload).PlayerSpecial = fmt.Sprint((*statInkShift).MyData.Special.Splatnet)
+	*(*shiftUpload).PlayerReviveCount = (*statInkShift).MyData.Rescue
+	*(*shiftUpload).PlayerDeathCount = (*statInkShift).MyData.Death
+	*(*shiftUpload).PlayerID = (*statInkShift).MyData.SplatnetID
 
 	if len((*statInkShift).MyData.Weapons) > 0 {
 		*(*shiftUpload).PlayerWeaponW1 = fmt.Sprint((*statInkShift).MyData.Weapons[0].Splatnet)
@@ -181,10 +208,22 @@ func transformPlayerDataSalmon(statInkShift *types.ShiftStatInk, shiftUpload *ty
 		}
 	}
 
-	*(*shiftUpload).PlayerReviveCount = (*statInkShift).MyData.Rescue
-	*(*shiftUpload).PlayerDeathCount = (*statInkShift).MyData.Death
-	*(*shiftUpload).PlayerID = (*statInkShift).MyData.SplatnetID
+	if len((*statInkShift).MyData.SpecialUses) > 0 {
+		*(*shiftUpload).PlayerW1Specials = (*statInkShift).MyData.SpecialUses[0]
 
+		if len((*statInkShift).MyData.SpecialUses) > 1 {
+			*(*shiftUpload).PlayerW2Specials = (*statInkShift).MyData.SpecialUses[1]
+
+			if len((*statInkShift).MyData.SpecialUses) > 2 {
+				*(*shiftUpload).PlayerW3Specials = (*statInkShift).MyData.SpecialUses[2]
+			}
+		}
+	}
+
+	transformPlayerBossKills(statInkShift, shiftUpload)
+}
+
+func transformPlayerBossKills(statInkShift *types.ShiftStatInk, shiftUpload *types.ShiftUpload) {
 	for _, boss := range (*statInkShift).MyData.BossKills {
 		switch boss.Boss.Splatnet {
 		case 3:
@@ -207,18 +246,6 @@ func transformPlayerDataSalmon(statInkShift *types.ShiftStatInk, shiftUpload *ty
 			*(*shiftUpload).PlayerDrizzlerKills = boss.Count
 		}
 	}
-
-	if len((*statInkShift).MyData.SpecialUses) > 0 {
-		*(*shiftUpload).PlayerW1Specials = (*statInkShift).MyData.SpecialUses[0]
-
-		if len((*statInkShift).MyData.SpecialUses) > 1 {
-			*(*shiftUpload).PlayerW2Specials = (*statInkShift).MyData.SpecialUses[1]
-
-			if len((*statInkShift).MyData.SpecialUses) > 2 {
-				*(*shiftUpload).PlayerW3Specials = (*statInkShift).MyData.SpecialUses[2]
-			}
-		}
-	}
 }
 
 func transformTeammate0Salmon(statInkShift *types.ShiftStatInk, shiftUpload *types.ShiftUpload) {
@@ -232,6 +259,9 @@ func transformTeammate0Salmon(statInkShift *types.ShiftStatInk, shiftUpload *typ
 	*(*shiftUpload).Teammate0PowerEggs = (*statInkShift).Teammates[0].PowerEggCollected
 	*(*shiftUpload).Teammate0Name = (*statInkShift).Teammates[0].Name
 	*(*shiftUpload).Teammate0Special = fmt.Sprint((*statInkShift).Teammates[0].Special.Splatnet)
+	*(*shiftUpload).Teammate0ReviveCount = (*statInkShift).Teammates[0].Rescue
+	*(*shiftUpload).Teammate0DeathCount = (*statInkShift).Teammates[0].Death
+	*(*shiftUpload).Teammate0ID = (*statInkShift).Teammates[0].SplatnetID
 
 	if len((*statInkShift).Teammates[0].Weapons) > 0 {
 		*(*shiftUpload).Teammate0WeaponW1 = fmt.Sprint((*statInkShift).Teammates[0].Weapons[0].Splatnet)
@@ -245,10 +275,22 @@ func transformTeammate0Salmon(statInkShift *types.ShiftStatInk, shiftUpload *typ
 		}
 	}
 
-	*(*shiftUpload).Teammate0ReviveCount = (*statInkShift).Teammates[0].Rescue
-	*(*shiftUpload).Teammate0DeathCount = (*statInkShift).Teammates[0].Death
-	*(*shiftUpload).Teammate0ID = (*statInkShift).Teammates[0].SplatnetID
+	if len((*statInkShift).Teammates[0].SpecialUses) > 0 {
+		*(*shiftUpload).Teammate0W1Specials = (*statInkShift).Teammates[0].SpecialUses[0]
 
+		if len((*statInkShift).Teammates[0].SpecialUses) > 1 {
+			*(*shiftUpload).Teammate0W2Specials = (*statInkShift).Teammates[0].SpecialUses[1]
+
+			if len((*statInkShift).Teammates[0].SpecialUses) > 2 {
+				*(*shiftUpload).Teammate0W3Specials = (*statInkShift).Teammates[0].SpecialUses[2]
+			}
+		}
+	}
+
+	transformTeammate0BossKills(statInkShift, shiftUpload)
+}
+
+func transformTeammate0BossKills(statInkShift *types.ShiftStatInk, shiftUpload *types.ShiftUpload) {
 	for _, boss := range (*statInkShift).Teammates[0].BossKills {
 		switch boss.Boss.Splatnet {
 		case 3:
@@ -271,18 +313,6 @@ func transformTeammate0Salmon(statInkShift *types.ShiftStatInk, shiftUpload *typ
 			*(*shiftUpload).Teammate0DrizzlerKills = boss.Count
 		}
 	}
-
-	if len((*statInkShift).Teammates[0].SpecialUses) > 0 {
-		*(*shiftUpload).Teammate0W1Specials = (*statInkShift).Teammates[0].SpecialUses[0]
-
-		if len((*statInkShift).Teammates[0].SpecialUses) > 1 {
-			*(*shiftUpload).Teammate0W2Specials = (*statInkShift).Teammates[0].SpecialUses[1]
-
-			if len((*statInkShift).Teammates[0].SpecialUses) > 2 {
-				*(*shiftUpload).Teammate0W3Specials = (*statInkShift).Teammates[0].SpecialUses[2]
-			}
-		}
-	}
 }
 
 func transformTeammate1Salmon(statInkShift *types.ShiftStatInk, shiftUpload *types.ShiftUpload) {
@@ -296,6 +326,9 @@ func transformTeammate1Salmon(statInkShift *types.ShiftStatInk, shiftUpload *typ
 	*(*shiftUpload).Teammate1PowerEggs = (*statInkShift).Teammates[1].PowerEggCollected
 	*(*shiftUpload).Teammate1Name = (*statInkShift).Teammates[1].Name
 	*(*shiftUpload).Teammate1Special = fmt.Sprint((*statInkShift).Teammates[1].Special.Splatnet)
+	*(*shiftUpload).Teammate1ReviveCount = (*statInkShift).Teammates[1].Rescue
+	*(*shiftUpload).Teammate1DeathCount = (*statInkShift).Teammates[1].Death
+	*(*shiftUpload).Teammate1ID = (*statInkShift).Teammates[1].SplatnetID
 
 	if len((*statInkShift).Teammates[1].Weapons) > 0 {
 		*(*shiftUpload).Teammate1WeaponW1 = fmt.Sprint((*statInkShift).Teammates[1].Weapons[0].Splatnet)
@@ -309,10 +342,22 @@ func transformTeammate1Salmon(statInkShift *types.ShiftStatInk, shiftUpload *typ
 		}
 	}
 
-	*(*shiftUpload).Teammate1ReviveCount = (*statInkShift).Teammates[1].Rescue
-	*(*shiftUpload).Teammate1DeathCount = (*statInkShift).Teammates[1].Death
-	*(*shiftUpload).Teammate1ID = (*statInkShift).Teammates[1].SplatnetID
+	if len((*statInkShift).Teammates[1].SpecialUses) > 0 {
+		*(*shiftUpload).Teammate1W1Specials = (*statInkShift).Teammates[1].SpecialUses[0]
 
+		if len((*statInkShift).Teammates[1].SpecialUses) > 1 {
+			*(*shiftUpload).Teammate1W2Specials = (*statInkShift).Teammates[1].SpecialUses[1]
+
+			if len((*statInkShift).Teammates[1].SpecialUses) > 2 {
+				*(*shiftUpload).Teammate1W3Specials = (*statInkShift).Teammates[1].SpecialUses[2]
+			}
+		}
+	}
+
+	transformTeammate1BossKills(statInkShift, shiftUpload)
+}
+
+func transformTeammate1BossKills(statInkShift *types.ShiftStatInk, shiftUpload *types.ShiftUpload) {
 	for _, boss := range (*statInkShift).Teammates[1].BossKills {
 		switch boss.Boss.Splatnet {
 		case 3:
@@ -335,18 +380,6 @@ func transformTeammate1Salmon(statInkShift *types.ShiftStatInk, shiftUpload *typ
 			*(*shiftUpload).Teammate1DrizzlerKills = boss.Count
 		}
 	}
-
-	if len((*statInkShift).Teammates[1].SpecialUses) > 0 {
-		*(*shiftUpload).Teammate1W1Specials = (*statInkShift).Teammates[1].SpecialUses[0]
-
-		if len((*statInkShift).Teammates[1].SpecialUses) > 1 {
-			*(*shiftUpload).Teammate1W2Specials = (*statInkShift).Teammates[1].SpecialUses[1]
-
-			if len((*statInkShift).Teammates[1].SpecialUses) > 2 {
-				*(*shiftUpload).Teammate1W3Specials = (*statInkShift).Teammates[1].SpecialUses[2]
-			}
-		}
-	}
 }
 
 func transformTeammate2Salmon(statInkShift *types.ShiftStatInk, shiftUpload *types.ShiftUpload) {
@@ -360,6 +393,9 @@ func transformTeammate2Salmon(statInkShift *types.ShiftStatInk, shiftUpload *typ
 	*(*shiftUpload).Teammate2PowerEggs = (*statInkShift).Teammates[2].PowerEggCollected
 	*(*shiftUpload).Teammate2Name = (*statInkShift).Teammates[2].Name
 	*(*shiftUpload).Teammate2Special = fmt.Sprint((*statInkShift).Teammates[2].Special.Splatnet)
+	*(*shiftUpload).Teammate2ReviveCount = (*statInkShift).Teammates[2].Rescue
+	*(*shiftUpload).Teammate2DeathCount = (*statInkShift).Teammates[2].Death
+	*(*shiftUpload).Teammate2ID = (*statInkShift).Teammates[2].SplatnetID
 
 	if len((*statInkShift).Teammates[2].Weapons) > 0 {
 		*(*shiftUpload).Teammate2WeaponW1 = fmt.Sprint((*statInkShift).Teammates[2].Weapons[0].Splatnet)
@@ -373,10 +409,22 @@ func transformTeammate2Salmon(statInkShift *types.ShiftStatInk, shiftUpload *typ
 		}
 	}
 
-	*(*shiftUpload).Teammate2ReviveCount = (*statInkShift).Teammates[2].Rescue
-	*(*shiftUpload).Teammate2DeathCount = (*statInkShift).Teammates[2].Death
-	*(*shiftUpload).Teammate2ID = (*statInkShift).Teammates[2].SplatnetID
+	if len((*statInkShift).Teammates[2].SpecialUses) > 0 {
+		*(*shiftUpload).Teammate2W1Specials = (*statInkShift).Teammates[2].SpecialUses[0]
 
+		if len((*statInkShift).Teammates[2].SpecialUses) > 1 {
+			*(*shiftUpload).Teammate2W2Specials = (*statInkShift).Teammates[2].SpecialUses[1]
+
+			if len((*statInkShift).Teammates[2].SpecialUses) > 2 {
+				*(*shiftUpload).Teammate2W3Specials = (*statInkShift).Teammates[2].SpecialUses[2]
+			}
+		}
+	}
+
+	transformTeammate2BossKills(statInkShift, shiftUpload)
+}
+
+func transformTeammate2BossKills(statInkShift *types.ShiftStatInk, shiftUpload *types.ShiftUpload) {
 	for _, boss := range (*statInkShift).Teammates[2].BossKills {
 		switch boss.Boss.Splatnet {
 		case 3:
@@ -397,18 +445,6 @@ func transformTeammate2Salmon(statInkShift *types.ShiftStatInk, shiftUpload *typ
 			*(*shiftUpload).Teammate2GrillerKills = boss.Count
 		case 21:
 			*(*shiftUpload).Teammate2DrizzlerKills = boss.Count
-		}
-	}
-
-	if len((*statInkShift).Teammates[2].SpecialUses) > 0 {
-		*(*shiftUpload).Teammate2W1Specials = (*statInkShift).Teammates[2].SpecialUses[0]
-
-		if len((*statInkShift).Teammates[2].SpecialUses) > 1 {
-			*(*shiftUpload).Teammate2W2Specials = (*statInkShift).Teammates[2].SpecialUses[1]
-
-			if len((*statInkShift).Teammates[2].SpecialUses) > 2 {
-				*(*shiftUpload).Teammate2W3Specials = (*statInkShift).Teammates[2].SpecialUses[2]
-			}
 		}
 	}
 }
@@ -438,9 +474,130 @@ func transformBossAppearances(statInkShift *types.ShiftStatInk, shiftUpload *typ
 	}
 }
 
-func MigrateBattles(apiKey string, client *http.Client) {
+func downloadBattles(allData *[]types.BattleStatInk, client *http.Client) {
 	if viper.GetString("statink_api_key") == "" {
 		enterStatinkApiKey()
 	}
-	// statinkApiKey := viper.GetString("statink_api_key")
+
+	statinkApiKey := viper.GetString("statink_api_key")
+	reqUrl := "https://stat.ink/api/v2/user-battle"
+	previousID := -1
+
+	currentID := 1
+	for currentID > previousID {
+		ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+
+		req, err := http.NewRequestWithContext(ctx, "GET", reqUrl, nil)
+		if err != nil {
+			panic(err)
+		}
+
+		req.Header.Set("Authorization", "Bearer "+statinkApiKey)
+
+		q := req.URL.Query()
+		q.Add("newer_than", fmt.Sprint(currentID))
+		q.Add("order", "asc")
+		req.URL.RawQuery = q.Encode()
+		fmt.Println(req.URL.String())
+
+		resp, err := client.Do(req)
+		if err != nil {
+			panic(err)
+		}
+
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			panic(errors.Wrap(err, resp.Body.Close().Error()))
+		}
+
+		if err := resp.Body.Close(); err != nil {
+			panic(err)
+		}
+
+		var tempData types.BattleStatInkArray
+		if err := json.Unmarshal(bodyBytes, &tempData); err != nil {
+			panic(err)
+		}
+
+		if err := resp.Body.Close(); err != nil {
+			panic(err)
+		}
+
+		previousID = currentID
+		currentID = tempData[len(tempData)-1].ID
+
+		for i := range tempData {
+			*allData = append(*allData, tempData[i])
+		}
+	}
+}
+
+func transformBattle(statInkBattle *types.BattleStatInk, battleUpload *types.BattleUpload) {
+	*(*battleUpload).SplatnetUpload = false
+	*(*battleUpload).StatInkUpload = true
+	(*battleUpload).StatInkJson = statInkBattle
+
+	switch (*statInkBattle).Rule.Key {
+	case "asari":
+		*(*battleUpload).Rule = "clam_blitz"
+	case "nawabari":
+		*(*battleUpload).Rule = "turf_war"
+	case "area":
+		*(*battleUpload).Rule = "splat_zones"
+	case "hoko":
+		*(*battleUpload).Rule = "rainmaker"
+	case "yagura":
+		*(*battleUpload).Rule = "tower_control"
+	}
+
+	if (*statInkBattle).Lobby.Key == "standard" && (*statInkBattle).Mode.Key == "gachi" {
+		*(*battleUpload).MatchType = "ranked"
+	} else if (*statInkBattle).Lobby.Key == "standard" && (*statInkBattle).Mode.Key == "fest" {
+		*(*battleUpload).MatchType = "fes_solo"
+	} else if (*statInkBattle).Lobby.Key == "standard" && (*statInkBattle).Mode.Key == "regular" {
+		*(*battleUpload).MatchType = "turf_war"
+	} else if (*statInkBattle).Lobby.Key == "private" {
+		*(*battleUpload).MatchType = "private"
+	} else if (*statInkBattle).Lobby.Key == "squad_2" {
+		*(*battleUpload).MatchType = "league_pair"
+	} else if ((*statInkBattle).Lobby.Key == "squad_4" && (*statInkBattle).Mode.Key == "fest") || (*statInkBattle).Lobby.Key == "fest_normal" {
+		*(*battleUpload).MatchType = "fes_team"
+	} else if (*statInkBattle).Lobby.Key == "squad_4" && (*statInkBattle).Mode.Key == "gachi" {
+		*(*battleUpload).MatchType = "league_team"
+	}
+
+	*(*battleUpload).Stage = fmt.Sprint((*statInkBattle).Map.Splatnet)
+	*(*battleUpload).Win = (*statInkBattle).Result == "win"
+	*(*battleUpload).HasDisconnectedPlayer = false
+
+	for i := range (*statInkBattle).Players {
+		*(*battleUpload).HasDisconnectedPlayer = *(*battleUpload).HasDisconnectedPlayer || ((*statInkBattle).Players[i].Point == 0 && (*statInkBattle).Players[i].KillOrAssist == 0 && (*statInkBattle).Players[i].Death == 0)
+	}
+
+	*(*battleUpload).Time = (*statInkBattle).StartAt.Time
+	*(*battleUpload).BattleNumber = fmt.Sprint((*statInkBattle).SplatnetNumber)
+	*(*battleUpload).WinMeter = (*statInkBattle).Freshness.Freshness
+
+	if (*statInkBattle).MyTeamCount != nil {
+		*(*battleUpload).MyTeamCount = float64(*(*statInkBattle).MyTeamCount)
+	} else if (*statInkBattle).MyTeamPercent != nil {
+		f, err := strconv.ParseFloat(*(*statInkBattle).MyTeamPercent, 64)
+		if err != nil {
+			panic(err)
+		}
+		*(*battleUpload).MyTeamCount = f
+	}
+
+	if (*statInkBattle).HisTeamCount != nil {
+		*(*battleUpload).OtherTeamCount = float64(*(*statInkBattle).HisTeamCount)
+	} else if (*statInkBattle).HisTeamPercent != nil {
+		f, err := strconv.ParseFloat(*(*statInkBattle).HisTeamPercent, 64)
+		if err != nil {
+			panic(err)
+		}
+		*(*battleUpload).OtherTeamCount = f
+	}
+
+	*(*battleUpload).ElapsedTime = (*statInkBattle).EndAt.Time - (*statInkBattle).StartAt.Time
+	*(*battleUpload).TagID = (*statInkBattle).MyTeamID
 }

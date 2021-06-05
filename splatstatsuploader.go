@@ -18,7 +18,7 @@ import (
 	"golang.org/x/term"
 )
 
-var progVersion = "3.1.0"
+var progVersion = "3.1.1"
 
 func doSelfUpdate() {
 	v := semver.MustParse(progVersion)
@@ -255,11 +255,8 @@ func main() {
 			data.File(salmon, viper.GetString("api_key"), client)
 		}
 	} else if statink {
-		if salmon {
-			statink2splatstats.MigrateSalmon(viper.GetString("api_key"), client)
-		} else {
-			//statink2splatstats.MigrateBattles(viper.GetString("api_key"), client)
-		}	} else {
+		statink2splatstats.Migrate(s, salmon, viper.GetString("api_key"), client)
+	} else {
 		if salmon {
 			data.GetSplatnetSalmon(s, viper.GetString("api_key"), progVersion, appHead, client)
 		} else {

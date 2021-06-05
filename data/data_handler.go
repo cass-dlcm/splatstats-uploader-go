@@ -109,7 +109,7 @@ func uploadSingleBattle(s bool, apiKey string, appHead map[string]string, battle
 	}
 
 	battleUpload := setBattlePayload(&battle)
-	uploadBattle(&battleUpload, apiKey, client)
+	UploadBattle(&battleUpload, apiKey, client)
 
 	if s {
 		file, err := json.MarshalIndent(battle, "", " ")
@@ -276,7 +276,7 @@ func File(salmon bool, apiKey string, client *http.Client) {
 			}
 
 			battleUpload := setBattlePayload(&battle)
-			uploadBattle(&battleUpload, apiKey, client)
+			UploadBattle(&battleUpload, apiKey, client)
 		}
 	}
 }
@@ -747,7 +747,7 @@ func setBattlePayload(battle *types.Battle) types.BattleUpload {
 	return battleUpload
 }
 
-func uploadBattle(battleUpload *types.BattleUpload, apiKey string, client *http.Client) {
+func UploadBattle(battleUpload *types.BattleUpload, apiKey string, client *http.Client) {
 	url := "https://splatstats.cass-dlcm.dev/two_battles/api/battles/"
 	auth := map[string]string{
 		"Authorization": "Token " + apiKey,
@@ -807,17 +807,15 @@ func uploadBattle(battleUpload *types.BattleUpload, apiKey string, client *http.
 }
 
 func battleSetHasDc(battle *types.Battle, battleUpload *types.BattleUpload) {
-	hasDC := false
+	*(*battleUpload).HasDisconnectedPlayer = false
 
 	for i := range (*battle).MyTeamMembers {
-		hasDC = hasDC || (*(*battle).MyTeamMembers[i].GamePaintPoint == 0 && *(*battle).MyTeamMembers[i].KillCount == 0 && *(*battle).MyTeamMembers[i].SpecialCount == 0 && *(*battle).MyTeamMembers[i].DeathCount == 0 && *(*battle).MyTeamMembers[i].AssistCount == 0)
+		*(*battleUpload).HasDisconnectedPlayer = *(*battleUpload).HasDisconnectedPlayer || (*(*battle).MyTeamMembers[i].GamePaintPoint == 0 && *(*battle).MyTeamMembers[i].KillCount == 0 && *(*battle).MyTeamMembers[i].SpecialCount == 0 && *(*battle).MyTeamMembers[i].DeathCount == 0 && *(*battle).MyTeamMembers[i].AssistCount == 0)
 	}
 
 	for i := range (*battle).OtherTeamMembers {
-		hasDC = hasDC || (*(*battle).OtherTeamMembers[i].GamePaintPoint == 0 && *(*battle).OtherTeamMembers[i].KillCount == 0 && *(*battle).OtherTeamMembers[i].SpecialCount == 0 && *(*battle).OtherTeamMembers[i].DeathCount == 0 && *(*battle).OtherTeamMembers[i].AssistCount == 0)
+		*(*battleUpload).HasDisconnectedPlayer = *(*battleUpload).HasDisconnectedPlayer || (*(*battle).OtherTeamMembers[i].GamePaintPoint == 0 && *(*battle).OtherTeamMembers[i].KillCount == 0 && *(*battle).OtherTeamMembers[i].SpecialCount == 0 && *(*battle).OtherTeamMembers[i].DeathCount == 0 && *(*battle).OtherTeamMembers[i].AssistCount == 0)
 	}
-
-	battleUpload.HasDisconnectedPlayer = &hasDC
 }
 
 func battleSetScoreTime(battle *types.Battle, battleUpload *types.BattleUpload) {
