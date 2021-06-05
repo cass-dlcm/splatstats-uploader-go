@@ -249,12 +249,12 @@ func main() {
 		data.Monitor(m, s, salmon, viper.GetString("api_key"), progVersion, appHead, client)
 	} else if f {
 		data.File(salmon, viper.GetString("api_key"), client)
-	//} else if statink {
-	//	if salmon {
-	//		statink2splatstats.MigrateSalmon(viper.GetString("api_key"), client)
-	//	} else {
-	//		statink2splatstats.MigrateBattles(viper.GetString("api_key"), client)
-	//	}
+		//} else if statink {
+		//	if salmon {
+		//		statink2splatstats.MigrateSalmon(viper.GetString("api_key"), client)
+		//	} else {
+		//		statink2splatstats.MigrateBattles(viper.GetString("api_key"), client)
+		//	}
 	} else {
 		if salmon {
 			data.GetSplatnetSalmon(s, viper.GetString("api_key"), progVersion, appHead, client)
