@@ -259,8 +259,7 @@ func main() {
 			statink2splatstats.MigrateSalmon(viper.GetString("api_key"), client)
 		} else {
 			//statink2splatstats.MigrateBattles(viper.GetString("api_key"), client)
-		}
-	} else {
+		}	} else {
 		if salmon {
 			data.GetSplatnetSalmon(s, viper.GetString("api_key"), progVersion, appHead, client)
 		} else {
