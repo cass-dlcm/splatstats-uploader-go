@@ -1569,10 +1569,10 @@ type ShiftStatInk struct {
 				ZhTw string `json:"zh_TW"`
 			} `json:"name"`
 		} `json:"special"`
-		Rescue             int         `json:"rescue"`
-		Death              int         `json:"death"`
-		GoldenEggDelivered int         `json:"golden_egg_delivered"`
-		PowerEggCollected  int         `json:"power_egg_collected"`
+		Rescue             int `json:"rescue"`
+		Death              int `json:"death"`
+		GoldenEggDelivered int `json:"golden_egg_delivered"`
+		PowerEggCollected  int `json:"power_egg_collected"`
 		Species            struct {
 			Key  string `json:"key"`
 			Name struct {
@@ -1610,8 +1610,8 @@ type ShiftStatInk struct {
 				ZhTw string `json:"zh_TW"`
 			} `json:"name"`
 		} `json:"gender"`
-		SpecialUses        []int       `json:"special_uses"`
-		Weapons            []struct {
+		SpecialUses []int `json:"special_uses"`
+		Weapons     []struct {
 			Key      string `json:"key"`
 			Splatnet int    `json:"splatnet"`
 			Name     struct {
