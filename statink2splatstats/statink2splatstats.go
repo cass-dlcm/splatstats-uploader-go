@@ -39,7 +39,7 @@ func Migrate(s bool, salmon bool, apiKey string, client *http.Client) {
 		downloadShifts(s, &allData, client)
 
 		for i := range allData {
-			var shift types.ShiftUpload
+			shift := types.ShiftUpload{}
 
 			transformShift(&allData[i], &shift)
 			data.UploadSalmon(&shift, apiKey, client)
@@ -50,7 +50,7 @@ func Migrate(s bool, salmon bool, apiKey string, client *http.Client) {
 		downloadBattles(&allData, client)
 
 		for i := range allData {
-			var battle types.BattleUpload
+			battle := types.BattleUpload{}
 
 			transformBattle(&allData[i], &battle)
 			data.UploadBattle(&battle, apiKey, client)
