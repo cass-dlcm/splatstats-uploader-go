@@ -175,7 +175,7 @@ func uploadSingleSalmon(s bool, apiKey string, appHead map[string]string, jobId 
 	}
 
 	shiftUpload := setSalmonPayload(&shift)
-	uploadSalmon(&shiftUpload, apiKey, client)
+	UploadSalmon(&shiftUpload, apiKey, client)
 }
 
 func uploadLatestSalmon(s bool, apiKey string, appHead map[string]string, client *http.Client) {
@@ -269,7 +269,7 @@ func File(salmon bool, apiKey string, client *http.Client) {
 			}
 
 			shiftUpload := setSalmonPayload(&shift)
-			uploadSalmon(&shiftUpload, apiKey, client)
+			UploadSalmon(&shiftUpload, apiKey, client)
 		} else {
 			if err := json.Unmarshal(byteValue, &battle); err != nil {
 				panic(err)
@@ -470,7 +470,7 @@ func setSalmonPayload(shift *types.Shift) types.ShiftUpload {
 	return shiftUpload
 }
 
-func uploadSalmon(shiftUpload *types.ShiftUpload, apiKey string, client *http.Client) {
+func UploadSalmon(shiftUpload *types.ShiftUpload, apiKey string, client *http.Client) {
 	url := "https://splatstats.cass-dlcm.dev/two_salmon/api/shifts/"
 	auth := map[string]string{
 		"Authorization": "Token " + apiKey,

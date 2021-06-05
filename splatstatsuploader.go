@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/cass-dlcm/splatstatsuploader/statink2splatstats"
 	"net/http"
 	"os"
 	"time"
@@ -17,7 +18,7 @@ import (
 	"golang.org/x/term"
 )
 
-var progVersion = "3.0.0"
+var progVersion = "3.1.0"
 
 func doSelfUpdate() {
 	v := semver.MustParse(progVersion)
@@ -150,11 +151,11 @@ func setApiToken(client *http.Client) {
 	}
 }
 
-func getFlags() (int, bool, bool, bool) {
+func getFlags() (int, bool, bool, bool, bool) {
 	m := flag.Int("m", -1, "To monitor for new match results.")
 	f := flag.Bool("f", false, "To upload battles/shifts from files.")
 	s := flag.Bool("s", false, "To save battles/shifts to files.")
-	//statink := flag.Bool("statink", false, "To migrate from stat.ink to SplatStats.")
+	statink := flag.Bool("statink", false, "To migrate from stat.ink to SplatStats.")
 	salmon := flag.Bool("salmon", false, "To upload salmon run matches.")
 	flag.Parse()
 
@@ -166,13 +167,13 @@ func getFlags() (int, bool, bool, bool) {
 		os.Exit(1)
 	}
 
-	//if *m != -1 && *statink {
-	//	if _, err := fmt.Println("Cannot use -m and --statink together. Exiting."); err != nil {
-	//		panic(err)
-	//	}
-	//
-	//	os.Exit(1)
-	//}
+	if *m != -1 && *statink {
+		if _, err := fmt.Println("Cannot use -m and --statink together. Exiting."); err != nil {
+			panic(err)
+		}
+
+		os.Exit(1)
+	}
 
 	if *f && *m != -1 {
 		if _, err := fmt.Println("Cannot use -f and -m together. Exiting"); err != nil {
@@ -182,7 +183,7 @@ func getFlags() (int, bool, bool, bool) {
 		os.Exit(1)
 	}
 
-	return *m, *f, *s, *salmon
+	return *m, *f, *s, *salmon, *statink
 }
 
 func main() {
@@ -244,17 +245,21 @@ func main() {
 		"Accept-Language":   viper.GetString("user_lang"),
 	}
 
-	m, f, s, salmon := getFlags()
+	m, f, s, salmon, statink := getFlags()
 	if m != -1 {
 		data.Monitor(m, s, salmon, viper.GetString("api_key"), progVersion, appHead, client)
 	} else if f {
-		data.File(salmon, viper.GetString("api_key"), client)
-	//} else if statink {
-	//	if salmon {
-	//		statink2splatstats.MigrateSalmon(viper.GetString("api_key"), client)
-	//	} else {
-	//		statink2splatstats.MigrateBattles(viper.GetString("api_key"), client)
-	//	}
+		if statink {
+
+		} else {
+			data.File(salmon, viper.GetString("api_key"), client)
+		}
+	} else if statink {
+		if salmon {
+			statink2splatstats.MigrateSalmon(viper.GetString("api_key"), client)
+		} else {
+			//statink2splatstats.MigrateBattles(viper.GetString("api_key"), client)
+		}
 	} else {
 		if salmon {
 			data.GetSplatnetSalmon(s, viper.GetString("api_key"), progVersion, appHead, client)
