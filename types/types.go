@@ -1,9 +1,10 @@
 package types
 
 import (
-	"github.com/shopspring/decimal"
+	"time"
 )
 
+// A Shift is the Salmon Run shift as downloaded from Splatnet 2.
 type Shift struct {
 	DangerRate float64 `json:"danger_rate"`
 	JobResult  struct {
@@ -314,6 +315,7 @@ type Shift struct {
 	} `json:"schedule"`
 }
 
+// A Battle is the PvP battle as downloaded from Splatnet 2.
 type Battle struct {
 	Udemae struct {
 		Name            *string      `json:"name"`
@@ -475,11 +477,11 @@ type Battle struct {
 		Key  *string `json:"key"`
 		Name *string `json:"name"`
 	} `json:"game_mode"`
-	XPower        decimal.NullDecimal `json:"x_power"`
-	BattleNumber  *string             `json:"battle_number"`
-	Type          *string             `json:"type"`
-	PlayerRank    *int                `json:"player_rank"`
-	CrownPlayers  *interface{}        `json:"crown_players"`
+	XPower        *float64     `json:"x_power"`
+	BattleNumber  *string      `json:"battle_number"`
+	Type          *string      `json:"type"`
+	PlayerRank    *int         `json:"player_rank"`
+	CrownPlayers  *interface{} `json:"crown_players"`
 	MyTeamMembers []struct {
 		GamePaintPoint *int `json:"game_paint_point"`
 		DeathCount     *int `json:"death_count"`
@@ -748,168 +750,171 @@ type Battle struct {
 		Key  *string `json:"key"`
 		Name *string `json:"name"`
 	} `json:"other_team_result"`
-	LeaguePoint         decimal.NullDecimal `json:"league_point"`
-	WinMeter            decimal.NullDecimal `json:"win_meter"`
-	MyTeamPercentage    decimal.NullDecimal `json:"my_team_percentage"`
-	OtherTeamPercentage decimal.NullDecimal `json:"other_team_percentage"`
-	TagID               *string             `json:"tag_id"`
+	LeaguePoint         *float64 `json:"league_point"`
+	WinMeter            *float64 `json:"win_meter"`
+	MyTeamPercentage    *float64 `json:"my_team_percentage"`
+	OtherTeamPercentage *float64 `json:"other_team_percentage"`
+	TagID               *string  `json:"tag_id"`
 }
 
+// A ShiftUpload is a flattened Shift, for uploading to SplatStats.
 type ShiftUpload struct {
-	DangerRate              float64 `json:"danger_rate"`
-	JobScore                *int    `json:"job_score,omitempty"`
-	DrizzlerCount           *int    `json:"drizzler_count,omitempty"`
-	Endtime                 *string `json:"endtime,omitempty"`
-	FailureWave             *int    `json:"failure_wave,omitempty"`
-	FlyfishCount            *int    `json:"flyfish_count,omitempty"`
-	GoldieCount             *int    `json:"goldie_count,omitempty"`
-	GradePoint              *int    `json:"grade_point,omitempty"`
-	GradePointDelta         *int    `json:"grade_point_delta,omitempty"`
-	GrillerCount            *int    `json:"griller_count,omitempty"`
-	IsClear                 *bool   `json:"is_clear,omitempty"`
-	JobFailureReason        *string `json:"job_failure_reason,omitempty"`
-	JobID                   *int    `json:"job_id,omitempty"`
-	MawsCount               *int    `json:"maws_count,omitempty"`
-	PlayerDeathCount        *int    `json:"player_death_count,omitempty"`
-	PlayerDrizzlerKills     *int    `json:"player_drizzler_kills,omitempty"`
-	PlayerFlyfishKills      *int    `json:"player_flyfish_kills,omitempty"`
-	PlayerGender            *string `json:"player_gender,omitempty"`
-	PlayerGoldenEggs        *int    `json:"player_golden_eggs,omitempty"`
-	PlayerGoldieKills       *int    `json:"player_goldie_kills,omitempty"`
-	PlayerGrillerKills      *int    `json:"player_griller_kills,omitempty"`
-	PlayerID                *string `json:"player_id,omitempty"`
-	PlayerMawsKills         *int    `json:"player_maws_kills,omitempty"`
-	PlayerName              *string `json:"player_name,omitempty"`
-	PlayerPowerEggs         *int    `json:"player_power_eggs,omitempty"`
-	PlayerReviveCount       *int    `json:"player_revive_count,omitempty"`
-	PlayerScrapperKills     *int    `json:"player_scrapper_kills,omitempty"`
-	PlayerSpecial           *string `json:"player_special,omitempty"`
-	PlayerSpecies           *string `json:"player_species,omitempty"`
-	PlayerSteelEelKills     *int    `json:"player_steel_eel_kills,omitempty"`
-	PlayerSteelheadKills    *int    `json:"player_steelhead_kills,omitempty"`
-	PlayerStingerKills      *int    `json:"player_stinger_kills,omitempty"`
-	PlayerTitle             *string `json:"player_title,omitempty"`
-	PlayerW1Specials        *int    `json:"player_w1_specials,omitempty"`
-	PlayerW2Specials        *int    `json:"player_w2_specials,omitempty"`
-	PlayerW3Specials        *int    `json:"player_w3_specials,omitempty"`
-	PlayerWeaponW1          *string `json:"player_weapon_w1,omitempty"`
-	PlayerWeaponW2          *string `json:"player_weapon_w2,omitempty"`
-	PlayerWeaponW3          *string `json:"player_weapon_w3,omitempty"`
-	Playtime                *string `json:"playtime,omitempty"`
-	ScheduleEndtime         *string `json:"schedule_endtime,omitempty"`
-	ScheduleStarttime       *string `json:"schedule_starttime,omitempty"`
-	ScheduleWeapon0         *string `json:"schedule_weapon_0,omitempty"`
-	ScheduleWeapon1         *string `json:"schedule_weapon_1,omitempty"`
-	ScheduleWeapon2         *string `json:"schedule_weapon_2,omitempty"`
-	ScheduleWeapon3         *string `json:"schedule_weapon_3,omitempty"`
-	ScrapperCount           *int    `json:"scrapper_count,omitempty"`
-	SplatnetJSON            Shift   `json:"splatnet_json"`
-	SplatnetUpload          *bool   `json:"splatnet_upload,omitempty"`
-	Stage                   *string `json:"stage,omitempty"`
-	StatInkUpload           *bool   `json:"stat_ink_upload,omitempty"`
-	Starttime               *string `json:"starttime,omitempty"`
-	SteelEelCount           *int    `json:"steel_eel_count,omitempty"`
-	SteelheadCount          *int    `json:"steelhead_count,omitempty"`
-	StingerCount            *int    `json:"stinger_count,omitempty"`
-	Teammate0DeathCount     *int    `json:"teammate0_death_count,omitempty"`
-	Teammate0DrizzlerKills  *int    `json:"teammate0_drizzler_kills,omitempty"`
-	Teammate0FlyfishKills   *int    `json:"teammate0_flyfish_kills,omitempty"`
-	Teammate0Gender         *string `json:"teammate0_gender,omitempty"`
-	Teammate0GoldenEggs     *int    `json:"teammate0_golden_eggs,omitempty"`
-	Teammate0GoldieKills    *int    `json:"teammate0_goldie_kills,omitempty"`
-	Teammate0GrillerKills   *int    `json:"teammate0_griller_kills,omitempty"`
-	Teammate0ID             *string `json:"teammate0_id,omitempty"`
-	Teammate0MawsKills      *int    `json:"teammate0_maws_kills,omitempty"`
-	Teammate0Name           *string `json:"teammate0_name,omitempty"`
-	Teammate0PowerEggs      *int    `json:"teammate0_power_eggs,omitempty"`
-	Teammate0ReviveCount    *int    `json:"teammate0_revive_count,omitempty"`
-	Teammate0ScrapperKills  *int    `json:"teammate0_scrapper_kills,omitempty"`
-	Teammate0Special        *string `json:"teammate0_special,omitempty"`
-	Teammate0Species        *string `json:"teammate0_species,omitempty"`
-	Teammate0SteelEelKills  *int    `json:"teammate0_steel_eel_kills,omitempty"`
-	Teammate0SteelheadKills *int    `json:"teammate0_steelhead_kills,omitempty"`
-	Teammate0StingerKills   *int    `json:"teammate0_stinger_kills,omitempty"`
-	Teammate0W1Specials     *int    `json:"teammate0_w1_specials,omitempty"`
-	Teammate0W2Specials     *int    `json:"teammate0_w2_specials,omitempty"`
-	Teammate0W3Specials     *int    `json:"teammate0_w3_specials,omitempty"`
-	Teammate0WeaponW1       *string `json:"teammate0_weapon_w1,omitempty"`
-	Teammate0WeaponW2       *string `json:"teammate0_weapon_w2,omitempty"`
-	Teammate0WeaponW3       *string `json:"teammate0_weapon_w3,omitempty"`
-	Teammate1DeathCount     *int    `json:"teammate1_death_count,omitempty"`
-	Teammate1DrizzlerKills  *int    `json:"teammate1_drizzler_kills,omitempty"`
-	Teammate1FlyfishKills   *int    `json:"teammate1_flyfish_kills,omitempty"`
-	Teammate1Gender         *string `json:"teammate1_gender,omitempty"`
-	Teammate1GoldenEggs     *int    `json:"teammate1_golden_eggs,omitempty"`
-	Teammate1GoldieKills    *int    `json:"teammate1_goldie_kills,omitempty"`
-	Teammate1GrillerKills   *int    `json:"teammate1_griller_kills,omitempty"`
-	Teammate1ID             *string `json:"teammate1_id,omitempty"`
-	Teammate1MawsKills      *int    `json:"teammate1_maws_kills,omitempty"`
-	Teammate1Name           *string `json:"teammate1_name,omitempty"`
-	Teammate1PowerEggs      *int    `json:"teammate1_power_eggs,omitempty"`
-	Teammate1ReviveCount    *int    `json:"teammate1_revive_count,omitempty"`
-	Teammate1ScrapperKills  *int    `json:"teammate1_scrapper_kills,omitempty"`
-	Teammate1Special        *string `json:"teammate1_special,omitempty"`
-	Teammate1Species        *string `json:"teammate1_species,omitempty"`
-	Teammate1SteelEelKills  *int    `json:"teammate1_steel_eel_kills,omitempty"`
-	Teammate1SteelheadKills *int    `json:"teammate1_steelhead_kills,omitempty"`
-	Teammate1StingerKills   *int    `json:"teammate1_stinger_kills,omitempty"`
-	Teammate1W1Specials     *int    `json:"teammate1_w1_specials,omitempty"`
-	Teammate1W2Specials     *int    `json:"teammate1_w2_specials,omitempty"`
-	Teammate1W3Specials     *int    `json:"teammate1_w3_specials,omitempty"`
-	Teammate1WeaponW1       *string `json:"teammate1_weapon_w1,omitempty"`
-	Teammate1WeaponW2       *string `json:"teammate1_weapon_w2,omitempty"`
-	Teammate1WeaponW3       *string `json:"teammate1_weapon_w3,omitempty"`
-	Teammate2DeathCount     *int    `json:"teammate2_death_count,omitempty"`
-	Teammate2DrizzlerKills  *int    `json:"teammate2_drizzler_kills,omitempty"`
-	Teammate2FlyfishKills   *int    `json:"teammate2_flyfish_kills,omitempty"`
-	Teammate2Gender         *string `json:"teammate2_gender,omitempty"`
-	Teammate2GoldenEggs     *int    `json:"teammate2_golden_eggs,omitempty"`
-	Teammate2GoldieKills    *int    `json:"teammate2_goldie_kills,omitempty"`
-	Teammate2GrillerKills   *int    `json:"teammate2_griller_kills,omitempty"`
-	Teammate2ID             *string `json:"teammate2_id,omitempty"`
-	Teammate2MawsKills      *int    `json:"teammate2_maws_kills,omitempty"`
-	Teammate2Name           *string `json:"teammate2_name,omitempty"`
-	Teammate2PowerEggs      *int    `json:"teammate2_power_eggs,omitempty"`
-	Teammate2ReviveCount    *int    `json:"teammate2_revive_count,omitempty"`
-	Teammate2ScrapperKills  *int    `json:"teammate2_scrapper_kills,omitempty"`
-	Teammate2Special        *string `json:"teammate2_special,omitempty"`
-	Teammate2Species        *string `json:"teammate2_species,omitempty"`
-	Teammate2SteelEelKills  *int    `json:"teammate2_steel_eel_kills,omitempty"`
-	Teammate2SteelheadKills *int    `json:"teammate2_steelhead_kills,omitempty"`
-	Teammate2StingerKills   *int    `json:"teammate2_stinger_kills,omitempty"`
-	Teammate2W1Specials     *int    `json:"teammate2_w1_specials,omitempty"`
-	Teammate2W2Specials     *int    `json:"teammate2_w2_specials,omitempty"`
-	Teammate2W3Specials     *int    `json:"teammate2_w3_specials,omitempty"`
-	Teammate2WeaponW1       *string `json:"teammate2_weapon_w1,omitempty"`
-	Teammate2WeaponW2       *string `json:"teammate2_weapon_w2,omitempty"`
-	Teammate2WeaponW3       *string `json:"teammate2_weapon_w3,omitempty"`
-	Wave1EventType          *string `json:"wave_1_event_type,omitempty"`
-	Wave1GoldenAppear       *int    `json:"wave_1_golden_appear,omitempty"`
-	Wave1GoldenDelivered    *int    `json:"wave_1_golden_delivered,omitempty"`
-	Wave1PowerEggs          *int    `json:"wave_1_power_eggs,omitempty"`
-	Wave1Quota              *int    `json:"wave_1_quota,omitempty"`
-	Wave1WaterLevel         *string `json:"wave_1_water_level,omitempty"`
-	Wave2EventType          *string `json:"wave_2_event_type,omitempty"`
-	Wave2GoldenAppear       *int    `json:"wave_2_golden_appear,omitempty"`
-	Wave2GoldenDelivered    *int    `json:"wave_2_golden_delivered,omitempty"`
-	Wave2PowerEggs          *int    `json:"wave_2_power_eggs,omitempty"`
-	Wave2Quota              *int    `json:"wave_2_quota,omitempty"`
-	Wave2WaterLevel         *string `json:"wave_2_water_level,omitempty"`
-	Wave3EventType          *string `json:"wave_3_event_type,omitempty"`
-	Wave3GoldenAppear       *int    `json:"wave_3_golden_appear,omitempty"`
-	Wave3GoldenDelivered    *int    `json:"wave_3_golden_delivered,omitempty"`
-	Wave3PowerEggs          *int    `json:"wave_3_power_eggs,omitempty"`
-	Wave3Quota              *int    `json:"wave_3_quota,omitempty"`
-	Wave3WaterLevel         *string `json:"wave_3_water_level,omitempty"`
+	DangerRate              *float64      `json:"danger_rate"`
+	JobScore                *int          `json:"job_score,omitempty"`
+	DrizzlerCount           *int          `json:"drizzler_count,omitempty"`
+	Endtime                 *string       `json:"endtime,omitempty"`
+	FailureWave             *int          `json:"failure_wave,omitempty"`
+	FlyfishCount            *int          `json:"flyfish_count,omitempty"`
+	GoldieCount             *int          `json:"goldie_count,omitempty"`
+	GradePoint              *int          `json:"grade_point,omitempty"`
+	GradePointDelta         *int          `json:"grade_point_delta,omitempty"`
+	GrillerCount            *int          `json:"griller_count,omitempty"`
+	IsClear                 *bool         `json:"is_clear,omitempty"`
+	JobFailureReason        *string       `json:"job_failure_reason,omitempty"`
+	JobID                   *int          `json:"job_id,omitempty"`
+	MawsCount               *int          `json:"maws_count,omitempty"`
+	PlayerDeathCount        *int          `json:"player_death_count,omitempty"`
+	PlayerDrizzlerKills     *int          `json:"player_drizzler_kills,omitempty"`
+	PlayerFlyfishKills      *int          `json:"player_flyfish_kills,omitempty"`
+	PlayerGender            *string       `json:"player_gender,omitempty"`
+	PlayerGoldenEggs        *int          `json:"player_golden_eggs,omitempty"`
+	PlayerGoldieKills       *int          `json:"player_goldie_kills,omitempty"`
+	PlayerGrillerKills      *int          `json:"player_griller_kills,omitempty"`
+	PlayerID                *string       `json:"player_id,omitempty"`
+	PlayerMawsKills         *int          `json:"player_maws_kills,omitempty"`
+	PlayerName              *string       `json:"player_name,omitempty"`
+	PlayerPowerEggs         *int          `json:"player_power_eggs,omitempty"`
+	PlayerReviveCount       *int          `json:"player_revive_count,omitempty"`
+	PlayerScrapperKills     *int          `json:"player_scrapper_kills,omitempty"`
+	PlayerSpecial           *string       `json:"player_special,omitempty"`
+	PlayerSpecies           *string       `json:"player_species,omitempty"`
+	PlayerSteelEelKills     *int          `json:"player_steel_eel_kills,omitempty"`
+	PlayerSteelheadKills    *int          `json:"player_steelhead_kills,omitempty"`
+	PlayerStingerKills      *int          `json:"player_stinger_kills,omitempty"`
+	PlayerTitle             *string       `json:"player_title,omitempty"`
+	PlayerW1Specials        *int          `json:"player_w1_specials,omitempty"`
+	PlayerW2Specials        *int          `json:"player_w2_specials,omitempty"`
+	PlayerW3Specials        *int          `json:"player_w3_specials,omitempty"`
+	PlayerWeaponW1          *string       `json:"player_weapon_w1,omitempty"`
+	PlayerWeaponW2          *string       `json:"player_weapon_w2,omitempty"`
+	PlayerWeaponW3          *string       `json:"player_weapon_w3,omitempty"`
+	Playtime                *string       `json:"playtime,omitempty"`
+	ScheduleEndtime         *string       `json:"schedule_endtime,omitempty"`
+	ScheduleStarttime       *string       `json:"schedule_starttime,omitempty"`
+	ScheduleWeapon0         *string       `json:"schedule_weapon_0,omitempty"`
+	ScheduleWeapon1         *string       `json:"schedule_weapon_1,omitempty"`
+	ScheduleWeapon2         *string       `json:"schedule_weapon_2,omitempty"`
+	ScheduleWeapon3         *string       `json:"schedule_weapon_3,omitempty"`
+	ScrapperCount           *int          `json:"scrapper_count,omitempty"`
+	SplatnetJSON            Shift         `json:"splatnet_json"`
+	SplatnetUpload          *bool         `json:"splatnet_upload,omitempty"`
+	Stage                   *string       `json:"stage,omitempty"`
+	StatInkUpload           *bool         `json:"stat_ink_upload,omitempty"`
+	StatInkJson             *ShiftStatInk `json:"stat_ink_json,omitempty"`
+	Starttime               *string       `json:"starttime,omitempty"`
+	SteelEelCount           *int          `json:"steel_eel_count,omitempty"`
+	SteelheadCount          *int          `json:"steelhead_count,omitempty"`
+	StingerCount            *int          `json:"stinger_count,omitempty"`
+	Teammate0DeathCount     *int          `json:"teammate0_death_count,omitempty"`
+	Teammate0DrizzlerKills  *int          `json:"teammate0_drizzler_kills,omitempty"`
+	Teammate0FlyfishKills   *int          `json:"teammate0_flyfish_kills,omitempty"`
+	Teammate0Gender         *string       `json:"teammate0_gender,omitempty"`
+	Teammate0GoldenEggs     *int          `json:"teammate0_golden_eggs,omitempty"`
+	Teammate0GoldieKills    *int          `json:"teammate0_goldie_kills,omitempty"`
+	Teammate0GrillerKills   *int          `json:"teammate0_griller_kills,omitempty"`
+	Teammate0ID             *string       `json:"teammate0_id,omitempty"`
+	Teammate0MawsKills      *int          `json:"teammate0_maws_kills,omitempty"`
+	Teammate0Name           *string       `json:"teammate0_name,omitempty"`
+	Teammate0PowerEggs      *int          `json:"teammate0_power_eggs,omitempty"`
+	Teammate0ReviveCount    *int          `json:"teammate0_revive_count,omitempty"`
+	Teammate0ScrapperKills  *int          `json:"teammate0_scrapper_kills,omitempty"`
+	Teammate0Special        *string       `json:"teammate0_special,omitempty"`
+	Teammate0Species        *string       `json:"teammate0_species,omitempty"`
+	Teammate0SteelEelKills  *int          `json:"teammate0_steel_eel_kills,omitempty"`
+	Teammate0SteelheadKills *int          `json:"teammate0_steelhead_kills,omitempty"`
+	Teammate0StingerKills   *int          `json:"teammate0_stinger_kills,omitempty"`
+	Teammate0W1Specials     *int          `json:"teammate0_w1_specials,omitempty"`
+	Teammate0W2Specials     *int          `json:"teammate0_w2_specials,omitempty"`
+	Teammate0W3Specials     *int          `json:"teammate0_w3_specials,omitempty"`
+	Teammate0WeaponW1       *string       `json:"teammate0_weapon_w1,omitempty"`
+	Teammate0WeaponW2       *string       `json:"teammate0_weapon_w2,omitempty"`
+	Teammate0WeaponW3       *string       `json:"teammate0_weapon_w3,omitempty"`
+	Teammate1DeathCount     *int          `json:"teammate1_death_count,omitempty"`
+	Teammate1DrizzlerKills  *int          `json:"teammate1_drizzler_kills,omitempty"`
+	Teammate1FlyfishKills   *int          `json:"teammate1_flyfish_kills,omitempty"`
+	Teammate1Gender         *string       `json:"teammate1_gender,omitempty"`
+	Teammate1GoldenEggs     *int          `json:"teammate1_golden_eggs,omitempty"`
+	Teammate1GoldieKills    *int          `json:"teammate1_goldie_kills,omitempty"`
+	Teammate1GrillerKills   *int          `json:"teammate1_griller_kills,omitempty"`
+	Teammate1ID             *string       `json:"teammate1_id,omitempty"`
+	Teammate1MawsKills      *int          `json:"teammate1_maws_kills,omitempty"`
+	Teammate1Name           *string       `json:"teammate1_name,omitempty"`
+	Teammate1PowerEggs      *int          `json:"teammate1_power_eggs,omitempty"`
+	Teammate1ReviveCount    *int          `json:"teammate1_revive_count,omitempty"`
+	Teammate1ScrapperKills  *int          `json:"teammate1_scrapper_kills,omitempty"`
+	Teammate1Special        *string       `json:"teammate1_special,omitempty"`
+	Teammate1Species        *string       `json:"teammate1_species,omitempty"`
+	Teammate1SteelEelKills  *int          `json:"teammate1_steel_eel_kills,omitempty"`
+	Teammate1SteelheadKills *int          `json:"teammate1_steelhead_kills,omitempty"`
+	Teammate1StingerKills   *int          `json:"teammate1_stinger_kills,omitempty"`
+	Teammate1W1Specials     *int          `json:"teammate1_w1_specials,omitempty"`
+	Teammate1W2Specials     *int          `json:"teammate1_w2_specials,omitempty"`
+	Teammate1W3Specials     *int          `json:"teammate1_w3_specials,omitempty"`
+	Teammate1WeaponW1       *string       `json:"teammate1_weapon_w1,omitempty"`
+	Teammate1WeaponW2       *string       `json:"teammate1_weapon_w2,omitempty"`
+	Teammate1WeaponW3       *string       `json:"teammate1_weapon_w3,omitempty"`
+	Teammate2DeathCount     *int          `json:"teammate2_death_count,omitempty"`
+	Teammate2DrizzlerKills  *int          `json:"teammate2_drizzler_kills,omitempty"`
+	Teammate2FlyfishKills   *int          `json:"teammate2_flyfish_kills,omitempty"`
+	Teammate2Gender         *string       `json:"teammate2_gender,omitempty"`
+	Teammate2GoldenEggs     *int          `json:"teammate2_golden_eggs,omitempty"`
+	Teammate2GoldieKills    *int          `json:"teammate2_goldie_kills,omitempty"`
+	Teammate2GrillerKills   *int          `json:"teammate2_griller_kills,omitempty"`
+	Teammate2ID             *string       `json:"teammate2_id,omitempty"`
+	Teammate2MawsKills      *int          `json:"teammate2_maws_kills,omitempty"`
+	Teammate2Name           *string       `json:"teammate2_name,omitempty"`
+	Teammate2PowerEggs      *int          `json:"teammate2_power_eggs,omitempty"`
+	Teammate2ReviveCount    *int          `json:"teammate2_revive_count,omitempty"`
+	Teammate2ScrapperKills  *int          `json:"teammate2_scrapper_kills,omitempty"`
+	Teammate2Special        *string       `json:"teammate2_special,omitempty"`
+	Teammate2Species        *string       `json:"teammate2_species,omitempty"`
+	Teammate2SteelEelKills  *int          `json:"teammate2_steel_eel_kills,omitempty"`
+	Teammate2SteelheadKills *int          `json:"teammate2_steelhead_kills,omitempty"`
+	Teammate2StingerKills   *int          `json:"teammate2_stinger_kills,omitempty"`
+	Teammate2W1Specials     *int          `json:"teammate2_w1_specials,omitempty"`
+	Teammate2W2Specials     *int          `json:"teammate2_w2_specials,omitempty"`
+	Teammate2W3Specials     *int          `json:"teammate2_w3_specials,omitempty"`
+	Teammate2WeaponW1       *string       `json:"teammate2_weapon_w1,omitempty"`
+	Teammate2WeaponW2       *string       `json:"teammate2_weapon_w2,omitempty"`
+	Teammate2WeaponW3       *string       `json:"teammate2_weapon_w3,omitempty"`
+	Wave1EventType          *string       `json:"wave_1_event_type,omitempty"`
+	Wave1GoldenAppear       *int          `json:"wave_1_golden_appear,omitempty"`
+	Wave1GoldenDelivered    *int          `json:"wave_1_golden_delivered,omitempty"`
+	Wave1PowerEggs          *int          `json:"wave_1_power_eggs,omitempty"`
+	Wave1Quota              *int          `json:"wave_1_quota,omitempty"`
+	Wave1WaterLevel         *string       `json:"wave_1_water_level,omitempty"`
+	Wave2EventType          *string       `json:"wave_2_event_type,omitempty"`
+	Wave2GoldenAppear       *int          `json:"wave_2_golden_appear,omitempty"`
+	Wave2GoldenDelivered    *int          `json:"wave_2_golden_delivered,omitempty"`
+	Wave2PowerEggs          *int          `json:"wave_2_power_eggs,omitempty"`
+	Wave2Quota              *int          `json:"wave_2_quota,omitempty"`
+	Wave2WaterLevel         *string       `json:"wave_2_water_level,omitempty"`
+	Wave3EventType          *string       `json:"wave_3_event_type,omitempty"`
+	Wave3GoldenAppear       *int          `json:"wave_3_golden_appear,omitempty"`
+	Wave3GoldenDelivered    *int          `json:"wave_3_golden_delivered,omitempty"`
+	Wave3PowerEggs          *int          `json:"wave_3_power_eggs,omitempty"`
+	Wave3Quota              *int          `json:"wave_3_quota,omitempty"`
+	Wave3WaterLevel         *string       `json:"wave_3_water_level,omitempty"`
 }
 
+// A BattleUpload is a flattened Battle, for uploading to SplatStats.
 type BattleUpload struct {
 	BattleNumber            *string             `json:"battle_number,omitempty"`
 	ElapsedTime             *int                `json:"elapsed_time,omitempty"`
 	HasDisconnectedPlayer   *bool               `json:"has_disconnected_player,omitempty"`
-	LeaguePoint             decimal.NullDecimal `json:"league_point"`
+	LeaguePoint             *float64 `json:"league_point"`
 	MatchType               *string             `json:"match_type,omitempty"`
-	MyTeamCount             decimal.NullDecimal `json:"my_team_count"`
+	MyTeamCount             *float64 `json:"my_team_count"`
 	Opponent0Assists        *int                `json:"opponent0_assists,omitempty"`
 	Opponent0Clothes        *string             `json:"opponent0_clothes,omitempty"`
 	Opponent0ClothesMain    *string             `json:"opponent0_clothes_main,omitempty"`
@@ -1022,7 +1027,7 @@ type BattleUpload struct {
 	Opponent3Species        *string             `json:"opponent3_species,omitempty"`
 	Opponent3SplatnetID     *string             `json:"opponent3_splatnet_id,omitempty"`
 	Opponent3Weapon         *string             `json:"opponent3_weapon,omitempty"`
-	OtherTeamCount          decimal.NullDecimal `json:"other_team_count"`
+	OtherTeamCount          *float64 `json:"other_team_count"`
 	PlayerAssists           *int                `json:"player_assists,omitempty"`
 	PlayerClothes           *string             `json:"player_clothes,omitempty"`
 	PlayerClothesMain       *string             `json:"player_clothes_main,omitempty"`
@@ -1052,9 +1057,9 @@ type BattleUpload struct {
 	PlayerSplatfestTitle    *string             `json:"player_splatfest_title,omitempty"`
 	PlayerSplatnetID        *string             `json:"player_splatnet_id,omitempty"`
 	PlayerWeapon            *string             `json:"player_weapon,omitempty"`
-	PlayerXPower            decimal.NullDecimal `json:"player_x_power"`
+	PlayerXPower            *float64 `json:"player_x_power,omitempty"`
 	Rule                    *string             `json:"rule,omitempty"`
-	SplatfestPoint          decimal.NullDecimal `json:"splatfest_point"`
+	SplatfestPoint          *float64 `json:"splatfest_point,omitempty"`
 	SplatfestTitleAfter     *string             `json:"splatfest_title_after,omitempty"`
 	SplatnetJSON            Battle              `json:"splatnet_json"`
 	SplatnetUpload          *bool               `json:"splatnet_upload,omitempty"`
@@ -1147,9 +1152,10 @@ type BattleUpload struct {
 	Teammate2Weapon         *string             `json:"teammate2_weapon,omitempty"`
 	Time                    *int                `json:"time,omitempty"`
 	Win                     *bool               `json:"win,omitempty"`
-	WinMeter                decimal.NullDecimal `json:"win_meter"`
+	WinMeter                *float64 `json:"win_meter"`
 }
 
+// BattleList is a list of up to 50 partial Battles, with additional metadata.
 type BattleList struct {
 	Code     *string `json:"code"`
 	UniqueID string  `json:"unique_id"`
@@ -1166,6 +1172,7 @@ type BattleList struct {
 	Results []Battle `json:"results"`
 }
 
+// ShiftList is a list of up to 50 partial Shifts, with additional metadata.
 type ShiftList struct {
 	Code    *string `json:"code"`
 	Summary struct {
@@ -1229,3 +1236,409 @@ type ShiftList struct {
 	} `json:"reward_gear"`
 	Results []Shift `json:"results"`
 }
+
+// ShiftStatInk is an array of shifts in the stat.ink format.
+type ShiftStatInk struct {
+	ID             int    `json:"id"`
+	UUID           string `json:"uuid"`
+	SplatnetNumber int    `json:"splatnet_number"`
+	URL            string `json:"url"`
+	APIEndpoint    string `json:"api_endpoint"`
+	User           struct {
+		ID         int    `json:"id"`
+		Name       string `json:"name"`
+		ScreenName string `json:"screen_name"`
+		URL        string `json:"url"`
+		SalmonURL  string `json:"salmon_url"`
+		BattleURL  string `json:"battle_url"`
+		JoinAt     struct {
+			Time    int       `json:"time"`
+			Iso8601 time.Time `json:"iso8601"`
+		} `json:"join_at"`
+		Profile struct {
+			Nnid        interface{} `json:"nnid"`
+			FriendCode  string      `json:"friend_code"`
+			Twitter     string      `json:"twitter"`
+			Ikanakama   interface{} `json:"ikanakama"`
+			Ikanakama2  interface{} `json:"ikanakama2"`
+			Environment interface{} `json:"environment"`
+		} `json:"profile"`
+		Stats struct {
+			WorkCount       int `json:"work_count"`
+			TotalGoldenEggs int `json:"total_golden_eggs"`
+			TotalEggs       int `json:"total_eggs"`
+			TotalRescued    int `json:"total_rescued"`
+			TotalPoint      int `json:"total_point"`
+			AsOf            struct {
+				Time    int       `json:"time"`
+				Iso8601 time.Time `json:"iso8601"`
+			} `json:"as_of"`
+			RegisteredAt struct {
+				Time    int       `json:"time"`
+				Iso8601 time.Time `json:"iso8601"`
+			} `json:"registered_at"`
+		} `json:"stats"`
+	} `json:"user"`
+	Stage struct {
+		Key      string `json:"key"`
+		Splatnet string `json:"splatnet"`
+		Name     struct {
+			DeDe string `json:"de_DE"`
+			EnGb string `json:"en_GB"`
+			EnUs string `json:"en_US"`
+			EsEs string `json:"es_ES"`
+			EsMx string `json:"es_MX"`
+			FrCa string `json:"fr_CA"`
+			FrFr string `json:"fr_FR"`
+			ItIt string `json:"it_IT"`
+			JaJp string `json:"ja_JP"`
+			NlNl string `json:"nl_NL"`
+			RuRu string `json:"ru_RU"`
+			ZhCn string `json:"zh_CN"`
+			ZhTw string `json:"zh_TW"`
+		} `json:"name"`
+	} `json:"stage"`
+	IsCleared  bool   `json:"is_cleared"`
+	FailReason string `json:"fail_reason"`
+	ClearWaves int    `json:"clear_waves"`
+	DangerRate string `json:"danger_rate"`
+	Quota      []int  `json:"quota"`
+	Title      struct {
+		Key      string `json:"key"`
+		Splatnet int    `json:"splatnet"`
+		Name     struct {
+			DeDe string `json:"de_DE"`
+			EnGb string `json:"en_GB"`
+			EnUs string `json:"en_US"`
+			EsEs string `json:"es_ES"`
+			EsMx string `json:"es_MX"`
+			FrCa string `json:"fr_CA"`
+			FrFr string `json:"fr_FR"`
+			ItIt string `json:"it_IT"`
+			JaJp string `json:"ja_JP"`
+			NlNl string `json:"nl_NL"`
+			RuRu string `json:"ru_RU"`
+			ZhCn string `json:"zh_CN"`
+			ZhTw string `json:"zh_TW"`
+		} `json:"name"`
+		GenericName struct {
+			DeDe string `json:"de_DE"`
+			EnGb string `json:"en_GB"`
+			EnUs string `json:"en_US"`
+			EsEs string `json:"es_ES"`
+			EsMx string `json:"es_MX"`
+			FrCa string `json:"fr_CA"`
+			FrFr string `json:"fr_FR"`
+			ItIt string `json:"it_IT"`
+			JaJp string `json:"ja_JP"`
+			NlNl string `json:"nl_NL"`
+			RuRu string `json:"ru_RU"`
+			ZhCn string `json:"zh_CN"`
+			ZhTw string `json:"zh_TW"`
+		} `json:"generic_name"`
+	} `json:"title"`
+	TitleExp   int `json:"title_exp"`
+	TitleAfter struct {
+		Key      string `json:"key"`
+		Splatnet int    `json:"splatnet"`
+		Name     struct {
+			DeDe string `json:"de_DE"`
+			EnGb string `json:"en_GB"`
+			EnUs string `json:"en_US"`
+			EsEs string `json:"es_ES"`
+			EsMx string `json:"es_MX"`
+			FrCa string `json:"fr_CA"`
+			FrFr string `json:"fr_FR"`
+			ItIt string `json:"it_IT"`
+			JaJp string `json:"ja_JP"`
+			NlNl string `json:"nl_NL"`
+			RuRu string `json:"ru_RU"`
+			ZhCn string `json:"zh_CN"`
+			ZhTw string `json:"zh_TW"`
+		} `json:"name"`
+		GenericName struct {
+			DeDe string `json:"de_DE"`
+			EnGb string `json:"en_GB"`
+			EnUs string `json:"en_US"`
+			EsEs string `json:"es_ES"`
+			EsMx string `json:"es_MX"`
+			FrCa string `json:"fr_CA"`
+			FrFr string `json:"fr_FR"`
+			ItIt string `json:"it_IT"`
+			JaJp string `json:"ja_JP"`
+			NlNl string `json:"nl_NL"`
+			RuRu string `json:"ru_RU"`
+			ZhCn string `json:"zh_CN"`
+			ZhTw string `json:"zh_TW"`
+		} `json:"generic_name"`
+	} `json:"title_after"`
+	TitleExpAfter   int `json:"title_exp_after"`
+	BossAppearances []struct {
+		Boss struct {
+			Key         string `json:"key"`
+			Splatnet    int    `json:"splatnet"`
+			SplatnetStr string `json:"splatnet_str"`
+			Name        struct {
+				DeDe string `json:"de_DE"`
+				EnGb string `json:"en_GB"`
+				EnUs string `json:"en_US"`
+				EsEs string `json:"es_ES"`
+				EsMx string `json:"es_MX"`
+				FrCa string `json:"fr_CA"`
+				FrFr string `json:"fr_FR"`
+				ItIt string `json:"it_IT"`
+				JaJp string `json:"ja_JP"`
+				NlNl string `json:"nl_NL"`
+				RuRu string `json:"ru_RU"`
+				ZhCn string `json:"zh_CN"`
+				ZhTw string `json:"zh_TW"`
+			} `json:"name"`
+		} `json:"boss"`
+		Count int `json:"count"`
+	} `json:"boss_appearances"`
+	Waves []struct {
+		KnownOccurrence struct {
+			Key      string `json:"key"`
+			Splatnet string `json:"splatnet"`
+			Name     struct {
+				DeDe string `json:"de_DE"`
+				EnGb string `json:"en_GB"`
+				EnUs string `json:"en_US"`
+				EsEs string `json:"es_ES"`
+				EsMx string `json:"es_MX"`
+				FrCa string `json:"fr_CA"`
+				FrFr string `json:"fr_FR"`
+				ItIt string `json:"it_IT"`
+				JaJp string `json:"ja_JP"`
+				NlNl string `json:"nl_NL"`
+				RuRu string `json:"ru_RU"`
+				ZhCn string `json:"zh_CN"`
+				ZhTw string `json:"zh_TW"`
+			} `json:"name"`
+		} `json:"known_occurrence"`
+		WaterLevel struct {
+			Key      string `json:"key"`
+			Splatnet string `json:"splatnet"`
+			Name     struct {
+				DeDe string `json:"de_DE"`
+				EnGb string `json:"en_GB"`
+				EnUs string `json:"en_US"`
+				EsEs string `json:"es_ES"`
+				EsMx string `json:"es_MX"`
+				FrCa string `json:"fr_CA"`
+				FrFr string `json:"fr_FR"`
+				ItIt string `json:"it_IT"`
+				JaJp string `json:"ja_JP"`
+				NlNl string `json:"nl_NL"`
+				RuRu string `json:"ru_RU"`
+				ZhCn string `json:"zh_CN"`
+				ZhTw string `json:"zh_TW"`
+			} `json:"name"`
+		} `json:"water_level"`
+		GoldenEggQuota       int `json:"golden_egg_quota"`
+		GoldenEggAppearances int `json:"golden_egg_appearances"`
+		GoldenEggDelivered   int `json:"golden_egg_delivered"`
+		PowerEggCollected    int `json:"power_egg_collected"`
+	} `json:"waves"`
+	MyData struct {
+		SplatnetID string `json:"splatnet_id"`
+		Name       string `json:"name"`
+		Special    struct {
+			Key      string `json:"key"`
+			Splatnet int    `json:"splatnet"`
+			Name     struct {
+				DeDe string `json:"de_DE"`
+				EnGb string `json:"en_GB"`
+				EnUs string `json:"en_US"`
+				EsEs string `json:"es_ES"`
+				EsMx string `json:"es_MX"`
+				FrCa string `json:"fr_CA"`
+				FrFr string `json:"fr_FR"`
+				ItIt string `json:"it_IT"`
+				JaJp string `json:"ja_JP"`
+				NlNl string `json:"nl_NL"`
+				RuRu string `json:"ru_RU"`
+				ZhCn string `json:"zh_CN"`
+				ZhTw string `json:"zh_TW"`
+			} `json:"name"`
+		} `json:"special"`
+		Rescue             int `json:"rescue"`
+		Death              int `json:"death"`
+		GoldenEggDelivered int `json:"golden_egg_delivered"`
+		PowerEggCollected  int `json:"power_egg_collected"`
+		Species            struct {
+			Key  string `json:"key"`
+			Name struct {
+				DeDe string `json:"de_DE"`
+				EnGb string `json:"en_GB"`
+				EnUs string `json:"en_US"`
+				EsEs string `json:"es_ES"`
+				EsMx string `json:"es_MX"`
+				FrCa string `json:"fr_CA"`
+				FrFr string `json:"fr_FR"`
+				ItIt string `json:"it_IT"`
+				JaJp string `json:"ja_JP"`
+				NlNl string `json:"nl_NL"`
+				RuRu string `json:"ru_RU"`
+				ZhCn string `json:"zh_CN"`
+				ZhTw string `json:"zh_TW"`
+			} `json:"name"`
+		} `json:"species"`
+		Gender struct {
+			Key     string `json:"key"`
+			Iso5218 int    `json:"iso5218"`
+			Name    struct {
+				DeDe string `json:"de_DE"`
+				EnGb string `json:"en_GB"`
+				EnUs string `json:"en_US"`
+				EsEs string `json:"es_ES"`
+				EsMx string `json:"es_MX"`
+				FrCa string `json:"fr_CA"`
+				FrFr string `json:"fr_FR"`
+				ItIt string `json:"it_IT"`
+				JaJp string `json:"ja_JP"`
+				NlNl string `json:"nl_NL"`
+				RuRu string `json:"ru_RU"`
+				ZhCn string `json:"zh_CN"`
+				ZhTw string `json:"zh_TW"`
+			} `json:"name"`
+		} `json:"gender"`
+		SpecialUses []int `json:"special_uses"`
+		Weapons     []struct {
+			Key      string `json:"key"`
+			Splatnet int    `json:"splatnet"`
+			Name     struct {
+				DeDe string `json:"de_DE"`
+				EnGb string `json:"en_GB"`
+				EnUs string `json:"en_US"`
+				EsEs string `json:"es_ES"`
+				EsMx string `json:"es_MX"`
+				FrCa string `json:"fr_CA"`
+				FrFr string `json:"fr_FR"`
+				ItIt string `json:"it_IT"`
+				JaJp string `json:"ja_JP"`
+				NlNl string `json:"nl_NL"`
+				RuRu string `json:"ru_RU"`
+				ZhCn string `json:"zh_CN"`
+				ZhTw string `json:"zh_TW"`
+			} `json:"name"`
+		} `json:"weapons"`
+		BossKills []struct {
+			Boss struct {
+				Key         string `json:"key"`
+				Splatnet    int    `json:"splatnet"`
+				SplatnetStr string `json:"splatnet_str"`
+				Name        struct {
+					DeDe string `json:"de_DE"`
+					EnGb string `json:"en_GB"`
+					EnUs string `json:"en_US"`
+					EsEs string `json:"es_ES"`
+					EsMx string `json:"es_MX"`
+					FrCa string `json:"fr_CA"`
+					FrFr string `json:"fr_FR"`
+					ItIt string `json:"it_IT"`
+					JaJp string `json:"ja_JP"`
+					NlNl string `json:"nl_NL"`
+					RuRu string `json:"ru_RU"`
+					ZhCn string `json:"zh_CN"`
+					ZhTw string `json:"zh_TW"`
+				} `json:"name"`
+			} `json:"boss"`
+			Count int `json:"count"`
+		} `json:"boss_kills"`
+	} `json:"my_data"`
+	Teammates []struct {
+		SplatnetID string `json:"splatnet_id"`
+		Name       string `json:"name"`
+		Special    struct {
+			Key      string `json:"key"`
+			Splatnet int    `json:"splatnet"`
+			Name     struct {
+				DeDe string `json:"de_DE"`
+				EnGb string `json:"en_GB"`
+				EnUs string `json:"en_US"`
+				EsEs string `json:"es_ES"`
+				EsMx string `json:"es_MX"`
+				FrCa string `json:"fr_CA"`
+				FrFr string `json:"fr_FR"`
+				ItIt string `json:"it_IT"`
+				JaJp string `json:"ja_JP"`
+				NlNl string `json:"nl_NL"`
+				RuRu string `json:"ru_RU"`
+				ZhCn string `json:"zh_CN"`
+				ZhTw string `json:"zh_TW"`
+			} `json:"name"`
+		} `json:"special"`
+		Rescue             int         `json:"rescue"`
+		Death              int         `json:"death"`
+		GoldenEggDelivered int         `json:"golden_egg_delivered"`
+		PowerEggCollected  int         `json:"power_egg_collected"`
+		Species            interface{} `json:"species"`
+		Gender             interface{} `json:"gender"`
+		SpecialUses        []int       `json:"special_uses"`
+		Weapons            []struct {
+			Key      string `json:"key"`
+			Splatnet int    `json:"splatnet"`
+			Name     struct {
+				DeDe string `json:"de_DE"`
+				EnGb string `json:"en_GB"`
+				EnUs string `json:"en_US"`
+				EsEs string `json:"es_ES"`
+				EsMx string `json:"es_MX"`
+				FrCa string `json:"fr_CA"`
+				FrFr string `json:"fr_FR"`
+				ItIt string `json:"it_IT"`
+				JaJp string `json:"ja_JP"`
+				NlNl string `json:"nl_NL"`
+				RuRu string `json:"ru_RU"`
+				ZhCn string `json:"zh_CN"`
+				ZhTw string `json:"zh_TW"`
+			} `json:"name"`
+		} `json:"weapons"`
+		BossKills []struct {
+			Boss struct {
+				Key         string `json:"key"`
+				Splatnet    int    `json:"splatnet"`
+				SplatnetStr string `json:"splatnet_str"`
+				Name        struct {
+					DeDe string `json:"de_DE"`
+					EnGb string `json:"en_GB"`
+					EnUs string `json:"en_US"`
+					EsEs string `json:"es_ES"`
+					EsMx string `json:"es_MX"`
+					FrCa string `json:"fr_CA"`
+					FrFr string `json:"fr_FR"`
+					ItIt string `json:"it_IT"`
+					JaJp string `json:"ja_JP"`
+					NlNl string `json:"nl_NL"`
+					RuRu string `json:"ru_RU"`
+					ZhCn string `json:"zh_CN"`
+					ZhTw string `json:"zh_TW"`
+				} `json:"name"`
+			} `json:"boss"`
+			Count int `json:"count"`
+		} `json:"boss_kills"`
+	} `json:"teammates"`
+	Agent struct {
+		Name    string `json:"name"`
+		Version string `json:"version"`
+	} `json:"agent"`
+	Automated    bool        `json:"automated"`
+	Note         interface{} `json:"note"`
+	LinkURL      interface{} `json:"link_url"`
+	ShiftStartAt struct {
+		Time    int       `json:"time"`
+		Iso8601 time.Time `json:"iso8601"`
+	} `json:"shift_start_at"`
+	StartAt struct {
+		Time    int       `json:"time"`
+		Iso8601 time.Time `json:"iso8601"`
+	} `json:"start_at"`
+	EndAt      interface{} `json:"end_at"`
+	RegisterAt struct {
+		Time    int       `json:"time"`
+		Iso8601 time.Time `json:"iso8601"`
+	} `json:"register_at"`
+}
+
+type ShiftStatInkArray []ShiftStatInk

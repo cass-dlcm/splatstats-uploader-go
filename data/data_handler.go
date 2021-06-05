@@ -11,10 +11,9 @@ import (
 	"os"
 	"time"
 
-	"cass-dlcm.dev/splatstatsuploader/iksm"
-	"cass-dlcm.dev/splatstatsuploader/types"
+	"github.com/cass-dlcm/splatstatsuploader/iksm"
+	"github.com/cass-dlcm/splatstatsuploader/types"
 	"github.com/pkg/errors"
-	"github.com/shopspring/decimal"
 	"github.com/spf13/viper"
 )
 
@@ -109,7 +108,8 @@ func uploadSingleBattle(s bool, apiKey string, appHead map[string]string, battle
 		panic(err)
 	}
 
-	uploadBattle(&battle, apiKey, client)
+	battleUpload := setBattlePayload(&battle)
+	uploadBattle(&battleUpload, apiKey, client)
 
 	if s {
 		file, err := json.MarshalIndent(battle, "", " ")
@@ -174,7 +174,8 @@ func uploadSingleSalmon(s bool, apiKey string, appHead map[string]string, jobId 
 		}
 	}
 
-	uploadSalmon(&shift, apiKey, client)
+	shiftUpload := setSalmonPayload(&shift)
+	uploadSalmon(&shiftUpload, apiKey, client)
 }
 
 func uploadLatestSalmon(s bool, apiKey string, appHead map[string]string, client *http.Client) {
@@ -267,13 +268,15 @@ func File(salmon bool, apiKey string, client *http.Client) {
 				panic(err)
 			}
 
-			uploadSalmon(&shift, apiKey, client)
+			shiftUpload := setSalmonPayload(&shift)
+			uploadSalmon(&shiftUpload, apiKey, client)
 		} else {
 			if err := json.Unmarshal(byteValue, &battle); err != nil {
 				panic(err)
 			}
 
-			uploadBattle(&battle, apiKey, client)
+			battleUpload := setBattlePayload(&battle)
+			uploadBattle(&battleUpload, apiKey, client)
 		}
 	}
 }
@@ -386,14 +389,14 @@ func GetSplatnetSalmon(s bool, apiKey string, version string, appHead map[string
 	}
 }
 
-func uploadSalmon(shift *types.Shift, apiKey string, client *http.Client) {
+func setSalmonPayload(shift *types.Shift) types.ShiftUpload {
 	shiftUpload := types.ShiftUpload{}
 	shiftUpload.SplatnetJSON = *shift
 	tru := true
 	shiftUpload.SplatnetUpload = &tru
 	fal := false
 	shiftUpload.StatInkUpload = &fal
-	shiftUpload.DangerRate = (*shift).DangerRate
+	shiftUpload.DangerRate = &(*shift).DangerRate
 	shiftUpload.DrizzlerCount = (*shift).BossCounts.Drizzler.Count
 	shiftUpload.FailureWave = (*shift).JobResult.FailureWave
 	shiftUpload.JobScore = (*shift).JobScore
@@ -464,13 +467,17 @@ func uploadSalmon(shift *types.Shift, apiKey string, client *http.Client) {
 		}
 	}
 
+	return shiftUpload
+}
+
+func uploadSalmon(shiftUpload *types.ShiftUpload, apiKey string, client *http.Client) {
 	url := "https://splatstats.cass-dlcm.dev/two_salmon/api/shifts/"
 	auth := map[string]string{
 		"Authorization": "Token " + apiKey,
 		"Content-Type":  "application/json",
 	}
 
-	bodyMarshalled, err := json.Marshal(shiftUpload)
+	bodyMarshalled, err := json.Marshal(*shiftUpload)
 	if err != nil {
 		panic(err)
 	}
@@ -503,11 +510,11 @@ func uploadSalmon(shift *types.Shift, apiKey string, client *http.Client) {
 
 	bodyString := string(body)
 	if resp.StatusCode == 400 && bodyString == "{\"non_field_errors\":[\"The fields player_id, job_id must make a unique set.\"]}" {
-		if _, err := fmt.Printf("Shift #%d already uploaded\n", *shiftUpload.JobID); err != nil {
+		if _, err := fmt.Printf("Shift #%d already uploaded\n", *(*shiftUpload).JobID); err != nil {
 			panic(err)
 		}
 	} else if resp.StatusCode == 201 {
-		if _, err := fmt.Printf("Shift #%d uploaded to %s\n", *shiftUpload.JobID, resp.Header.Get("location")[0:44]+resp.Header.Get("location")[55:]); err != nil {
+		if _, err := fmt.Printf("Shift #%d uploaded to %s\n", *(*shiftUpload).JobID, resp.Header.Get("location")[0:44]+resp.Header.Get("location")[55:]); err != nil {
 			panic(err)
 		}
 	} else {
@@ -705,7 +712,7 @@ func shiftSetTeammate2(shift *types.Shift, shiftUpload *types.ShiftUpload) {
 	}
 }
 
-func uploadBattle(battle *types.Battle, apiKey string, client *http.Client) {
+func setBattlePayload(battle *types.Battle) types.BattleUpload {
 	battleUpload := types.BattleUpload{}
 	battleUpload.SplatnetJSON = *battle
 	tru := true
@@ -724,7 +731,7 @@ func uploadBattle(battle *types.Battle, apiKey string, client *http.Client) {
 	battleSetScoreTime(battle, &battleUpload)
 	battleUpload.TagID = (*battle).TagID
 	battleUpload.LeaguePoint = (*battle).LeaguePoint
-	battleUpload.SplatfestPoint = decimal.NullDecimal{Valid: false}
+	battleUpload.SplatfestPoint = nil
 	battleUpload.SplatfestTitleAfter = nil
 
 	battleSetPlayer(battle, &battleUpload)
@@ -737,13 +744,17 @@ func uploadBattle(battle *types.Battle, apiKey string, client *http.Client) {
 	battleSetOpponent2(battle, &battleUpload)
 	battleSetOpponent3(battle, &battleUpload)
 
+	return battleUpload
+}
+
+func uploadBattle(battleUpload *types.BattleUpload, apiKey string, client *http.Client) {
 	url := "https://splatstats.cass-dlcm.dev/two_battles/api/battles/"
 	auth := map[string]string{
 		"Authorization": "Token " + apiKey,
 		"Content-Type":  "application/json",
 	}
 
-	bodyMarshalled, err := json.Marshal(battleUpload)
+	bodyMarshalled, err := json.Marshal(*battleUpload)
 	if err != nil {
 		panic(err)
 	}
@@ -777,11 +788,11 @@ func uploadBattle(battle *types.Battle, apiKey string, client *http.Client) {
 	}
 
 	if bodyString := string(body); resp.StatusCode == 400 && bodyString == "{\"non_field_errors\":[\"The fields player_splatnet_id, battle_number must make a unique set.\"]}" {
-		if _, err := fmt.Printf("Battle #%s already uploaded\n", *battleUpload.BattleNumber); err != nil {
+		if _, err := fmt.Printf("Battle #%s already uploaded\n", *(*battleUpload).BattleNumber); err != nil {
 			panic(err)
 		}
 	} else if resp.StatusCode == 201 {
-		if _, err := fmt.Printf("Battle #%s uploaded to %s\n", *battleUpload.BattleNumber, resp.Header.Get("location")[0:45]+resp.Header.Get("location")[57:]); err != nil {
+		if _, err := fmt.Printf("Battle #%s uploaded to %s\n", *(*battleUpload).BattleNumber, resp.Header.Get("location")[0:45]+resp.Header.Get("location")[57:]); err != nil {
 			panic(err)
 		}
 	} else {
@@ -811,14 +822,14 @@ func battleSetHasDc(battle *types.Battle, battleUpload *types.BattleUpload) {
 
 func battleSetScoreTime(battle *types.Battle, battleUpload *types.BattleUpload) {
 	if (*battle).MyTeamCount != nil {
-		(*battleUpload).MyTeamCount = decimal.NullDecimal{Decimal: decimal.NewFromInt(int64(*(*battle).MyTeamCount)), Valid: true}
-	} else if (*battle).MyTeamPercentage.Valid {
+		*(*battleUpload).MyTeamCount = float64(*(*battle).MyTeamCount)
+	} else {
 		(*battleUpload).MyTeamCount = (*battle).MyTeamPercentage
 	}
 
 	if (*battle).OtherTeamCount != nil {
-		(*battleUpload).OtherTeamCount = decimal.NullDecimal{Decimal: decimal.NewFromInt(int64(*(*battle).OtherTeamCount)), Valid: true}
-	} else if (*battle).OtherTeamPercentage.Valid {
+		*(*battleUpload).OtherTeamCount = float64(*(*battle).OtherTeamCount)
+	} else {
 		(*battleUpload).OtherTeamCount = (*battle).OtherTeamPercentage
 	}
 

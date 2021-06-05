@@ -10,14 +10,14 @@ import (
 	"os"
 	"time"
 
-	"cass-dlcm.dev/splatstatsuploader/data"
 	"github.com/blang/semver"
+	"github.com/cass-dlcm/splatstatsuploader/data"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 	"github.com/spf13/viper"
 	"golang.org/x/term"
 )
 
-var progVersion = "2.0.0"
+var progVersion = "3.0.0"
 
 func doSelfUpdate() {
 	v := semver.MustParse(progVersion)
@@ -154,6 +154,7 @@ func getFlags() (int, bool, bool, bool) {
 	m := flag.Int("m", -1, "To monitor for new match results.")
 	f := flag.Bool("f", false, "To upload battles/shifts from files.")
 	s := flag.Bool("s", false, "To save battles/shifts to files.")
+	//statink := flag.Bool("statink", false, "To migrate from stat.ink to SplatStats.")
 	salmon := flag.Bool("salmon", false, "To upload salmon run matches.")
 	flag.Parse()
 
@@ -164,6 +165,14 @@ func getFlags() (int, bool, bool, bool) {
 
 		os.Exit(1)
 	}
+
+	//if *m != -1 && *statink {
+	//	if _, err := fmt.Println("Cannot use -m and --statink together. Exiting."); err != nil {
+	//		panic(err)
+	//	}
+	//
+	//	os.Exit(1)
+	//}
 
 	if *f && *m != -1 {
 		if _, err := fmt.Println("Cannot use -f and -m together. Exiting"); err != nil {
@@ -209,6 +218,7 @@ func main() {
 	viper.SetDefault("cookie", "")
 	viper.SetDefault("session_token", "")
 	viper.SetDefault("user_lang", "")
+	viper.SetDefault("statink_api_key", "")
 
 	client := &http.Client{}
 
@@ -239,6 +249,12 @@ func main() {
 		data.Monitor(m, s, salmon, viper.GetString("api_key"), progVersion, appHead, client)
 	} else if f {
 		data.File(salmon, viper.GetString("api_key"), client)
+	//} else if statink {
+	//	if salmon {
+	//		statink2splatstats.MigrateSalmon(viper.GetString("api_key"), client)
+	//	} else {
+	//		statink2splatstats.MigrateBattles(viper.GetString("api_key"), client)
+	//	}
 	} else {
 		if salmon {
 			data.GetSplatnetSalmon(s, viper.GetString("api_key"), progVersion, appHead, client)

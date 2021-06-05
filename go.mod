@@ -1,4 +1,4 @@
-module cass-dlcm.dev/splatstatsuploader
+module github.com/cass-dlcm/splatstatsuploader
 
 go 1.16
 
