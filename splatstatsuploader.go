@@ -18,7 +18,7 @@ import (
 	"golang.org/x/term"
 )
 
-var progVersion = "3.1.1"
+var progVersion = "4.0.0"
 
 func doSelfUpdate() {
 	v := semver.MustParse(progVersion)

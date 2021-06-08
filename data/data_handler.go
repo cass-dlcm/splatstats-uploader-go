@@ -77,8 +77,8 @@ func uploadLatestBattle(s bool, apiKey string, appHead map[string]string, client
 	uploadSingleBattle(s, apiKey, appHead, data.Results[0].BattleNumber, client)
 }
 
-func uploadSingleBattle(s bool, apiKey string, appHead map[string]string, battleNumber *string, client *http.Client) {
-	url := "https://app.splatoon2.nintendo.net/api/results/" + *battleNumber
+func uploadSingleBattle(s bool, apiKey string, appHead map[string]string, battleNumber string, client *http.Client) {
+	url := "https://app.splatoon2.nintendo.net/api/results/" + battleNumber
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 
 	defer cancel()
@@ -117,7 +117,7 @@ func uploadSingleBattle(s bool, apiKey string, appHead map[string]string, battle
 			panic(err)
 		}
 
-		if err := ioutil.WriteFile("two_battle/"+*battleNumber+".json", file, 0600); err != nil {
+		if err := ioutil.WriteFile("two_battle/"+battleNumber+".json", file, 0600); err != nil {
 			panic(err)
 		}
 	}
@@ -392,18 +392,16 @@ func GetSplatnetSalmon(s bool, apiKey string, version string, appHead map[string
 func setSalmonPayload(shift *types.Shift) types.ShiftUpload {
 	shiftUpload := types.ShiftUpload{}
 	shiftUpload.SplatnetJSON = *shift
-	tru := true
-	shiftUpload.SplatnetUpload = &tru
-	fal := false
-	shiftUpload.StatInkUpload = &fal
-	shiftUpload.DangerRate = &(*shift).DangerRate
+	shiftUpload.SplatnetUpload = true
+	shiftUpload.StatInkUpload = false
+	shiftUpload.DangerRate = (*shift).DangerRate
 	shiftUpload.DrizzlerCount = (*shift).BossCounts.Drizzler.Count
 	shiftUpload.FailureWave = (*shift).JobResult.FailureWave
 	shiftUpload.JobScore = (*shift).JobScore
 	shiftUpload.FlyfishCount = (*shift).BossCounts.Flyfish.Count
 	shiftUpload.GoldieCount = (*shift).BossCounts.Goldie.Count
 	shiftUpload.GradePoint = (*shift).GradePoint
-	shiftUpload.GradePointDelta = (*shift).GradePointDelta
+	shiftUpload.GradePointDelta = *(*shift).GradePointDelta
 	shiftUpload.GrillerCount = (*shift).BossCounts.Griller.Count
 	shiftUpload.IsClear = (*shift).JobResult.IsClear
 	shiftUpload.JobFailureReason = (*shift).JobResult.FailureReason
@@ -422,12 +420,12 @@ func setSalmonPayload(shift *types.Shift) types.ShiftUpload {
 	shiftUpload.PlayerPowerEggs = (*shift).MyResult.PowerEggs
 	shiftUpload.PlayerReviveCount = (*shift).MyResult.HelpCount
 	shiftUpload.PlayerScrapperKills = (*shift).MyResult.BossKillCounts.Scrapper.Count
-	shiftUpload.PlayerSpecial = (*shift).MyResult.Special.ID
+	shiftUpload.PlayerSpecial = *(*shift).MyResult.Special.ID
 	shiftUpload.PlayerSpecies = (*shift).MyResult.PlayerType.Species
 	shiftUpload.PlayerSteelEelKills = (*shift).MyResult.BossKillCounts.SteelEel.Count
 	shiftUpload.PlayerSteelheadKills = (*shift).MyResult.BossKillCounts.Steelhead.Count
 	shiftUpload.PlayerStingerKills = (*shift).MyResult.BossKillCounts.Stinger.Count
-	shiftUpload.PlayerTitle = (*shift).Grade.ID
+	shiftUpload.PlayerTitle = *(*shift).Grade.ID
 	salmonPlayerWeaponSpecials(shift, &shiftUpload)
 	shiftSetTimes(shift, &shiftUpload)
 	shiftUpload.ScheduleWeapon0 = (*shift).Schedule.Weapons[0].ID
@@ -482,7 +480,7 @@ func UploadSalmon(shiftUpload *types.ShiftUpload, apiKey string, client *http.Cl
 		panic(err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(bodyMarshalled))
@@ -532,13 +530,13 @@ func UploadSalmon(shiftUpload *types.ShiftUpload, apiKey string, client *http.Cl
 
 func salmonPlayerWeaponSpecials(shift *types.Shift, shiftUpload *types.ShiftUpload) {
 	if len((*shift).MyResult.WeaponList) > 0 {
-		(*shiftUpload).PlayerWeaponW1 = (*shift).MyResult.WeaponList[0].ID
+		(*shiftUpload).PlayerWeaponW1 = *(*shift).MyResult.WeaponList[0].ID
 
 		if len((*shift).MyResult.WeaponList) > 1 {
-			(*shiftUpload).PlayerWeaponW2 = (*shift).MyResult.WeaponList[1].ID
+			(*shiftUpload).PlayerWeaponW2 = *(*shift).MyResult.WeaponList[1].ID
 
 			if len((*shift).MyResult.WeaponList) > 2 {
-				(*shiftUpload).PlayerWeaponW3 = (*shift).MyResult.WeaponList[2].ID
+				(*shiftUpload).PlayerWeaponW3 = *(*shift).MyResult.WeaponList[2].ID
 			}
 		}
 	}
@@ -558,28 +556,23 @@ func salmonPlayerWeaponSpecials(shift *types.Shift, shiftUpload *types.ShiftUplo
 
 func shiftSetTimes(shift *types.Shift, shiftUpload *types.ShiftUpload) {
 	if (*shift).PlayTime != nil {
-		playtime := time.Unix(int64(*(*shift).PlayTime), 0).Format("2006-01-02 15:04:05")
-		(*shiftUpload).Playtime = &playtime
+		(*shiftUpload).Playtime = time.Unix(int64(*(*shift).PlayTime), 0).Format("2006-01-02 15:04:05")
 	}
 
 	if (*shift).EndTime != nil {
-		endtime := time.Unix(int64(*(*shift).EndTime), 0).Format("2006-01-02 15:04:05")
-		(*shiftUpload).Endtime = &endtime
+		(*shiftUpload).Endtime = time.Unix(int64(*(*shift).EndTime), 0).Format("2006-01-02 15:04:05")
 	}
 
 	if (*shift).Schedule.EndTime != nil {
-		scheduleendtime := time.Unix(int64(*(*shift).Schedule.EndTime), 0).Format("2006-01-02 15:04:05")
-		(*shiftUpload).ScheduleEndtime = &scheduleendtime
+		(*shiftUpload).ScheduleEndtime = time.Unix(int64(*(*shift).Schedule.EndTime), 0).Format("2006-01-02 15:04:05")
 	}
 
 	if (*shift).Schedule.StartTime != nil {
-		schedulestartime := time.Unix(int64(*(*shift).Schedule.StartTime), 0).Format("2006-01-02 15:04:05")
-		(*shiftUpload).ScheduleStarttime = &schedulestartime
+		(*shiftUpload).ScheduleStarttime = time.Unix(int64(*(*shift).Schedule.StartTime), 0).Format("2006-01-02 15:04:05")
 	}
 
 	if (*shift).StartTime != nil {
-		starttime := time.Unix(int64(*(*shift).StartTime), 0).Format("2006-01-02 15:04:05")
-		(*shiftUpload).Starttime = &starttime
+		(*shiftUpload).Starttime = time.Unix(int64(*(*shift).StartTime), 0).Format("2006-01-02 15:04:05")
 	}
 }
 
@@ -598,19 +591,22 @@ func shiftSetTeammate0(shift *types.Shift, shiftUpload *types.ShiftUpload) {
 		(*shiftUpload).Teammate0PowerEggs = (*shift).OtherResults[0].PowerEggs
 		(*shiftUpload).Teammate0ReviveCount = (*shift).OtherResults[0].HelpCount
 		(*shiftUpload).Teammate0ScrapperKills = (*shift).OtherResults[0].BossKillCounts.Scrapper.Count
-		(*shiftUpload).Teammate0Special = (*shift).OtherResults[0].Special.ID
-		(*shiftUpload).Teammate0Species = (*shift).OtherResults[0].PlayerType.Species
+		(*shiftUpload).Teammate0Special = *(*shift).OtherResults[0].Special.ID
+		(*shiftUpload).Teammate0Species = *(*shift).OtherResults[0].PlayerType.Species
 		(*shiftUpload).Teammate0SteelEelKills = (*shift).OtherResults[0].BossKillCounts.SteelEel.Count
 		(*shiftUpload).Teammate0SteelheadKills = (*shift).OtherResults[0].BossKillCounts.Steelhead.Count
 		(*shiftUpload).Teammate0StingerKills = (*shift).OtherResults[0].BossKillCounts.Stinger.Count
 		(*shiftUpload).Teammate0W1Specials = (*shift).OtherResults[0].SpecialCounts[0]
-		(*shiftUpload).Teammate0WeaponW1 = (*shift).OtherResults[0].WeaponList[0].ID
 
-		if len((*shift).OtherResults[0].WeaponList) > 1 {
-			(*shiftUpload).Teammate0WeaponW2 = (*shift).OtherResults[0].WeaponList[1].ID
+		if len((*shift).OtherResults[0].WeaponList) > 0 {
+			(*shiftUpload).Teammate0WeaponW1 = (*shift).OtherResults[0].WeaponList[0].ID
 
-			if len((*shift).OtherResults[0].WeaponList) > 2 {
-				shiftUpload.Teammate0WeaponW3 = (*shift).OtherResults[0].WeaponList[2].ID
+			if len((*shift).OtherResults[0].WeaponList) > 1 {
+				(*shiftUpload).Teammate0WeaponW2 = (*shift).OtherResults[0].WeaponList[1].ID
+
+				if len((*shift).OtherResults[0].WeaponList) > 2 {
+					shiftUpload.Teammate0WeaponW3 = (*shift).OtherResults[0].WeaponList[2].ID
+				}
 			}
 		}
 
@@ -639,8 +635,8 @@ func shiftSetTeammate1(shift *types.Shift, shiftUpload *types.ShiftUpload) {
 		(*shiftUpload).Teammate1PowerEggs = (*shift).OtherResults[1].PowerEggs
 		(*shiftUpload).Teammate1ReviveCount = (*shift).OtherResults[1].HelpCount
 		(*shiftUpload).Teammate1ScrapperKills = (*shift).OtherResults[1].BossKillCounts.Scrapper.Count
-		(*shiftUpload).Teammate1Special = (*shift).OtherResults[1].Special.ID
-		(*shiftUpload).Teammate1Species = (*shift).OtherResults[1].PlayerType.Species
+		(*shiftUpload).Teammate1Special = *(*shift).OtherResults[1].Special.ID
+		(*shiftUpload).Teammate1Species = *(*shift).OtherResults[1].PlayerType.Species
 		(*shiftUpload).Teammate1SteelEelKills = (*shift).OtherResults[1].BossKillCounts.SteelEel.Count
 		(*shiftUpload).Teammate1SteelheadKills = (*shift).OtherResults[1].BossKillCounts.Steelhead.Count
 		(*shiftUpload).Teammate1StingerKills = (*shift).OtherResults[1].BossKillCounts.Stinger.Count
@@ -683,8 +679,8 @@ func shiftSetTeammate2(shift *types.Shift, shiftUpload *types.ShiftUpload) {
 		(*shiftUpload).Teammate2PowerEggs = (*shift).OtherResults[2].PowerEggs
 		(*shiftUpload).Teammate2ReviveCount = (*shift).OtherResults[2].HelpCount
 		(*shiftUpload).Teammate2ScrapperKills = (*shift).OtherResults[2].BossKillCounts.Scrapper.Count
-		(*shiftUpload).Teammate2Special = (*shift).OtherResults[2].Special.ID
-		(*shiftUpload).Teammate2Species = (*shift).OtherResults[2].PlayerType.Species
+		(*shiftUpload).Teammate2Special = *(*shift).OtherResults[2].Special.ID
+		(*shiftUpload).Teammate2Species = *(*shift).OtherResults[2].PlayerType.Species
 		(*shiftUpload).Teammate2SteelEelKills = (*shift).OtherResults[2].BossKillCounts.SteelEel.Count
 		(*shiftUpload).Teammate2SteelheadKills = (*shift).OtherResults[2].BossKillCounts.Steelhead.Count
 		(*shiftUpload).Teammate2StingerKills = (*shift).OtherResults[2].BossKillCounts.Stinger.Count
@@ -714,25 +710,22 @@ func shiftSetTeammate2(shift *types.Shift, shiftUpload *types.ShiftUpload) {
 
 func setBattlePayload(battle *types.Battle) types.BattleUpload {
 	battleUpload := types.BattleUpload{}
-	battleUpload.SplatnetJSON = *battle
-	tru := true
-	fal := false
-	battleUpload.SplatnetUpload = &tru
-	battleUpload.StatInkUpload = &fal
+	battleUpload.SplatnetJSON = battle
+	battleUpload.SplatnetUpload = true
+	battleUpload.StatInkUpload = false
 	battleUpload.BattleNumber = (*battle).BattleNumber
 	battleUpload.Rule = (*battle).Rule.Key
 	battleUpload.MatchType = (*battle).GameMode.Key
 	battleUpload.Stage = (*battle).Stage.ID
-	win := *(*battle).MyTeamResult.Key == "victory"
-	battleUpload.Win = &win
+	battleUpload.Win = *(*battle).MyTeamResult.Key == "victory"
 	battleSetHasDc(battle, &battleUpload)
 	battleUpload.Time = (*battle).StartTime
 	battleUpload.WinMeter = (*battle).WinMeter
 	battleSetScoreTime(battle, &battleUpload)
 	battleUpload.TagID = (*battle).TagID
-	battleUpload.LeaguePoint = (*battle).LeaguePoint
-	battleUpload.SplatfestPoint = nil
-	battleUpload.SplatfestTitleAfter = nil
+	battleUpload.LeaguePoint = *(*battle).LeaguePoint
+	battleUpload.SplatfestPoint = 0
+	battleUpload.SplatfestTitleAfter = ""
 
 	battleSetPlayer(battle, &battleUpload)
 	battleSetTeammate0(battle, &battleUpload)
@@ -754,12 +747,17 @@ func UploadBattle(battleUpload *types.BattleUpload, apiKey string, client *http.
 		"Content-Type":  "application/json",
 	}
 
+	if (*battleUpload).PlayerSplatnetID == "" || (*battleUpload).BattleNumber == "" {
+		fmt.Println("Skipping battle due to missing data.")
+		return
+	}
+
 	bodyMarshalled, err := json.Marshal(*battleUpload)
 	if err != nil {
 		panic(err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(bodyMarshalled))
@@ -788,11 +786,11 @@ func UploadBattle(battleUpload *types.BattleUpload, apiKey string, client *http.
 	}
 
 	if bodyString := string(body); resp.StatusCode == 400 && bodyString == "{\"non_field_errors\":[\"The fields player_splatnet_id, battle_number must make a unique set.\"]}" {
-		if _, err := fmt.Printf("Battle #%s already uploaded\n", *(*battleUpload).BattleNumber); err != nil {
+		if _, err := fmt.Printf("Battle #%s already uploaded\n", (*battleUpload).BattleNumber); err != nil {
 			panic(err)
 		}
 	} else if resp.StatusCode == 201 {
-		if _, err := fmt.Printf("Battle #%s uploaded to %s\n", *(*battleUpload).BattleNumber, resp.Header.Get("location")[0:45]+resp.Header.Get("location")[57:]); err != nil {
+		if _, err := fmt.Printf("Battle #%s uploaded to %s\n", (*battleUpload).BattleNumber, resp.Header.Get("location")[0:45]+resp.Header.Get("location")[57:]); err != nil {
 			panic(err)
 		}
 	} else {
@@ -807,95 +805,94 @@ func UploadBattle(battleUpload *types.BattleUpload, apiKey string, client *http.
 }
 
 func battleSetHasDc(battle *types.Battle, battleUpload *types.BattleUpload) {
-	*(*battleUpload).HasDisconnectedPlayer = false
+	(*battleUpload).HasDisconnectedPlayer = false
 
 	for i := range (*battle).MyTeamMembers {
-		*(*battleUpload).HasDisconnectedPlayer = *(*battleUpload).HasDisconnectedPlayer || (*(*battle).MyTeamMembers[i].GamePaintPoint == 0 && *(*battle).MyTeamMembers[i].KillCount == 0 && *(*battle).MyTeamMembers[i].SpecialCount == 0 && *(*battle).MyTeamMembers[i].DeathCount == 0 && *(*battle).MyTeamMembers[i].AssistCount == 0)
+		(*battleUpload).HasDisconnectedPlayer = (*battleUpload).HasDisconnectedPlayer || (*(*battle).MyTeamMembers[i].GamePaintPoint == 0 && *(*battle).MyTeamMembers[i].KillCount == 0 && *(*battle).MyTeamMembers[i].SpecialCount == 0 && *(*battle).MyTeamMembers[i].DeathCount == 0 && *(*battle).MyTeamMembers[i].AssistCount == 0)
 	}
 
 	for i := range (*battle).OtherTeamMembers {
-		*(*battleUpload).HasDisconnectedPlayer = *(*battleUpload).HasDisconnectedPlayer || (*(*battle).OtherTeamMembers[i].GamePaintPoint == 0 && *(*battle).OtherTeamMembers[i].KillCount == 0 && *(*battle).OtherTeamMembers[i].SpecialCount == 0 && *(*battle).OtherTeamMembers[i].DeathCount == 0 && *(*battle).OtherTeamMembers[i].AssistCount == 0)
+		(*battleUpload).HasDisconnectedPlayer = (*battleUpload).HasDisconnectedPlayer || (*(*battle).OtherTeamMembers[i].GamePaintPoint == 0 && *(*battle).OtherTeamMembers[i].KillCount == 0 && *(*battle).OtherTeamMembers[i].SpecialCount == 0 && *(*battle).OtherTeamMembers[i].DeathCount == 0 && *(*battle).OtherTeamMembers[i].AssistCount == 0)
 	}
 }
 
 func battleSetScoreTime(battle *types.Battle, battleUpload *types.BattleUpload) {
 	if (*battle).MyTeamCount != nil {
-		*(*battleUpload).MyTeamCount = float64(*(*battle).MyTeamCount)
+		(*battleUpload).MyTeamCount = float64(*(*battle).MyTeamCount)
 	} else {
 		(*battleUpload).MyTeamCount = (*battle).MyTeamPercentage
 	}
 
 	if (*battle).OtherTeamCount != nil {
-		*(*battleUpload).OtherTeamCount = float64(*(*battle).OtherTeamCount)
+		(*battleUpload).OtherTeamCount = float64(*(*battle).OtherTeamCount)
 	} else {
 		(*battleUpload).OtherTeamCount = (*battle).OtherTeamPercentage
 	}
 
-	if *battleUpload.Rule == "turf_war" {
-		elapsedTime := 180
-		(*battleUpload).ElapsedTime = &elapsedTime
+	if battleUpload.Rule == "turf_war" {
+		(*battleUpload).ElapsedTime = 180
 	} else {
 		(*battleUpload).ElapsedTime = (*battle).ElapsedTime
 	}
 }
 
 func battleSetPlayer(battle *types.Battle, battleUpload *types.BattleUpload) {
-	(*battleUpload).PlayerSplatnetID = (*battle).PlayerResult.Player.PrincipalID
-	(*battleUpload).PlayerName = (*battle).PlayerResult.Player.Nickname
-	(*battleUpload).PlayerWeapon = (*battle).PlayerResult.Player.Weapon.ID
-	(*battleUpload).PlayerRank = (*battle).Udemae.Number
-	(*battleUpload).PlayerSplatfestTitle = nil
-	(*battleUpload).PlayerLevelStar = (*battle).StarRank
-	(*battleUpload).PlayerLevel = (*battle).PlayerRank
-	(*battleUpload).PlayerKills = (*battle).PlayerResult.KillCount
-	(*battleUpload).PlayerDeaths = (*battle).PlayerResult.DeathCount
-	(*battleUpload).PlayerAssists = (*battle).PlayerResult.AssistCount
-	(*battleUpload).PlayerSpecials = (*battle).PlayerResult.SpecialCount
-	(*battleUpload).PlayerGamePaintPoint = (*battle).PlayerResult.GamePaintPoint
-	(*battleUpload).PlayerGender = (*battle).PlayerResult.Player.PlayerType.Gender
+	(*battleUpload).PlayerSplatnetID = *(*battle).PlayerResult.Player.PrincipalID
+	(*battleUpload).PlayerName = *(*battle).PlayerResult.Player.Nickname
+	(*battleUpload).PlayerWeapon = *(*battle).PlayerResult.Player.Weapon.ID
+	(*battleUpload).PlayerRank = *(*battle).Udemae.Number
+	(*battleUpload).PlayerSplatfestTitle = ""
+	(*battleUpload).PlayerLevelStar = *(*battle).StarRank
+	(*battleUpload).PlayerLevel = *(*battle).PlayerRank
+	(*battleUpload).PlayerKills = *(*battle).PlayerResult.KillCount
+	(*battleUpload).PlayerDeaths = *(*battle).PlayerResult.DeathCount
+	(*battleUpload).PlayerAssists = *(*battle).PlayerResult.AssistCount
+	(*battleUpload).PlayerSpecials = *(*battle).PlayerResult.SpecialCount
+	(*battleUpload).PlayerGamePaintPoint = *(*battle).PlayerResult.GamePaintPoint
+	(*battleUpload).PlayerGender = *(*battle).PlayerResult.Player.PlayerType.Gender
 	(*battleUpload).PlayerSpecies = (*battle).PlayerResult.Player.PlayerType.Species
 	(*battleUpload).PlayerXPower = (*battle).XPower
-	(*battleUpload).PlayerHeadgear = (*battle).PlayerResult.Player.Head.ID
-	(*battleUpload).PlayerHeadgearMain = (*battle).PlayerResult.Player.HeadSkills.Main.ID
+	(*battleUpload).PlayerHeadgear = *(*battle).PlayerResult.Player.Head.ID
+	(*battleUpload).PlayerHeadgearMain = *(*battle).PlayerResult.Player.HeadSkills.Main.ID
 
 	if len((*battle).PlayerResult.Player.HeadSkills.Subs) > 0 {
-		(*battleUpload).PlayerHeadgearSub0 = (*battle).PlayerResult.Player.HeadSkills.Subs[0].ID
+		(*battleUpload).PlayerHeadgearSub0 = *(*battle).PlayerResult.Player.HeadSkills.Subs[0].ID
 
 		if len((*battle).PlayerResult.Player.HeadSkills.Subs) > 1 {
-			(*battleUpload).PlayerHeadgearSub1 = (*battle).PlayerResult.Player.HeadSkills.Subs[1].ID
+			(*battleUpload).PlayerHeadgearSub1 = *(*battle).PlayerResult.Player.HeadSkills.Subs[1].ID
 
 			if len((*battle).PlayerResult.Player.HeadSkills.Subs) > 2 {
-				(*battleUpload).PlayerHeadgearSub2 = (*battle).PlayerResult.Player.HeadSkills.Subs[2].ID
+				(*battleUpload).PlayerHeadgearSub2 = *(*battle).PlayerResult.Player.HeadSkills.Subs[2].ID
 			}
 		}
 	}
 
-	(*battleUpload).PlayerClothes = (*battle).PlayerResult.Player.Clothes.ID
-	(*battleUpload).PlayerClothesMain = (*battle).PlayerResult.Player.ClothesSkills.Main.ID
+	(*battleUpload).PlayerClothes = *(*battle).PlayerResult.Player.Clothes.ID
+	(*battleUpload).PlayerClothesMain = *(*battle).PlayerResult.Player.ClothesSkills.Main.ID
 
 	if len((*battle).PlayerResult.Player.ClothesSkills.Subs) > 0 {
-		(*battleUpload).PlayerClothesSub0 = (*battle).PlayerResult.Player.ClothesSkills.Subs[0].ID
+		(*battleUpload).PlayerClothesSub0 = *(*battle).PlayerResult.Player.ClothesSkills.Subs[0].ID
 
 		if len((*battle).PlayerResult.Player.ClothesSkills.Subs) > 1 {
-			(*battleUpload).PlayerClothesSub1 = (*battle).PlayerResult.Player.ClothesSkills.Subs[1].ID
+			(*battleUpload).PlayerClothesSub1 = *(*battle).PlayerResult.Player.ClothesSkills.Subs[1].ID
 
 			if len((*battle).PlayerResult.Player.ClothesSkills.Subs) > 2 {
-				(*battleUpload).PlayerClothesSub2 = (*battle).PlayerResult.Player.ClothesSkills.Subs[2].ID
+				(*battleUpload).PlayerClothesSub2 = *(*battle).PlayerResult.Player.ClothesSkills.Subs[2].ID
 			}
 		}
 	}
 
-	(*battleUpload).PlayerShoes = (*battle).PlayerResult.Player.Shoes.ID
-	(*battleUpload).PlayerShoesMain = (*battle).PlayerResult.Player.ShoesSkills.Main.ID
+	(*battleUpload).PlayerShoes = *(*battle).PlayerResult.Player.Shoes.ID
+	(*battleUpload).PlayerShoesMain = *(*battle).PlayerResult.Player.ShoesSkills.Main.ID
 
 	if len((*battle).PlayerResult.Player.ShoesSkills.Subs) > 0 {
-		(*battleUpload).PlayerShoesSub0 = (*battle).PlayerResult.Player.ShoesSkills.Subs[0].ID
+		(*battleUpload).PlayerShoesSub0 = *(*battle).PlayerResult.Player.ShoesSkills.Subs[0].ID
 
 		if len((*battle).PlayerResult.Player.ShoesSkills.Subs) > 1 {
-			(*battleUpload).PlayerShoesSub1 = (*battle).PlayerResult.Player.ShoesSkills.Subs[1].ID
+			(*battleUpload).PlayerShoesSub1 = *(*battle).PlayerResult.Player.ShoesSkills.Subs[1].ID
 
 			if len((*battle).PlayerResult.Player.ShoesSkills.Subs) > 2 {
-				(*battleUpload).PlayerShoesSub2 = (*battle).PlayerResult.Player.ShoesSkills.Subs[2].ID
+				(*battleUpload).PlayerShoesSub2 = *(*battle).PlayerResult.Player.ShoesSkills.Subs[2].ID
 			}
 		}
 	}
@@ -904,19 +901,19 @@ func battleSetPlayer(battle *types.Battle, battleUpload *types.BattleUpload) {
 func battleSetTeammate0(battle *types.Battle, battleUpload *types.BattleUpload) {
 	if len((*battle).MyTeamMembers) > 0 {
 		teammate0 := (*battle).MyTeamMembers[0]
-		(*battleUpload).Teammate0SplatnetID = teammate0.Player.PrincipalID
-		(*battleUpload).Teammate0Name = teammate0.Player.Nickname
-		(*battleUpload).Teammate0LevelStar = teammate0.Player.StarRank
-		(*battleUpload).Teammate0Level = teammate0.Player.PlayerRank
-		(*battleUpload).Teammate0Rank = teammate0.Player.Udemae.Name
-		(*battleUpload).Teammate0Weapon = teammate0.Player.Weapon.ID
-		(*battleUpload).Teammate0Gender = teammate0.Player.PlayerType.Gender
-		(*battleUpload).Teammate0Species = teammate0.Player.PlayerType.Species
-		(*battleUpload).Teammate0Kills = teammate0.KillCount
-		(*battleUpload).Teammate0Deaths = teammate0.DeathCount
-		(*battleUpload).Teammate0Assists = teammate0.AssistCount
-		(*battleUpload).Teammate0GamePaintPoint = teammate0.GamePaintPoint
-		(*battleUpload).Teammate0Specials = teammate0.SpecialCount
+		(*battleUpload).Teammate0SplatnetID = *teammate0.Player.PrincipalID
+		(*battleUpload).Teammate0Name = *teammate0.Player.Nickname
+		(*battleUpload).Teammate0LevelStar = *teammate0.Player.StarRank
+		(*battleUpload).Teammate0Level = *teammate0.Player.PlayerRank
+		(*battleUpload).Teammate0Rank = *teammate0.Player.Udemae.Name
+		(*battleUpload).Teammate0Weapon = *teammate0.Player.Weapon.ID
+		(*battleUpload).Teammate0Gender = *teammate0.Player.PlayerType.Gender
+		(*battleUpload).Teammate0Species = *teammate0.Player.PlayerType.Species
+		(*battleUpload).Teammate0Kills = *teammate0.KillCount
+		(*battleUpload).Teammate0Deaths = *teammate0.DeathCount
+		(*battleUpload).Teammate0Assists = *teammate0.AssistCount
+		(*battleUpload).Teammate0GamePaintPoint = *teammate0.GamePaintPoint
+		(*battleUpload).Teammate0Specials = *teammate0.SpecialCount
 		(*battleUpload).Teammate0Headgear = teammate0.Player.Head.ID
 		(*battleUpload).Teammate0HeadgearMain = teammate0.Player.HeadSkills.Main.ID
 
@@ -967,19 +964,19 @@ func battleSetTeammate0(battle *types.Battle, battleUpload *types.BattleUpload) 
 func battleSetTeammate1(battle *types.Battle, battleUpload *types.BattleUpload) {
 	if len((*battle).MyTeamMembers) > 1 {
 		teammate1 := (*battle).MyTeamMembers[1]
-		(*battleUpload).Teammate1SplatnetID = teammate1.Player.PrincipalID
-		(*battleUpload).Teammate1Name = teammate1.Player.Nickname
-		(*battleUpload).Teammate1LevelStar = teammate1.Player.StarRank
-		(*battleUpload).Teammate1Level = teammate1.Player.PlayerRank
-		(*battleUpload).Teammate1Rank = teammate1.Player.Udemae.Name
-		(*battleUpload).Teammate1Weapon = teammate1.Player.Weapon.ID
-		(*battleUpload).Teammate1Gender = teammate1.Player.PlayerType.Gender
-		(*battleUpload).Teammate1Species = teammate1.Player.PlayerType.Species
-		(*battleUpload).Teammate1Kills = teammate1.KillCount
-		(*battleUpload).Teammate1Deaths = teammate1.DeathCount
-		(*battleUpload).Teammate1Assists = teammate1.AssistCount
-		(*battleUpload).Teammate1GamePaintPoint = teammate1.GamePaintPoint
-		(*battleUpload).Teammate1Specials = teammate1.SpecialCount
+		(*battleUpload).Teammate1SplatnetID = *teammate1.Player.PrincipalID
+		(*battleUpload).Teammate1Name = *teammate1.Player.Nickname
+		(*battleUpload).Teammate1LevelStar = *teammate1.Player.StarRank
+		(*battleUpload).Teammate1Level = *teammate1.Player.PlayerRank
+		(*battleUpload).Teammate1Rank = *teammate1.Player.Udemae.Name
+		(*battleUpload).Teammate1Weapon = *teammate1.Player.Weapon.ID
+		(*battleUpload).Teammate1Gender = *teammate1.Player.PlayerType.Gender
+		(*battleUpload).Teammate1Species = *teammate1.Player.PlayerType.Species
+		(*battleUpload).Teammate1Kills = *teammate1.KillCount
+		(*battleUpload).Teammate1Deaths = *teammate1.DeathCount
+		(*battleUpload).Teammate1Assists = *teammate1.AssistCount
+		(*battleUpload).Teammate1GamePaintPoint = *teammate1.GamePaintPoint
+		(*battleUpload).Teammate1Specials = *teammate1.SpecialCount
 		(*battleUpload).Teammate1Headgear = teammate1.Player.Head.ID
 		(*battleUpload).Teammate1HeadgearMain = teammate1.Player.HeadSkills.Main.ID
 
@@ -1030,19 +1027,19 @@ func battleSetTeammate1(battle *types.Battle, battleUpload *types.BattleUpload) 
 func battleSetTeammate2(battle *types.Battle, battleUpload *types.BattleUpload) {
 	if len((*battle).MyTeamMembers) > 2 {
 		teammate2 := (*battle).MyTeamMembers[2]
-		(*battleUpload).Teammate2SplatnetID = teammate2.Player.PrincipalID
-		(*battleUpload).Teammate2Name = teammate2.Player.Nickname
-		(*battleUpload).Teammate2LevelStar = teammate2.Player.StarRank
-		(*battleUpload).Teammate2Level = teammate2.Player.PlayerRank
-		(*battleUpload).Teammate2Rank = teammate2.Player.Udemae.Name
-		(*battleUpload).Teammate2Weapon = teammate2.Player.Weapon.ID
-		(*battleUpload).Teammate2Gender = teammate2.Player.PlayerType.Gender
-		(*battleUpload).Teammate2Species = teammate2.Player.PlayerType.Species
-		(*battleUpload).Teammate2Kills = teammate2.KillCount
-		(*battleUpload).Teammate2Deaths = teammate2.DeathCount
-		(*battleUpload).Teammate2Assists = teammate2.AssistCount
-		(*battleUpload).Teammate2GamePaintPoint = teammate2.GamePaintPoint
-		(*battleUpload).Teammate2Specials = teammate2.SpecialCount
+		(*battleUpload).Teammate2SplatnetID = *teammate2.Player.PrincipalID
+		(*battleUpload).Teammate2Name = *teammate2.Player.Nickname
+		(*battleUpload).Teammate2LevelStar = *teammate2.Player.StarRank
+		(*battleUpload).Teammate2Level = *teammate2.Player.PlayerRank
+		(*battleUpload).Teammate2Rank = *teammate2.Player.Udemae.Name
+		(*battleUpload).Teammate2Weapon = *teammate2.Player.Weapon.ID
+		(*battleUpload).Teammate2Gender = *teammate2.Player.PlayerType.Gender
+		(*battleUpload).Teammate2Species = *teammate2.Player.PlayerType.Species
+		(*battleUpload).Teammate2Kills = *teammate2.KillCount
+		(*battleUpload).Teammate2Deaths = *teammate2.DeathCount
+		(*battleUpload).Teammate2Assists = *teammate2.AssistCount
+		(*battleUpload).Teammate2GamePaintPoint = *teammate2.GamePaintPoint
+		(*battleUpload).Teammate2Specials = *teammate2.SpecialCount
 		(*battleUpload).Teammate2Headgear = teammate2.Player.Head.ID
 		(*battleUpload).Teammate2HeadgearMain = teammate2.Player.HeadSkills.Main.ID
 
@@ -1093,19 +1090,19 @@ func battleSetTeammate2(battle *types.Battle, battleUpload *types.BattleUpload) 
 func battleSetOpponent0(battle *types.Battle, battleUpload *types.BattleUpload) {
 	if len((*battle).OtherTeamMembers) > 0 {
 		opponent0 := (*battle).OtherTeamMembers[0]
-		(*battleUpload).Opponent0SplatnetID = opponent0.Player.PrincipalID
-		(*battleUpload).Opponent0Name = opponent0.Player.Nickname
-		(*battleUpload).Opponent0LevelStar = opponent0.Player.StarRank
-		(*battleUpload).Opponent0Level = opponent0.Player.PlayerRank
-		(*battleUpload).Opponent0Rank = opponent0.Player.Udemae.Name
-		(*battleUpload).Opponent0Weapon = opponent0.Player.Weapon.ID
-		(*battleUpload).Opponent0Gender = opponent0.Player.PlayerType.Gender
-		(*battleUpload).Opponent0Species = opponent0.Player.PlayerType.Species
-		(*battleUpload).Opponent0Kills = opponent0.KillCount
-		(*battleUpload).Opponent0Deaths = opponent0.DeathCount
-		(*battleUpload).Opponent0Assists = opponent0.AssistCount
-		(*battleUpload).Opponent0GamePaintPoint = opponent0.GamePaintPoint
-		(*battleUpload).Opponent0Specials = opponent0.SpecialCount
+		(*battleUpload).Opponent0SplatnetID = *opponent0.Player.PrincipalID
+		(*battleUpload).Opponent0Name = *opponent0.Player.Nickname
+		(*battleUpload).Opponent0LevelStar = *opponent0.Player.StarRank
+		(*battleUpload).Opponent0Level = *opponent0.Player.PlayerRank
+		(*battleUpload).Opponent0Rank = *opponent0.Player.Udemae.Name
+		(*battleUpload).Opponent0Weapon = *opponent0.Player.Weapon.ID
+		(*battleUpload).Opponent0Gender = *opponent0.Player.PlayerType.Gender
+		(*battleUpload).Opponent0Species = *opponent0.Player.PlayerType.Species
+		(*battleUpload).Opponent0Kills = *opponent0.KillCount
+		(*battleUpload).Opponent0Deaths = *opponent0.DeathCount
+		(*battleUpload).Opponent0Assists = *opponent0.AssistCount
+		(*battleUpload).Opponent0GamePaintPoint = *opponent0.GamePaintPoint
+		(*battleUpload).Opponent0Specials = *opponent0.SpecialCount
 		(*battleUpload).Opponent0Headgear = opponent0.Player.Head.ID
 		(*battleUpload).Opponent0HeadgearMain = opponent0.Player.HeadSkills.Main.ID
 
@@ -1156,19 +1153,19 @@ func battleSetOpponent0(battle *types.Battle, battleUpload *types.BattleUpload) 
 func battleSetOpponent1(battle *types.Battle, battleUpload *types.BattleUpload) {
 	if len((*battle).OtherTeamMembers) > 1 {
 		opponent1 := (*battle).OtherTeamMembers[1]
-		(*battleUpload).Opponent1SplatnetID = opponent1.Player.PrincipalID
-		(*battleUpload).Opponent1Name = opponent1.Player.Nickname
-		(*battleUpload).Opponent1LevelStar = opponent1.Player.StarRank
-		(*battleUpload).Opponent1Level = opponent1.Player.PlayerRank
-		(*battleUpload).Opponent1Rank = opponent1.Player.Udemae.Name
-		(*battleUpload).Opponent1Weapon = opponent1.Player.Weapon.ID
-		(*battleUpload).Opponent1Gender = opponent1.Player.PlayerType.Gender
-		(*battleUpload).Opponent1Species = opponent1.Player.PlayerType.Species
-		(*battleUpload).Opponent1Kills = opponent1.KillCount
-		(*battleUpload).Opponent1Deaths = opponent1.DeathCount
-		(*battleUpload).Opponent1Assists = opponent1.AssistCount
-		(*battleUpload).Opponent1GamePaintPoint = opponent1.GamePaintPoint
-		(*battleUpload).Opponent1Specials = opponent1.SpecialCount
+		(*battleUpload).Opponent1SplatnetID = *opponent1.Player.PrincipalID
+		(*battleUpload).Opponent1Name = *opponent1.Player.Nickname
+		(*battleUpload).Opponent1LevelStar = *opponent1.Player.StarRank
+		(*battleUpload).Opponent1Level = *opponent1.Player.PlayerRank
+		(*battleUpload).Opponent1Rank = *opponent1.Player.Udemae.Name
+		(*battleUpload).Opponent1Weapon = *opponent1.Player.Weapon.ID
+		(*battleUpload).Opponent1Gender = *opponent1.Player.PlayerType.Gender
+		(*battleUpload).Opponent1Species = *opponent1.Player.PlayerType.Species
+		(*battleUpload).Opponent1Kills = *opponent1.KillCount
+		(*battleUpload).Opponent1Deaths = *opponent1.DeathCount
+		(*battleUpload).Opponent1Assists = *opponent1.AssistCount
+		(*battleUpload).Opponent1GamePaintPoint = *opponent1.GamePaintPoint
+		(*battleUpload).Opponent1Specials = *opponent1.SpecialCount
 		(*battleUpload).Opponent1Headgear = opponent1.Player.Head.ID
 		(*battleUpload).Opponent1HeadgearMain = opponent1.Player.HeadSkills.Main.ID
 
@@ -1219,19 +1216,19 @@ func battleSetOpponent1(battle *types.Battle, battleUpload *types.BattleUpload) 
 func battleSetOpponent2(battle *types.Battle, battleUpload *types.BattleUpload) {
 	if len((*battle).OtherTeamMembers) > 2 {
 		opponent2 := (*battle).OtherTeamMembers[2]
-		(*battleUpload).Opponent2SplatnetID = opponent2.Player.PrincipalID
-		(*battleUpload).Opponent2Name = opponent2.Player.Nickname
-		(*battleUpload).Opponent2LevelStar = opponent2.Player.StarRank
-		(*battleUpload).Opponent2Level = opponent2.Player.PlayerRank
-		(*battleUpload).Opponent2Rank = opponent2.Player.Udemae.Name
-		(*battleUpload).Opponent2Weapon = opponent2.Player.Weapon.ID
-		(*battleUpload).Opponent2Gender = opponent2.Player.PlayerType.Gender
-		(*battleUpload).Opponent2Species = opponent2.Player.PlayerType.Species
-		(*battleUpload).Opponent2Kills = opponent2.KillCount
-		(*battleUpload).Opponent2Deaths = opponent2.DeathCount
-		(*battleUpload).Opponent2Assists = opponent2.AssistCount
-		(*battleUpload).Opponent2GamePaintPoint = opponent2.GamePaintPoint
-		(*battleUpload).Opponent2Specials = opponent2.SpecialCount
+		(*battleUpload).Opponent2SplatnetID = *opponent2.Player.PrincipalID
+		(*battleUpload).Opponent2Name = *opponent2.Player.Nickname
+		(*battleUpload).Opponent2LevelStar = *opponent2.Player.StarRank
+		(*battleUpload).Opponent2Level = *opponent2.Player.PlayerRank
+		(*battleUpload).Opponent2Rank = *opponent2.Player.Udemae.Name
+		(*battleUpload).Opponent2Weapon = *opponent2.Player.Weapon.ID
+		(*battleUpload).Opponent2Gender = *opponent2.Player.PlayerType.Gender
+		(*battleUpload).Opponent2Species = *opponent2.Player.PlayerType.Species
+		(*battleUpload).Opponent2Kills = *opponent2.KillCount
+		(*battleUpload).Opponent2Deaths = *opponent2.DeathCount
+		(*battleUpload).Opponent2Assists = *opponent2.AssistCount
+		(*battleUpload).Opponent2GamePaintPoint = *opponent2.GamePaintPoint
+		(*battleUpload).Opponent2Specials = *opponent2.SpecialCount
 		(*battleUpload).Opponent2Headgear = opponent2.Player.Head.ID
 		(*battleUpload).Opponent2HeadgearMain = opponent2.Player.HeadSkills.Main.ID
 
@@ -1282,19 +1279,19 @@ func battleSetOpponent2(battle *types.Battle, battleUpload *types.BattleUpload) 
 func battleSetOpponent3(battle *types.Battle, battleUpload *types.BattleUpload) {
 	if len((*battle).OtherTeamMembers) > 3 {
 		opponent3 := (*battle).OtherTeamMembers[3]
-		(*battleUpload).Opponent3SplatnetID = opponent3.Player.PrincipalID
-		(*battleUpload).Opponent3Name = opponent3.Player.Nickname
-		(*battleUpload).Opponent3LevelStar = opponent3.Player.StarRank
-		(*battleUpload).Opponent3Level = opponent3.Player.PlayerRank
-		(*battleUpload).Opponent3Rank = opponent3.Player.Udemae.Name
-		(*battleUpload).Opponent3Weapon = opponent3.Player.Weapon.ID
-		(*battleUpload).Opponent3Gender = opponent3.Player.PlayerType.Gender
-		(*battleUpload).Opponent3Species = opponent3.Player.PlayerType.Species
-		(*battleUpload).Opponent3Kills = opponent3.KillCount
-		(*battleUpload).Opponent3Deaths = opponent3.DeathCount
-		(*battleUpload).Opponent3Assists = opponent3.AssistCount
-		(*battleUpload).Opponent3GamePaintPoint = opponent3.GamePaintPoint
-		(*battleUpload).Opponent3Specials = opponent3.SpecialCount
+		(*battleUpload).Opponent3SplatnetID = *opponent3.Player.PrincipalID
+		(*battleUpload).Opponent3Name = *opponent3.Player.Nickname
+		(*battleUpload).Opponent3LevelStar = *opponent3.Player.StarRank
+		(*battleUpload).Opponent3Level = *opponent3.Player.PlayerRank
+		(*battleUpload).Opponent3Rank = *opponent3.Player.Udemae.Name
+		(*battleUpload).Opponent3Weapon = *opponent3.Player.Weapon.ID
+		(*battleUpload).Opponent3Gender = *opponent3.Player.PlayerType.Gender
+		(*battleUpload).Opponent3Species = *opponent3.Player.PlayerType.Species
+		(*battleUpload).Opponent3Kills = *opponent3.KillCount
+		(*battleUpload).Opponent3Deaths = *opponent3.DeathCount
+		(*battleUpload).Opponent3Assists = *opponent3.AssistCount
+		(*battleUpload).Opponent3GamePaintPoint = *opponent3.GamePaintPoint
+		(*battleUpload).Opponent3Specials = *opponent3.SpecialCount
 		(*battleUpload).Opponent3Headgear = opponent3.Player.Head.ID
 		(*battleUpload).Opponent3HeadgearMain = opponent3.Player.HeadSkills.Main.ID
 

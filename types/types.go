@@ -10,7 +10,7 @@ type Shift struct {
 	JobResult  struct {
 		IsClear       *bool   `json:"is_clear"`
 		FailureReason *string `json:"failure_reason"`
-		FailureWave   *int    `json:"failure_wave"`
+		FailureWave   int     `json:"failure_wave"`
 	} `json:"job_result"`
 	JobScore        *int `json:"job_score"`
 	JobID           *int `json:"job_id"`
@@ -31,7 +31,7 @@ type Shift struct {
 			Species *string `json:"species"`
 		} `json:"player_type"`
 		WeaponList []struct {
-			ID     *string `json:"id"`
+			ID     string `json:"id"`
 			Weapon struct {
 				ID        *string `json:"id"`
 				Image     *string `json:"image"`
@@ -271,7 +271,7 @@ type Shift struct {
 			} `json:"weapon"`
 		} `json:"weapon_list"`
 		PlayerType struct {
-			Species *string `json:"species"`
+			Species string  `json:"species"`
 			Gender  *string `json:"style"`
 		} `json:"player_type"`
 		Pid *string `json:"pid"`
@@ -310,7 +310,7 @@ type Shift struct {
 		EndTime *int `json:"end_time"`
 		Stage   struct {
 			Image *string `json:"image"`
-			Name  *string `json:"name"`
+			Name  string  `json:"name"`
 		} `json:"stage"`
 	} `json:"schedule"`
 }
@@ -325,7 +325,7 @@ type Battle struct {
 		SPlusNumber     *interface{} `json:"s_plus_number"`
 	} `json:"udemae"`
 	Stage struct {
-		ID    *string `json:"id"`
+		ID    string  `json:"id"`
 		Image *string `json:"image"`
 		Name  *string `json:"name"`
 	} `json:"stage"`
@@ -334,7 +334,7 @@ type Battle struct {
 	StarRank       *int `json:"star_rank"`
 	Rule           struct {
 		Name          *string `json:"name"`
-		Key           *string `json:"key"`
+		Key           string  `json:"key"`
 		MultilineName *string `json:"multiline_name"`
 	} `json:"rule"`
 	PlayerResult struct {
@@ -372,7 +372,7 @@ type Battle struct {
 			PlayerRank *int `json:"player_rank"`
 			PlayerType struct {
 				Gender  *string `json:"style"`
-				Species *string `json:"species"`
+				Species string  `json:"species"`
 			} `json:"player_type"`
 			PrincipalID *string `json:"principal_id"`
 			Head        struct {
@@ -471,14 +471,14 @@ type Battle struct {
 		} `json:"player"`
 	} `json:"player_result"`
 	EstimateGachiPower *int `json:"estimate_gachi_power"`
-	ElapsedTime        *int `json:"elapsed_time"`
-	StartTime          *int `json:"start_time"`
+	ElapsedTime        int  `json:"elapsed_time"`
+	StartTime          int  `json:"start_time"`
 	GameMode           struct {
-		Key  *string `json:"key"`
+		Key  string  `json:"key"`
 		Name *string `json:"name"`
 	} `json:"game_mode"`
 	XPower        *float64     `json:"x_power"`
-	BattleNumber  *string      `json:"battle_number"`
+	BattleNumber  string       `json:"battle_number"`
 	Type          *string      `json:"type"`
 	PlayerRank    *int         `json:"player_rank"`
 	CrownPlayers  *interface{} `json:"crown_players"`
@@ -751,23 +751,23 @@ type Battle struct {
 		Name *string `json:"name"`
 	} `json:"other_team_result"`
 	LeaguePoint         *float64 `json:"league_point"`
-	WinMeter            *float64 `json:"win_meter"`
-	MyTeamPercentage    *float64 `json:"my_team_percentage"`
-	OtherTeamPercentage *float64 `json:"other_team_percentage"`
-	TagID               *string  `json:"tag_id"`
+	WinMeter            float64  `json:"win_meter"`
+	MyTeamPercentage    float64  `json:"my_team_percentage"`
+	OtherTeamPercentage float64  `json:"other_team_percentage"`
+	TagID               string   `json:"tag_id"`
 }
 
 // A ShiftUpload is a flattened Shift, for uploading to SplatStats.
 type ShiftUpload struct {
-	DangerRate              *float64      `json:"danger_rate"`
+	DangerRate              float64       `json:"danger_rate"`
 	JobScore                *int          `json:"job_score,omitempty"`
 	DrizzlerCount           *int          `json:"drizzler_count,omitempty"`
-	Endtime                 *string       `json:"endtime,omitempty"`
-	FailureWave             *int          `json:"failure_wave,omitempty"`
+	Endtime                 string        `json:"endtime,omitempty"`
+	FailureWave             int           `json:"failure_wave,omitempty"`
 	FlyfishCount            *int          `json:"flyfish_count,omitempty"`
 	GoldieCount             *int          `json:"goldie_count,omitempty"`
 	GradePoint              *int          `json:"grade_point,omitempty"`
-	GradePointDelta         *int          `json:"grade_point_delta,omitempty"`
+	GradePointDelta         int           `json:"grade_point_delta,omitempty"`
 	GrillerCount            *int          `json:"griller_count,omitempty"`
 	IsClear                 *bool         `json:"is_clear,omitempty"`
 	JobFailureReason        *string       `json:"job_failure_reason,omitempty"`
@@ -786,32 +786,32 @@ type ShiftUpload struct {
 	PlayerPowerEggs         *int          `json:"player_power_eggs,omitempty"`
 	PlayerReviveCount       *int          `json:"player_revive_count,omitempty"`
 	PlayerScrapperKills     *int          `json:"player_scrapper_kills,omitempty"`
-	PlayerSpecial           *string       `json:"player_special,omitempty"`
-	PlayerSpecies           *string       `json:"player_species,omitempty"`
+	PlayerSpecial           string        `json:"player_special,omitempty"`
+	PlayerSpecies           string        `json:"player_species,omitempty"`
 	PlayerSteelEelKills     *int          `json:"player_steel_eel_kills,omitempty"`
 	PlayerSteelheadKills    *int          `json:"player_steelhead_kills,omitempty"`
 	PlayerStingerKills      *int          `json:"player_stinger_kills,omitempty"`
-	PlayerTitle             *string       `json:"player_title,omitempty"`
+	PlayerTitle             string        `json:"player_title,omitempty"`
 	PlayerW1Specials        *int          `json:"player_w1_specials,omitempty"`
 	PlayerW2Specials        *int          `json:"player_w2_specials,omitempty"`
 	PlayerW3Specials        *int          `json:"player_w3_specials,omitempty"`
-	PlayerWeaponW1          *string       `json:"player_weapon_w1,omitempty"`
-	PlayerWeaponW2          *string       `json:"player_weapon_w2,omitempty"`
-	PlayerWeaponW3          *string       `json:"player_weapon_w3,omitempty"`
-	Playtime                *string       `json:"playtime,omitempty"`
-	ScheduleEndtime         *string       `json:"schedule_endtime,omitempty"`
-	ScheduleStarttime       *string       `json:"schedule_starttime,omitempty"`
+	PlayerWeaponW1          string        `json:"player_weapon_w1,omitempty"`
+	PlayerWeaponW2          string        `json:"player_weapon_w2,omitempty"`
+	PlayerWeaponW3          string        `json:"player_weapon_w3,omitempty"`
+	Playtime                string        `json:"playtime,omitempty"`
+	ScheduleEndtime         string        `json:"schedule_endtime,omitempty"`
+	ScheduleStarttime       string        `json:"schedule_starttime,omitempty"`
 	ScheduleWeapon0         *string       `json:"schedule_weapon_0,omitempty"`
 	ScheduleWeapon1         *string       `json:"schedule_weapon_1,omitempty"`
 	ScheduleWeapon2         *string       `json:"schedule_weapon_2,omitempty"`
 	ScheduleWeapon3         *string       `json:"schedule_weapon_3,omitempty"`
 	ScrapperCount           *int          `json:"scrapper_count,omitempty"`
 	SplatnetJSON            Shift         `json:"splatnet_json"`
-	SplatnetUpload          *bool         `json:"splatnet_upload,omitempty"`
-	Stage                   *string       `json:"stage,omitempty"`
-	StatInkUpload           *bool         `json:"stat_ink_upload,omitempty"`
+	SplatnetUpload          bool          `json:"splatnet_upload,omitempty"`
+	Stage                   string        `json:"stage,omitempty"`
+	StatInkUpload           bool          `json:"stat_ink_upload,omitempty"`
 	StatInkJson             *ShiftStatInk `json:"stat_ink_json,omitempty"`
-	Starttime               *string       `json:"starttime,omitempty"`
+	Starttime               string        `json:"starttime,omitempty"`
 	SteelEelCount           *int          `json:"steel_eel_count,omitempty"`
 	SteelheadCount          *int          `json:"steelhead_count,omitempty"`
 	StingerCount            *int          `json:"stinger_count,omitempty"`
@@ -828,17 +828,17 @@ type ShiftUpload struct {
 	Teammate0PowerEggs      *int          `json:"teammate0_power_eggs,omitempty"`
 	Teammate0ReviveCount    *int          `json:"teammate0_revive_count,omitempty"`
 	Teammate0ScrapperKills  *int          `json:"teammate0_scrapper_kills,omitempty"`
-	Teammate0Special        *string       `json:"teammate0_special,omitempty"`
-	Teammate0Species        *string       `json:"teammate0_species,omitempty"`
+	Teammate0Special        string        `json:"teammate0_special,omitempty"`
+	Teammate0Species        string        `json:"teammate0_species,omitempty"`
 	Teammate0SteelEelKills  *int          `json:"teammate0_steel_eel_kills,omitempty"`
 	Teammate0SteelheadKills *int          `json:"teammate0_steelhead_kills,omitempty"`
 	Teammate0StingerKills   *int          `json:"teammate0_stinger_kills,omitempty"`
 	Teammate0W1Specials     *int          `json:"teammate0_w1_specials,omitempty"`
 	Teammate0W2Specials     *int          `json:"teammate0_w2_specials,omitempty"`
 	Teammate0W3Specials     *int          `json:"teammate0_w3_specials,omitempty"`
-	Teammate0WeaponW1       *string       `json:"teammate0_weapon_w1,omitempty"`
-	Teammate0WeaponW2       *string       `json:"teammate0_weapon_w2,omitempty"`
-	Teammate0WeaponW3       *string       `json:"teammate0_weapon_w3,omitempty"`
+	Teammate0WeaponW1       string        `json:"teammate0_weapon_w1,omitempty"`
+	Teammate0WeaponW2       string        `json:"teammate0_weapon_w2,omitempty"`
+	Teammate0WeaponW3       string        `json:"teammate0_weapon_w3,omitempty"`
 	Teammate1DeathCount     *int          `json:"teammate1_death_count,omitempty"`
 	Teammate1DrizzlerKills  *int          `json:"teammate1_drizzler_kills,omitempty"`
 	Teammate1FlyfishKills   *int          `json:"teammate1_flyfish_kills,omitempty"`
@@ -852,17 +852,17 @@ type ShiftUpload struct {
 	Teammate1PowerEggs      *int          `json:"teammate1_power_eggs,omitempty"`
 	Teammate1ReviveCount    *int          `json:"teammate1_revive_count,omitempty"`
 	Teammate1ScrapperKills  *int          `json:"teammate1_scrapper_kills,omitempty"`
-	Teammate1Special        *string       `json:"teammate1_special,omitempty"`
-	Teammate1Species        *string       `json:"teammate1_species,omitempty"`
+	Teammate1Special        string        `json:"teammate1_special,omitempty"`
+	Teammate1Species        string        `json:"teammate1_species,omitempty"`
 	Teammate1SteelEelKills  *int          `json:"teammate1_steel_eel_kills,omitempty"`
 	Teammate1SteelheadKills *int          `json:"teammate1_steelhead_kills,omitempty"`
 	Teammate1StingerKills   *int          `json:"teammate1_stinger_kills,omitempty"`
 	Teammate1W1Specials     *int          `json:"teammate1_w1_specials,omitempty"`
 	Teammate1W2Specials     *int          `json:"teammate1_w2_specials,omitempty"`
 	Teammate1W3Specials     *int          `json:"teammate1_w3_specials,omitempty"`
-	Teammate1WeaponW1       *string       `json:"teammate1_weapon_w1,omitempty"`
-	Teammate1WeaponW2       *string       `json:"teammate1_weapon_w2,omitempty"`
-	Teammate1WeaponW3       *string       `json:"teammate1_weapon_w3,omitempty"`
+	Teammate1WeaponW1       string        `json:"teammate1_weapon_w1,omitempty"`
+	Teammate1WeaponW2       string        `json:"teammate1_weapon_w2,omitempty"`
+	Teammate1WeaponW3       string        `json:"teammate1_weapon_w3,omitempty"`
 	Teammate2DeathCount     *int          `json:"teammate2_death_count,omitempty"`
 	Teammate2DrizzlerKills  *int          `json:"teammate2_drizzler_kills,omitempty"`
 	Teammate2FlyfishKills   *int          `json:"teammate2_flyfish_kills,omitempty"`
@@ -876,17 +876,17 @@ type ShiftUpload struct {
 	Teammate2PowerEggs      *int          `json:"teammate2_power_eggs,omitempty"`
 	Teammate2ReviveCount    *int          `json:"teammate2_revive_count,omitempty"`
 	Teammate2ScrapperKills  *int          `json:"teammate2_scrapper_kills,omitempty"`
-	Teammate2Special        *string       `json:"teammate2_special,omitempty"`
-	Teammate2Species        *string       `json:"teammate2_species,omitempty"`
+	Teammate2Special        string        `json:"teammate2_special,omitempty"`
+	Teammate2Species        string        `json:"teammate2_species,omitempty"`
 	Teammate2SteelEelKills  *int          `json:"teammate2_steel_eel_kills,omitempty"`
 	Teammate2SteelheadKills *int          `json:"teammate2_steelhead_kills,omitempty"`
 	Teammate2StingerKills   *int          `json:"teammate2_stinger_kills,omitempty"`
 	Teammate2W1Specials     *int          `json:"teammate2_w1_specials,omitempty"`
 	Teammate2W2Specials     *int          `json:"teammate2_w2_specials,omitempty"`
 	Teammate2W3Specials     *int          `json:"teammate2_w3_specials,omitempty"`
-	Teammate2WeaponW1       *string       `json:"teammate2_weapon_w1,omitempty"`
-	Teammate2WeaponW2       *string       `json:"teammate2_weapon_w2,omitempty"`
-	Teammate2WeaponW3       *string       `json:"teammate2_weapon_w3,omitempty"`
+	Teammate2WeaponW1       string        `json:"teammate2_weapon_w1,omitempty"`
+	Teammate2WeaponW2       string        `json:"teammate2_weapon_w2,omitempty"`
+	Teammate2WeaponW3       string        `json:"teammate2_weapon_w3,omitempty"`
 	Wave1EventType          *string       `json:"wave_1_event_type,omitempty"`
 	Wave1GoldenAppear       *int          `json:"wave_1_golden_appear,omitempty"`
 	Wave1GoldenDelivered    *int          `json:"wave_1_golden_delivered,omitempty"`
@@ -909,251 +909,251 @@ type ShiftUpload struct {
 
 // A BattleUpload is a flattened Battle, for uploading to SplatStats.
 type BattleUpload struct {
-	BattleNumber            *string        `json:"battle_number,omitempty"`
-	ElapsedTime             *int           `json:"elapsed_time,omitempty"`
-	HasDisconnectedPlayer   *bool          `json:"has_disconnected_player,omitempty"`
-	LeaguePoint             *float64       `json:"league_point"`
-	MatchType               *string        `json:"match_type,omitempty"`
-	MyTeamCount             *float64       `json:"my_team_count"`
-	Opponent0Assists        *int           `json:"opponent0_assists,omitempty"`
+	BattleNumber            string         `json:"battle_number,omitempty"`
+	ElapsedTime             int            `json:"elapsed_time,omitempty"`
+	HasDisconnectedPlayer   bool           `json:"has_disconnected_player,omitempty"`
+	LeaguePoint             float64        `json:"league_point,omitempty"`
+	MatchType               string         `json:"match_type,omitempty"`
+	MyTeamCount             float64        `json:"my_team_count"`
+	Opponent0Assists        int            `json:"opponent0_assists"`
 	Opponent0Clothes        *string        `json:"opponent0_clothes,omitempty"`
 	Opponent0ClothesMain    *string        `json:"opponent0_clothes_main,omitempty"`
 	Opponent0ClothesSub0    *string        `json:"opponent0_clothes_sub0,omitempty"`
 	Opponent0ClothesSub1    *string        `json:"opponent0_clothes_sub1,omitempty"`
 	Opponent0ClothesSub2    *string        `json:"opponent0_clothes_sub2,omitempty"`
-	Opponent0Deaths         *int           `json:"opponent0_deaths,omitempty"`
-	Opponent0GamePaintPoint *int           `json:"opponent0_game_paint_point,omitempty"`
-	Opponent0Gender         *string        `json:"opponent0_gender,omitempty"`
+	Opponent0Deaths         int            `json:"opponent0_deaths"`
+	Opponent0GamePaintPoint int            `json:"opponent0_game_paint_point"`
+	Opponent0Gender         string         `json:"opponent0_gender,omitempty"`
 	Opponent0Headgear       *string        `json:"opponent0_headgear,omitempty"`
 	Opponent0HeadgearMain   *string        `json:"opponent0_headgear_main,omitempty"`
 	Opponent0HeadgearSub0   *string        `json:"opponent0_headgear_sub0,omitempty"`
 	Opponent0HeadgearSub1   *string        `json:"opponent0_headgear_sub1,omitempty"`
 	Opponent0HeadgearSub2   *string        `json:"opponent0_headgear_sub2,omitempty"`
-	Opponent0Kills          *int           `json:"opponent0_kills,omitempty"`
-	Opponent0Level          *int           `json:"opponent0_level,omitempty"`
-	Opponent0LevelStar      *int           `json:"opponent0_level_star,omitempty"`
-	Opponent0Name           *string        `json:"opponent0_name,omitempty"`
-	Opponent0Rank           *string        `json:"opponent0_rank,omitempty"`
+	Opponent0Kills          int            `json:"opponent0_kills"`
+	Opponent0Level          int            `json:"opponent0_level,omitempty"`
+	Opponent0LevelStar      int            `json:"opponent0_level_star"`
+	Opponent0Name           string         `json:"opponent0_name,omitempty"`
+	Opponent0Rank           string         `json:"opponent0_rank,omitempty"`
 	Opponent0Shoes          *string        `json:"opponent0_shoes,omitempty"`
 	Opponent0ShoesMain      *string        `json:"opponent0_shoes_main,omitempty"`
 	Opponent0ShoesSub0      *string        `json:"opponent0_shoes_sub0,omitempty"`
 	Opponent0ShoesSub1      *string        `json:"opponent0_shoes_sub1,omitempty"`
 	Opponent0ShoesSub2      *string        `json:"opponent0_shoes_sub2,omitempty"`
-	Opponent0Specials       *int           `json:"opponent0_specials,omitempty"`
-	Opponent0Species        *string        `json:"opponent0_species,omitempty"`
-	Opponent0SplatnetID     *string        `json:"opponent0_splatnet_id,omitempty"`
-	Opponent0Weapon         *string        `json:"opponent0_weapon,omitempty"`
-	Opponent1Assists        *int           `json:"opponent1_assists,omitempty"`
+	Opponent0Specials       int            `json:"opponent0_specials"`
+	Opponent0Species        string         `json:"opponent0_species,omitempty"`
+	Opponent0SplatnetID     string         `json:"opponent0_splatnet_id,omitempty"`
+	Opponent0Weapon         string         `json:"opponent0_weapon,omitempty"`
+	Opponent1Assists        int            `json:"opponent1_assists"`
 	Opponent1Clothes        *string        `json:"opponent1_clothes,omitempty"`
 	Opponent1ClothesMain    *string        `json:"opponent1_clothes_main,omitempty"`
 	Opponent1ClothesSub0    *string        `json:"opponent1_clothes_sub0,omitempty"`
 	Opponent1ClothesSub1    *string        `json:"opponent1_clothes_sub1,omitempty"`
 	Opponent1ClothesSub2    *string        `json:"opponent1_clothes_sub2,omitempty"`
-	Opponent1Deaths         *int           `json:"opponent1_deaths,omitempty"`
-	Opponent1GamePaintPoint *int           `json:"opponent1_game_paint_point,omitempty"`
-	Opponent1Gender         *string        `json:"opponent1_gender,omitempty"`
+	Opponent1Deaths         int            `json:"opponent1_deaths"`
+	Opponent1GamePaintPoint int            `json:"opponent1_game_paint_point"`
+	Opponent1Gender         string         `json:"opponent1_gender,omitempty"`
 	Opponent1Headgear       *string        `json:"opponent1_headgear,omitempty"`
 	Opponent1HeadgearMain   *string        `json:"opponent1_headgear_main,omitempty"`
 	Opponent1HeadgearSub0   *string        `json:"opponent1_headgear_sub0,omitempty"`
 	Opponent1HeadgearSub1   *string        `json:"opponent1_headgear_sub1,omitempty"`
 	Opponent1HeadgearSub2   *string        `json:"opponent1_headgear_sub2,omitempty"`
-	Opponent1Kills          *int           `json:"opponent1_kills,omitempty"`
-	Opponent1Level          *int           `json:"opponent1_level,omitempty"`
-	Opponent1LevelStar      *int           `json:"opponent1_level_star,omitempty"`
-	Opponent1Name           *string        `json:"opponent1_name,omitempty"`
-	Opponent1Rank           *string        `json:"opponent1_rank,omitempty"`
+	Opponent1Kills          int            `json:"opponent1_kills"`
+	Opponent1Level          int            `json:"opponent1_level,omitempty"`
+	Opponent1LevelStar      int            `json:"opponent1_level_star"`
+	Opponent1Name           string         `json:"opponent1_name,omitempty"`
+	Opponent1Rank           string         `json:"opponent1_rank,omitempty"`
 	Opponent1Shoes          *string        `json:"opponent1_shoes,omitempty"`
 	Opponent1ShoesMain      *string        `json:"opponent1_shoes_main,omitempty"`
 	Opponent1ShoesSub0      *string        `json:"opponent1_shoes_sub0,omitempty"`
 	Opponent1ShoesSub1      *string        `json:"opponent1_shoes_sub1,omitempty"`
 	Opponent1ShoesSub2      *string        `json:"opponent1_shoes_sub2,omitempty"`
-	Opponent1Specials       *int           `json:"opponent1_specials,omitempty"`
-	Opponent1Species        *string        `json:"opponent1_species,omitempty"`
-	Opponent1SplatnetID     *string        `json:"opponent1_splatnet_id,omitempty"`
-	Opponent1Weapon         *string        `json:"opponent1_weapon,omitempty"`
-	Opponent2Assists        *int           `json:"opponent2_assists,omitempty"`
+	Opponent1Specials       int            `json:"opponent1_specials"`
+	Opponent1Species        string         `json:"opponent1_species,omitempty"`
+	Opponent1SplatnetID     string         `json:"opponent1_splatnet_id,omitempty"`
+	Opponent1Weapon         string         `json:"opponent1_weapon,omitempty"`
+	Opponent2Assists        int            `json:"opponent2_assists"`
 	Opponent2Clothes        *string        `json:"opponent2_clothes,omitempty"`
 	Opponent2ClothesMain    *string        `json:"opponent2_clothes_main,omitempty"`
 	Opponent2ClothesSub0    *string        `json:"opponent2_clothes_sub0,omitempty"`
 	Opponent2ClothesSub1    *string        `json:"opponent2_clothes_sub1,omitempty"`
 	Opponent2ClothesSub2    *string        `json:"opponent2_clothes_sub2,omitempty"`
-	Opponent2Deaths         *int           `json:"opponent2_deaths,omitempty"`
-	Opponent2GamePaintPoint *int           `json:"opponent2_game_paint_point,omitempty"`
-	Opponent2Gender         *string        `json:"opponent2_gender,omitempty"`
+	Opponent2Deaths         int            `json:"opponent2_deaths"`
+	Opponent2GamePaintPoint int            `json:"opponent2_game_paint_point"`
+	Opponent2Gender         string         `json:"opponent2_gender,omitempty"`
 	Opponent2Headgear       *string        `json:"opponent2_headgear,omitempty"`
 	Opponent2HeadgearMain   *string        `json:"opponent2_headgear_main,omitempty"`
 	Opponent2HeadgearSub0   *string        `json:"opponent2_headgear_sub0,omitempty"`
 	Opponent2HeadgearSub1   *string        `json:"opponent2_headgear_sub1,omitempty"`
 	Opponent2HeadgearSub2   *string        `json:"opponent2_headgear_sub2,omitempty"`
-	Opponent2Kills          *int           `json:"opponent2_kills,omitempty"`
-	Opponent2Level          *int           `json:"opponent2_level,omitempty"`
-	Opponent2LevelStar      *int           `json:"opponent2_level_star,omitempty"`
-	Opponent2Name           *string        `json:"opponent2_name,omitempty"`
-	Opponent2Rank           *string        `json:"opponent2_rank,omitempty"`
+	Opponent2Kills          int            `json:"opponent2_kills"`
+	Opponent2Level          int            `json:"opponent2_level,omitempty"`
+	Opponent2LevelStar      int            `json:"opponent2_level_star"`
+	Opponent2Name           string         `json:"opponent2_name,omitempty"`
+	Opponent2Rank           string         `json:"opponent2_rank,omitempty"`
 	Opponent2Shoes          *string        `json:"opponent2_shoes,omitempty"`
 	Opponent2ShoesMain      *string        `json:"opponent2_shoes_main,omitempty"`
 	Opponent2ShoesSub0      *string        `json:"opponent2_shoes_sub0,omitempty"`
 	Opponent2ShoesSub1      *string        `json:"opponent2_shoes_sub1,omitempty"`
 	Opponent2ShoesSub2      *string        `json:"opponent2_shoes_sub2,omitempty"`
-	Opponent2Specials       *int           `json:"opponent2_specials,omitempty"`
-	Opponent2Species        *string        `json:"opponent2_species,omitempty"`
-	Opponent2SplatnetID     *string        `json:"opponent2_splatnet_id,omitempty"`
-	Opponent2Weapon         *string        `json:"opponent2_weapon,omitempty"`
-	Opponent3Assists        *int           `json:"opponent3_assists,omitempty"`
+	Opponent2Specials       int            `json:"opponent2_specials"`
+	Opponent2Species        string         `json:"opponent2_species,omitempty"`
+	Opponent2SplatnetID     string         `json:"opponent2_splatnet_id,omitempty"`
+	Opponent2Weapon         string         `json:"opponent2_weapon,omitempty"`
+	Opponent3Assists        int            `json:"opponent3_assists"`
 	Opponent3Clothes        *string        `json:"opponent3_clothes,omitempty"`
 	Opponent3ClothesMain    *string        `json:"opponent3_clothes_main,omitempty"`
 	Opponent3ClothesSub0    *string        `json:"opponent3_clothes_sub0,omitempty"`
 	Opponent3ClothesSub1    *string        `json:"opponent3_clothes_sub1,omitempty"`
 	Opponent3ClothesSub2    *string        `json:"opponent3_clothes_sub2,omitempty"`
-	Opponent3Deaths         *int           `json:"opponent3_deaths,omitempty"`
-	Opponent3GamePaintPoint *int           `json:"opponent3_game_paint_point,omitempty"`
-	Opponent3Gender         *string        `json:"opponent3_gender,omitempty"`
+	Opponent3Deaths         int            `json:"opponent3_deaths"`
+	Opponent3GamePaintPoint int            `json:"opponent3_game_paint_point"`
+	Opponent3Gender         string         `json:"opponent3_gender,omitempty"`
 	Opponent3Headgear       *string        `json:"opponent3_headgear,omitempty"`
 	Opponent3HeadgearMain   *string        `json:"opponent3_headgear_main,omitempty"`
 	Opponent3HeadgearSub0   *string        `json:"opponent3_headgear_sub0,omitempty"`
 	Opponent3HeadgearSub1   *string        `json:"opponent3_headgear_sub1,omitempty"`
 	Opponent3HeadgearSub2   *string        `json:"opponent3_headgear_sub2,omitempty"`
-	Opponent3Kills          *int           `json:"opponent3_kills,omitempty"`
-	Opponent3Level          *int           `json:"opponent3_level,omitempty"`
-	Opponent3LevelStar      *int           `json:"opponent3_level_star,omitempty"`
-	Opponent3Name           *string        `json:"opponent3_name,omitempty"`
-	Opponent3Rank           *string        `json:"opponent3_rank,omitempty"`
+	Opponent3Kills          int            `json:"opponent3_kills"`
+	Opponent3Level          int            `json:"opponent3_level,omitempty"`
+	Opponent3LevelStar      int            `json:"opponent3_level_star"`
+	Opponent3Name           string         `json:"opponent3_name,omitempty"`
+	Opponent3Rank           string         `json:"opponent3_rank,omitempty"`
 	Opponent3Shoes          *string        `json:"opponent3_shoes,omitempty"`
 	Opponent3ShoesMain      *string        `json:"opponent3_shoes_main,omitempty"`
 	Opponent3ShoesSub0      *string        `json:"opponent3_shoes_sub0,omitempty"`
 	Opponent3ShoesSub1      *string        `json:"opponent3_shoes_sub1,omitempty"`
 	Opponent3ShoesSub2      *string        `json:"opponent3_shoes_sub2,omitempty"`
-	Opponent3Specials       *int           `json:"opponent3_specials,omitempty"`
-	Opponent3Species        *string        `json:"opponent3_species,omitempty"`
-	Opponent3SplatnetID     *string        `json:"opponent3_splatnet_id,omitempty"`
-	Opponent3Weapon         *string        `json:"opponent3_weapon,omitempty"`
-	OtherTeamCount          *float64       `json:"other_team_count"`
-	PlayerAssists           *int           `json:"player_assists,omitempty"`
-	PlayerClothes           *string        `json:"player_clothes,omitempty"`
-	PlayerClothesMain       *string        `json:"player_clothes_main,omitempty"`
-	PlayerClothesSub0       *string        `json:"player_clothes_sub0,omitempty"`
-	PlayerClothesSub1       *string        `json:"player_clothes_sub1,omitempty"`
-	PlayerClothesSub2       *string        `json:"player_clothes_sub2,omitempty"`
-	PlayerDeaths            *int           `json:"player_deaths,omitempty"`
-	PlayerGamePaintPoint    *int           `json:"player_game_paint_point,omitempty"`
-	PlayerGender            *string        `json:"player_gender,omitempty"`
-	PlayerHeadgear          *string        `json:"player_headgear,omitempty"`
-	PlayerHeadgearMain      *string        `json:"player_headgear_main,omitempty"`
-	PlayerHeadgearSub0      *string        `json:"player_headgear_sub0,omitempty"`
-	PlayerHeadgearSub1      *string        `json:"player_headgear_sub1,omitempty"`
-	PlayerHeadgearSub2      *string        `json:"player_headgear_sub2,omitempty"`
-	PlayerKills             *int           `json:"player_kills,omitempty"`
-	PlayerLevel             *int           `json:"player_level,omitempty"`
-	PlayerLevelStar         *int           `json:"player_level_star,omitempty"`
-	PlayerName              *string        `json:"player_name,omitempty"`
-	PlayerRank              *int           `json:"player_rank,omitempty"`
-	PlayerShoes             *string        `json:"player_shoes,omitempty"`
-	PlayerShoesMain         *string        `json:"player_shoes_main,omitempty"`
-	PlayerShoesSub0         *string        `json:"player_shoes_sub0,omitempty"`
-	PlayerShoesSub1         *string        `json:"player_shoes_sub1,omitempty"`
-	PlayerShoesSub2         *string        `json:"player_shoes_sub2,omitempty"`
-	PlayerSpecials          *int           `json:"player_specials,omitempty"`
-	PlayerSpecies           *string        `json:"player_species,omitempty"`
-	PlayerSplatfestTitle    *string        `json:"player_splatfest_title,omitempty"`
-	PlayerSplatnetID        *string        `json:"player_splatnet_id,omitempty"`
-	PlayerWeapon            *string        `json:"player_weapon,omitempty"`
+	Opponent3Specials       int            `json:"opponent3_specials"`
+	Opponent3Species        string         `json:"opponent3_species,omitempty"`
+	Opponent3SplatnetID     string         `json:"opponent3_splatnet_id,omitempty"`
+	Opponent3Weapon         string         `json:"opponent3_weapon,omitempty"`
+	OtherTeamCount          float64        `json:"other_team_count"`
+	PlayerAssists           int            `json:"player_assists"`
+	PlayerClothes           string         `json:"player_clothes,omitempty"`
+	PlayerClothesMain       string         `json:"player_clothes_main,omitempty"`
+	PlayerClothesSub0       string         `json:"player_clothes_sub0,omitempty"`
+	PlayerClothesSub1       string         `json:"player_clothes_sub1,omitempty"`
+	PlayerClothesSub2       string         `json:"player_clothes_sub2,omitempty"`
+	PlayerDeaths            int            `json:"player_deaths"`
+	PlayerGamePaintPoint    int            `json:"player_game_paint_point"`
+	PlayerGender            string         `json:"player_gender,omitempty"`
+	PlayerHeadgear          string         `json:"player_headgear,omitempty"`
+	PlayerHeadgearMain      string         `json:"player_headgear_main,omitempty"`
+	PlayerHeadgearSub0      string         `json:"player_headgear_sub0,omitempty"`
+	PlayerHeadgearSub1      string         `json:"player_headgear_sub1,omitempty"`
+	PlayerHeadgearSub2      string         `json:"player_headgear_sub2,omitempty"`
+	PlayerKills             int            `json:"player_kills"`
+	PlayerLevel             int            `json:"player_level,omitempty"`
+	PlayerLevelStar         int            `json:"player_level_star"`
+	PlayerName              string         `json:"player_name,omitempty"`
+	PlayerRank              int            `json:"player_rank"`
+	PlayerShoes             string         `json:"player_shoes,omitempty"`
+	PlayerShoesMain         string         `json:"player_shoes_main,omitempty"`
+	PlayerShoesSub0         string         `json:"player_shoes_sub0,omitempty"`
+	PlayerShoesSub1         string         `json:"player_shoes_sub1,omitempty"`
+	PlayerShoesSub2         string         `json:"player_shoes_sub2,omitempty"`
+	PlayerSpecials          int            `json:"player_specials,omitempty"`
+	PlayerSpecies           string         `json:"player_species,omitempty"`
+	PlayerSplatfestTitle    string         `json:"player_splatfest_title,omitempty"`
+	PlayerSplatnetID        string         `json:"player_splatnet_id,omitempty"`
+	PlayerWeapon            string         `json:"player_weapon,omitempty"`
 	PlayerXPower            *float64       `json:"player_x_power,omitempty"`
-	Rule                    *string        `json:"rule,omitempty"`
-	SplatfestPoint          *float64       `json:"splatfest_point,omitempty"`
-	SplatfestTitleAfter     *string        `json:"splatfest_title_after,omitempty"`
-	SplatnetJSON            Battle         `json:"splatnet_json"`
-	SplatnetUpload          *bool          `json:"splatnet_upload,omitempty"`
-	Stage                   *string        `json:"stage,omitempty"`
+	Rule                    string         `json:"rule,omitempty"`
+	SplatfestPoint          float64        `json:"splatfest_point,omitempty"`
+	SplatfestTitleAfter     string         `json:"splatfest_title_after,omitempty"`
+	SplatnetJSON            *Battle        `json:"splatnet_json"`
+	SplatnetUpload          bool           `json:"splatnet_upload"`
+	Stage                   string         `json:"stage,omitempty"`
 	StatInkJson             *BattleStatInk `json:"stat_ink_json,omitempty"`
-	StatInkUpload           *bool          `json:"stat_ink_upload,omitempty"`
-	TagID                   *string        `json:"tag_id,omitempty"`
-	Teammate0Assists        *int           `json:"teammate0_assists,omitempty"`
+	StatInkUpload           bool           `json:"stat_ink_upload,omitempty"`
+	TagID                   string         `json:"tag_id,omitempty"`
+	Teammate0Assists        int            `json:"teammate0_assists,omitempty"`
 	Teammate0Clothes        *string        `json:"teammate0_clothes,omitempty"`
 	Teammate0ClothesMain    *string        `json:"teammate0_clothes_main,omitempty"`
 	Teammate0ClothesSub0    *string        `json:"teammate0_clothes_sub0,omitempty"`
 	Teammate0ClothesSub1    *string        `json:"teammate0_clothes_sub1,omitempty"`
 	Teammate0ClothesSub2    *string        `json:"teammate0_clothes_sub2,omitempty"`
-	Teammate0Deaths         *int           `json:"teammate0_deaths,omitempty"`
-	Teammate0GamePaintPoint *int           `json:"teammate0_game_paint_point,omitempty"`
-	Teammate0Gender         *string        `json:"teammate0_gender,omitempty"`
+	Teammate0Deaths         int            `json:"teammate0_deaths,omitempty"`
+	Teammate0GamePaintPoint int            `json:"teammate0_game_paint_point,omitempty"`
+	Teammate0Gender         string         `json:"teammate0_gender,omitempty"`
 	Teammate0Headgear       *string        `json:"teammate0_headgear,omitempty"`
 	Teammate0HeadgearMain   *string        `json:"teammate0_headgear_main,omitempty"`
 	Teammate0HeadgearSub0   *string        `json:"teammate0_headgear_sub0,omitempty"`
 	Teammate0HeadgearSub1   *string        `json:"teammate0_headgear_sub1,omitempty"`
 	Teammate0HeadgearSub2   *string        `json:"teammate0_headgear_sub2,omitempty"`
-	Teammate0Kills          *int           `json:"teammate0_kills,omitempty"`
-	Teammate0Level          *int           `json:"teammate0_level,omitempty"`
-	Teammate0LevelStar      *int           `json:"teammate0_level_star,omitempty"`
-	Teammate0Name           *string        `json:"teammate0_name,omitempty"`
-	Teammate0Rank           *string        `json:"teammate0_rank,omitempty"`
+	Teammate0Kills          int            `json:"teammate0_kills,omitempty"`
+	Teammate0Level          int            `json:"teammate0_level,omitempty"`
+	Teammate0LevelStar      int            `json:"teammate0_level_star"`
+	Teammate0Name           string         `json:"teammate0_name,omitempty"`
+	Teammate0Rank           string         `json:"teammate0_rank,omitempty"`
 	Teammate0Shoes          *string        `json:"teammate0_shoes,omitempty"`
 	Teammate0ShoesMain      *string        `json:"teammate0_shoes_main,omitempty"`
 	Teammate0ShoesSub0      *string        `json:"teammate0_shoes_sub0,omitempty"`
 	Teammate0ShoesSub1      *string        `json:"teammate0_shoes_sub1,omitempty"`
 	Teammate0ShoesSub2      *string        `json:"teammate0_shoes_sub2,omitempty"`
-	Teammate0Specials       *int           `json:"teammate0_specials,omitempty"`
-	Teammate0Species        *string        `json:"teammate0_species,omitempty"`
-	Teammate0SplatnetID     *string        `json:"teammate0_splatnet_id,omitempty"`
-	Teammate0Weapon         *string        `json:"teammate0_weapon,omitempty"`
-	Teammate1Assists        *int           `json:"teammate1_assists,omitempty"`
+	Teammate0Specials       int            `json:"teammate0_specials,omitempty"`
+	Teammate0Species        string         `json:"teammate0_species,omitempty"`
+	Teammate0SplatnetID     string         `json:"teammate0_splatnet_id,omitempty"`
+	Teammate0Weapon         string         `json:"teammate0_weapon,omitempty"`
+	Teammate1Assists        int            `json:"teammate1_assists,omitempty"`
 	Teammate1Clothes        *string        `json:"teammate1_clothes,omitempty"`
 	Teammate1ClothesMain    *string        `json:"teammate1_clothes_main,omitempty"`
 	Teammate1ClothesSub0    *string        `json:"teammate1_clothes_sub0,omitempty"`
 	Teammate1ClothesSub1    *string        `json:"teammate1_clothes_sub1,omitempty"`
 	Teammate1ClothesSub2    *string        `json:"teammate1_clothes_sub2,omitempty"`
-	Teammate1Deaths         *int           `json:"teammate1_deaths,omitempty"`
-	Teammate1GamePaintPoint *int           `json:"teammate1_game_paint_point,omitempty"`
-	Teammate1Gender         *string        `json:"teammate1_gender,omitempty"`
+	Teammate1Deaths         int            `json:"teammate1_deaths,omitempty"`
+	Teammate1GamePaintPoint int            `json:"teammate1_game_paint_point,omitempty"`
+	Teammate1Gender         string         `json:"teammate1_gender,omitempty"`
 	Teammate1Headgear       *string        `json:"teammate1_headgear,omitempty"`
 	Teammate1HeadgearMain   *string        `json:"teammate1_headgear_main,omitempty"`
 	Teammate1HeadgearSub0   *string        `json:"teammate1_headgear_sub0,omitempty"`
 	Teammate1HeadgearSub1   *string        `json:"teammate1_headgear_sub1,omitempty"`
 	Teammate1HeadgearSub2   *string        `json:"teammate1_headgear_sub2,omitempty"`
-	Teammate1Kills          *int           `json:"teammate1_kills,omitempty"`
-	Teammate1Level          *int           `json:"teammate1_level,omitempty"`
-	Teammate1LevelStar      *int           `json:"teammate1_level_star,omitempty"`
-	Teammate1Name           *string        `json:"teammate1_name,omitempty"`
-	Teammate1Rank           *string        `json:"teammate1_rank,omitempty"`
+	Teammate1Kills          int            `json:"teammate1_kills,omitempty"`
+	Teammate1Level          int            `json:"teammate1_level,omitempty"`
+	Teammate1LevelStar      int            `json:"teammate1_level_star"`
+	Teammate1Name           string         `json:"teammate1_name,omitempty"`
+	Teammate1Rank           string         `json:"teammate1_rank,omitempty"`
 	Teammate1Shoes          *string        `json:"teammate1_shoes,omitempty"`
 	Teammate1ShoesMain      *string        `json:"teammate1_shoes_main,omitempty"`
 	Teammate1ShoesSub0      *string        `json:"teammate1_shoes_sub0,omitempty"`
 	Teammate1ShoesSub1      *string        `json:"teammate1_shoes_sub1,omitempty"`
 	Teammate1ShoesSub2      *string        `json:"teammate1_shoes_sub2,omitempty"`
-	Teammate1Specials       *int           `json:"teammate1_specials,omitempty"`
-	Teammate1Species        *string        `json:"teammate1_species,omitempty"`
-	Teammate1SplatnetID     *string        `json:"teammate1_splatnet_id,omitempty"`
-	Teammate1Weapon         *string        `json:"teammate1_weapon,omitempty"`
-	Teammate2Assists        *int           `json:"teammate2_assists,omitempty"`
+	Teammate1Specials       int            `json:"teammate1_specials,omitempty"`
+	Teammate1Species        string         `json:"teammate1_species,omitempty"`
+	Teammate1SplatnetID     string         `json:"teammate1_splatnet_id,omitempty"`
+	Teammate1Weapon         string         `json:"teammate1_weapon,omitempty"`
+	Teammate2Assists        int            `json:"teammate2_assists,omitempty"`
 	Teammate2Clothes        *string        `json:"teammate2_clothes,omitempty"`
 	Teammate2ClothesMain    *string        `json:"teammate2_clothes_main,omitempty"`
 	Teammate2ClothesSub0    *string        `json:"teammate2_clothes_sub0,omitempty"`
 	Teammate2ClothesSub1    *string        `json:"teammate2_clothes_sub1,omitempty"`
 	Teammate2ClothesSub2    *string        `json:"teammate2_clothes_sub2,omitempty"`
-	Teammate2Deaths         *int           `json:"teammate2_deaths,omitempty"`
-	Teammate2GamePaintPoint *int           `json:"teammate2_game_paint_point,omitempty"`
-	Teammate2Gender         *string        `json:"teammate2_gender,omitempty"`
+	Teammate2Deaths         int            `json:"teammate2_deaths,omitempty"`
+	Teammate2GamePaintPoint int            `json:"teammate2_game_paint_point,omitempty"`
+	Teammate2Gender         string         `json:"teammate2_gender,omitempty"`
 	Teammate2Headgear       *string        `json:"teammate2_headgear,omitempty"`
 	Teammate2HeadgearMain   *string        `json:"teammate2_headgear_main,omitempty"`
 	Teammate2HeadgearSub0   *string        `json:"teammate2_headgear_sub0,omitempty"`
 	Teammate2HeadgearSub1   *string        `json:"teammate2_headgear_sub1,omitempty"`
 	Teammate2HeadgearSub2   *string        `json:"teammate2_headgear_sub2,omitempty"`
-	Teammate2Kills          *int           `json:"teammate2_kills,omitempty"`
-	Teammate2Level          *int           `json:"teammate2_level,omitempty"`
-	Teammate2LevelStar      *int           `json:"teammate2_level_star,omitempty"`
-	Teammate2Name           *string        `json:"teammate2_name,omitempty"`
-	Teammate2Rank           *string        `json:"teammate2_rank,omitempty"`
+	Teammate2Kills          int            `json:"teammate2_kills,omitempty"`
+	Teammate2Level          int            `json:"teammate2_level,omitempty"`
+	Teammate2LevelStar      int            `json:"teammate2_level_star"`
+	Teammate2Name           string         `json:"teammate2_name,omitempty"`
+	Teammate2Rank           string         `json:"teammate2_rank,omitempty"`
 	Teammate2Shoes          *string        `json:"teammate2_shoes,omitempty"`
 	Teammate2ShoesMain      *string        `json:"teammate2_shoes_main,omitempty"`
 	Teammate2ShoesSub0      *string        `json:"teammate2_shoes_sub0,omitempty"`
 	Teammate2ShoesSub1      *string        `json:"teammate2_shoes_sub1,omitempty"`
 	Teammate2ShoesSub2      *string        `json:"teammate2_shoes_sub2,omitempty"`
-	Teammate2Specials       *int           `json:"teammate2_specials,omitempty"`
-	Teammate2Species        *string        `json:"teammate2_species,omitempty"`
-	Teammate2SplatnetID     *string        `json:"teammate2_splatnet_id,omitempty"`
-	Teammate2Weapon         *string        `json:"teammate2_weapon,omitempty"`
-	Time                    *int           `json:"time,omitempty"`
-	Win                     *bool          `json:"win,omitempty"`
-	WinMeter                *float64       `json:"win_meter"`
+	Teammate2Specials       int            `json:"teammate2_specials,omitempty"`
+	Teammate2Species        string         `json:"teammate2_species,omitempty"`
+	Teammate2SplatnetID     string         `json:"teammate2_splatnet_id,omitempty"`
+	Teammate2Weapon         string         `json:"teammate2_weapon,omitempty"`
+	Time                    int            `json:"time,omitempty"`
+	Win                     bool           `json:"win,omitempty"`
+	WinMeter                float64        `json:"win_meter"`
 }
 
 // BattleList is a list of up to 50 partial Battles, with additional metadata.
@@ -1242,7 +1242,7 @@ type ShiftList struct {
 type ShiftStatInk struct {
 	ID             int    `json:"id"`
 	UUID           string `json:"uuid"`
-	SplatnetNumber int    `json:"splatnet_number"`
+	SplatnetNumber *int   `json:"splatnet_number"`
 	URL            string `json:"url"`
 	APIEndpoint    string `json:"api_endpoint"`
 	User           struct {
@@ -1281,8 +1281,8 @@ type ShiftStatInk struct {
 		} `json:"stats"`
 	} `json:"user"`
 	Stage struct {
-		Key      string `json:"key"`
-		Splatnet string `json:"splatnet"`
+		Key      string  `json:"key"`
+		Splatnet *string `json:"splatnet"`
 		Name     struct {
 			DeDe string `json:"de_DE"`
 			EnGb string `json:"en_GB"`
@@ -1299,9 +1299,9 @@ type ShiftStatInk struct {
 			ZhTw string `json:"zh_TW"`
 		} `json:"name"`
 	} `json:"stage"`
-	IsCleared  bool   `json:"is_cleared"`
+	IsCleared  *bool `json:"is_cleared"`
 	FailReason struct {
-		Key  string `json:"key"`
+		Key  *string `json:"key"`
 		Name struct {
 			DeDe string `json:"de_DE"`
 			EnGb string `json:"en_GB"`
@@ -1390,7 +1390,7 @@ type ShiftStatInk struct {
 			ZhTw string `json:"zh_TW"`
 		} `json:"generic_name"`
 	} `json:"title_after"`
-	TitleExpAfter   int `json:"title_exp_after"`
+	TitleExpAfter   *int `json:"title_exp_after"`
 	BossAppearances []struct {
 		Boss struct {
 			Key         string `json:"key"`
@@ -1412,12 +1412,12 @@ type ShiftStatInk struct {
 				ZhTw string `json:"zh_TW"`
 			} `json:"name"`
 		} `json:"boss"`
-		Count int `json:"count"`
+		Count *int `json:"count"`
 	} `json:"boss_appearances"`
 	Waves []struct {
 		KnownOccurrence struct {
-			Key      string `json:"key"`
-			Splatnet string `json:"splatnet"`
+			Key      string  `json:"key"`
+			Splatnet *string `json:"splatnet"`
 			Name     struct {
 				DeDe string `json:"de_DE"`
 				EnGb string `json:"en_GB"`
@@ -1435,8 +1435,8 @@ type ShiftStatInk struct {
 			} `json:"name"`
 		} `json:"known_occurrence"`
 		WaterLevel struct {
-			Key      string `json:"key"`
-			Splatnet string `json:"splatnet"`
+			Key      string  `json:"key"`
+			Splatnet *string `json:"splatnet"`
 			Name     struct {
 				DeDe string `json:"de_DE"`
 				EnGb string `json:"en_GB"`
@@ -1453,14 +1453,14 @@ type ShiftStatInk struct {
 				ZhTw string `json:"zh_TW"`
 			} `json:"name"`
 		} `json:"water_level"`
-		GoldenEggQuota       int `json:"golden_egg_quota"`
-		GoldenEggAppearances int `json:"golden_egg_appearances"`
-		GoldenEggDelivered   int `json:"golden_egg_delivered"`
-		PowerEggCollected    int `json:"power_egg_collected"`
+		GoldenEggQuota       *int `json:"golden_egg_quota"`
+		GoldenEggAppearances *int `json:"golden_egg_appearances"`
+		GoldenEggDelivered   *int `json:"golden_egg_delivered"`
+		PowerEggCollected    *int `json:"power_egg_collected"`
 	} `json:"waves"`
 	MyData struct {
-		SplatnetID string `json:"splatnet_id"`
-		Name       string `json:"name"`
+		SplatnetID *string `json:"splatnet_id"`
+		Name       *string `json:"name"`
 		Special    struct {
 			Key      string `json:"key"`
 			Splatnet int    `json:"splatnet"`
@@ -1480,10 +1480,10 @@ type ShiftStatInk struct {
 				ZhTw string `json:"zh_TW"`
 			} `json:"name"`
 		} `json:"special"`
-		Rescue             int `json:"rescue"`
-		Death              int `json:"death"`
-		GoldenEggDelivered int `json:"golden_egg_delivered"`
-		PowerEggCollected  int `json:"power_egg_collected"`
+		Rescue             *int `json:"rescue"`
+		Death              *int `json:"death"`
+		GoldenEggDelivered *int `json:"golden_egg_delivered"`
+		PowerEggCollected  *int `json:"power_egg_collected"`
 		Species            struct {
 			Key  string `json:"key"`
 			Name struct {
@@ -1503,8 +1503,8 @@ type ShiftStatInk struct {
 			} `json:"name"`
 		} `json:"species"`
 		Gender struct {
-			Key     string `json:"key"`
-			Iso5218 int    `json:"iso5218"`
+			Key     *string `json:"key"`
+			Iso5218 int     `json:"iso5218"`
 			Name    struct {
 				DeDe string `json:"de_DE"`
 				EnGb string `json:"en_GB"`
@@ -1521,7 +1521,7 @@ type ShiftStatInk struct {
 				ZhTw string `json:"zh_TW"`
 			} `json:"name"`
 		} `json:"gender"`
-		SpecialUses []int `json:"special_uses"`
+		SpecialUses []*int `json:"special_uses"`
 		Weapons     []struct {
 			Key      string `json:"key"`
 			Splatnet int    `json:"splatnet"`
@@ -1562,12 +1562,12 @@ type ShiftStatInk struct {
 					ZhTw string `json:"zh_TW"`
 				} `json:"name"`
 			} `json:"boss"`
-			Count int `json:"count"`
+			Count *int `json:"count"`
 		} `json:"boss_kills"`
 	} `json:"my_data"`
 	Teammates []struct {
-		SplatnetID string `json:"splatnet_id"`
-		Name       string `json:"name"`
+		SplatnetID *string `json:"splatnet_id"`
+		Name       *string `json:"name"`
 		Special    struct {
 			Key      string `json:"key"`
 			Splatnet int    `json:"splatnet"`
@@ -1587,10 +1587,10 @@ type ShiftStatInk struct {
 				ZhTw string `json:"zh_TW"`
 			} `json:"name"`
 		} `json:"special"`
-		Rescue             int `json:"rescue"`
-		Death              int `json:"death"`
-		GoldenEggDelivered int `json:"golden_egg_delivered"`
-		PowerEggCollected  int `json:"power_egg_collected"`
+		Rescue             *int `json:"rescue"`
+		Death              *int `json:"death"`
+		GoldenEggDelivered *int `json:"golden_egg_delivered"`
+		PowerEggCollected  *int `json:"power_egg_collected"`
 		Species            struct {
 			Key  string `json:"key"`
 			Name struct {
@@ -1610,8 +1610,8 @@ type ShiftStatInk struct {
 			} `json:"name"`
 		} `json:"species"`
 		Gender struct {
-			Key     string `json:"key"`
-			Iso5218 int    `json:"iso5218"`
+			Key     *string `json:"key"`
+			Iso5218 int     `json:"iso5218"`
 			Name    struct {
 				DeDe string `json:"de_DE"`
 				EnGb string `json:"en_GB"`
@@ -1628,7 +1628,7 @@ type ShiftStatInk struct {
 				ZhTw string `json:"zh_TW"`
 			} `json:"name"`
 		} `json:"gender"`
-		SpecialUses []int `json:"special_uses"`
+		SpecialUses []*int `json:"special_uses"`
 		Weapons     []struct {
 			Key      string `json:"key"`
 			Splatnet int    `json:"splatnet"`
@@ -1669,7 +1669,7 @@ type ShiftStatInk struct {
 					ZhTw string `json:"zh_TW"`
 				} `json:"name"`
 			} `json:"boss"`
-			Count int `json:"count"`
+			Count *int `json:"count"`
 		} `json:"boss_kills"`
 	} `json:"teammates"`
 	Agent struct {
@@ -2106,7 +2106,7 @@ type BattleStatInk struct {
 	DeathReasons               []interface{} `json:"death_reasons"`
 	MyPoint                    int           `json:"my_point"`
 	EstimateGachiPower         int           `json:"estimate_gachi_power"`
-	LeaguePoint                interface{}   `json:"league_point"`
+	LeaguePoint                string        `json:"league_point"`
 	MyTeamEstimateLeaguePoint  interface{}   `json:"my_team_estimate_league_point"`
 	HisTeamEstimateLeaguePoint interface{}   `json:"his_team_estimate_league_point"`
 	MyTeamPoint                interface{}   `json:"my_team_point"`
@@ -2115,8 +2115,8 @@ type BattleStatInk struct {
 	HisTeamPercent             *string       `json:"his_team_percent"`
 	MyTeamCount                *int          `json:"my_team_count"`
 	HisTeamCount               *int          `json:"his_team_count"`
-	MyTeamID                   string   `json:"my_team_id"`
-	HisTeamID                  string   `json:"his_team_id"`
+	MyTeamID                   string        `json:"my_team_id"`
+	HisTeamID                  string        `json:"his_team_id"`
 	Species                    struct {
 		Key  string `json:"key"`
 		Name struct {
@@ -2154,11 +2154,45 @@ type BattleStatInk struct {
 			ZhTw string `json:"zh_TW"`
 		} `json:"name"`
 	} `json:"gender"`
-	FestTitle                      interface{} `json:"fest_title"`
-	FestExp                        interface{} `json:"fest_exp"`
-	FestTitleAfter                 interface{} `json:"fest_title_after"`
+	FestTitle struct {
+		Key  string `json:"key"`
+		Name struct {
+			DeDe string `json:"de_DE"`
+			EnGb string `json:"en_GB"`
+			EnUs string `json:"en_US"`
+			EsEs string `json:"es_ES"`
+			EsMx string `json:"es_MX"`
+			FrCa string `json:"fr_CA"`
+			FrFr string `json:"fr_FR"`
+			ItIt string `json:"it_IT"`
+			JaJp string `json:"ja_JP"`
+			NlNl string `json:"nl_NL"`
+			RuRu string `json:"ru_RU"`
+			ZhCn string `json:"zh_CN"`
+			ZhTw string `json:"zh_TW"`
+		} `json:"name"`
+	} `json:"fest_title"`
+	FestExp        interface{} `json:"fest_exp"`
+	FestTitleAfter struct {
+		Key  string `json:"key"`
+		Name struct {
+			DeDe string `json:"de_DE"`
+			EnGb string `json:"en_GB"`
+			EnUs string `json:"en_US"`
+			EsEs string `json:"es_ES"`
+			EsMx string `json:"es_MX"`
+			FrCa string `json:"fr_CA"`
+			FrFr string `json:"fr_FR"`
+			ItIt string `json:"it_IT"`
+			JaJp string `json:"ja_JP"`
+			NlNl string `json:"nl_NL"`
+			RuRu string `json:"ru_RU"`
+			ZhCn string `json:"zh_CN"`
+			ZhTw string `json:"zh_TW"`
+		} `json:"name"`
+	} `json:"fest_title_after"`
 	FestExpAfter                   interface{} `json:"fest_exp_after"`
-	FestPower                      interface{} `json:"fest_power"`
+	FestPower                      string      `json:"fest_power"`
 	MyTeamEstimateFestPower        interface{} `json:"my_team_estimate_fest_power"`
 	HisTeamMyTeamEstimateFestPower interface{} `json:"his_team_my_team_estimate_fest_power"`
 	MyTeamFestTheme                interface{} `json:"my_team_fest_theme"`
@@ -2284,7 +2318,7 @@ type BattleStatInk struct {
 						ZhTw string `json:"zh_TW"`
 					} `json:"name"`
 				} `json:"primary_ability"`
-				Splatnet int `json:"splatnet"`
+				Splatnet *int `json:"splatnet"`
 			} `json:"gear"`
 			PrimaryAbility struct {
 				Key  string `json:"key"`
@@ -2431,7 +2465,7 @@ type BattleStatInk struct {
 						ZhTw string `json:"zh_TW"`
 					} `json:"name"`
 				} `json:"primary_ability"`
-				Splatnet int `json:"splatnet"`
+				Splatnet *int `json:"splatnet"`
 			} `json:"gear"`
 			PrimaryAbility struct {
 				Key  string `json:"key"`
@@ -2451,7 +2485,24 @@ type BattleStatInk struct {
 					ZhTw string `json:"zh_TW"`
 				} `json:"name"`
 			} `json:"primary_ability"`
-			SecondaryAbilities []interface{} `json:"secondary_abilities"`
+			SecondaryAbilities []struct {
+				Key  string `json:"key"`
+				Name struct {
+					DeDe string `json:"de_DE"`
+					EnGb string `json:"en_GB"`
+					EnUs string `json:"en_US"`
+					EsEs string `json:"es_ES"`
+					EsMx string `json:"es_MX"`
+					FrCa string `json:"fr_CA"`
+					FrFr string `json:"fr_FR"`
+					ItIt string `json:"it_IT"`
+					JaJp string `json:"ja_JP"`
+					NlNl string `json:"nl_NL"`
+					RuRu string `json:"ru_RU"`
+					ZhCn string `json:"zh_CN"`
+					ZhTw string `json:"zh_TW"`
+				} `json:"name"`
+			} `json:"secondary_abilities"`
 		} `json:"clothing"`
 		Shoes struct {
 			Gear struct {
@@ -2561,7 +2612,7 @@ type BattleStatInk struct {
 						ZhTw string `json:"zh_TW"`
 					} `json:"name"`
 				} `json:"primary_ability"`
-				Splatnet int `json:"splatnet"`
+				Splatnet *int `json:"splatnet"`
 			} `json:"gear"`
 			PrimaryAbility struct {
 				Key  string `json:"key"`
@@ -2601,8 +2652,8 @@ type BattleStatInk struct {
 			} `json:"secondary_abilities"`
 		} `json:"shoes"`
 	} `json:"gears"`
-	Period      int       `json:"period"`
-	PeriodRange time.Time `json:"period_range"`
+	Period      int         `json:"period"`
+	PeriodRange interface{} `json:"period_range"`
 	Players     []struct {
 		Team   string `json:"team"`
 		IsMe   bool   `json:"is_me"`
