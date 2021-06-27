@@ -19,7 +19,7 @@ builds:
       - amd64
       - mips64
       - mips64le
-      - x390x
+      - s390x
     mod_timestamp: '{{ .CommitTimestamp }}'
 archives:
   -
