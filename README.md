@@ -27,7 +27,7 @@ Running `./splatstatsuploader -M 900` from the command line launches the script 
 
 ## Features
 
-- [ ] Full automation of SplatNet cookie generation/acquisition via user log-in
+- [x] Full automation of SplatNet cookie generation/acquisition via user log-in
 - [ ] Complete battle stats
   - [x] Game mode, stage, weapon
   - [x] Result, final count/percent, turf inked
@@ -49,7 +49,7 @@ Running `./splatstatsuploader -M 900` from the command line launches the script 
 
 **NOTE: Read the "Cookie generation" section below before proceeding. [→](#cookie-generation)**
 
-4. <!--You will then be asked to navigate to a specific URL on Nintendo.com, log in, and follow simple instructions to obtain your `session_token`; this will be used to generate an `iksm_session` cookie. If you are opting against automatic cookie generation,--> You will then be asked to navigate to a specific URL on Nintendo.com, log in, and follow simple instructions to obtain your `session_token`. However, this functionality does not work at this time, so instead enter "skip" for this step, at which point you will be asked to manually input your `iksm_session` cookie <!--instead--> (see the [mitmproxy instructions](https://github.com/frozenpandaman/splatnet2statink/wiki/mitmproxy-instructions)).
+4. You will then be asked to navigate to a specific URL on Nintendo.com, log in, and follow simple instructions to obtain your `session_token`; this will be used to generate an `iksm_session` cookie. If you are opting for automatic cookie generation, you will then be asked to navigate to a specific URL on Nintendo.com, log in, and follow simple instructions to obtain your `session_token`. For manual cookie generation, you can instead enter "skip" for this step, at which point you will be asked to manually input your `iksm_session` cookie instead (see the [mitmproxy instructions](https://github.com/frozenpandaman/splatnet2statink/wiki/mitmproxy-instructions)).
 
     This cookie (used to access your SplatNet battle results) along with your SplatStats API key and language will automatically be saved into `config.txt` for you. You're now ready to upload battles!
 
@@ -65,7 +65,7 @@ If you wish to access SplatNet 2 from your computer rather than via the phone ap
 
 For splatstats-uploader to work, a cookie known as `iksm_session` is required to access SplatNet. This cookie may be obtained automatically, using the program, in the future once that functionality is added, or manually via the app. <!--Please read the following sections carefully to decide whether or not you want to use automatic cookie generation.-->
 
-<!-- ### Automatic
+### Automatic
 
 Automatic cookie generation involves making a *secure request to two non-Nintendo servers with minimal, non-identifying information*. We aim to be 100% transparent about this and provide in-depth information on security and privacy below. Users who feel uncomfortable with this may opt to manually acquire their cookie instead.
 
@@ -75,7 +75,7 @@ Generation now requires a [hash value](https://en.wikipedia.org/wiki/Hash_functi
 
 **Privacy statement:** No identifying information is ever sent to the API server. Usernames and passwords are far removed from where the API comes into play and are never readable by anyone but you. Returned hash values are never logged or stored and do not contain meaningful information. It is not possible to use either sent or stored data to identify which account/user performed a request, to view any identifying information about a user, or to gain access to an account.
 
-See the **[API documentation wiki page](https://github.com/frozenpandaman/splatnet2statink/wiki/api-docs)** for more information. -->
+See the **[API documentation wiki page](https://github.com/frozenpandaman/splatnet2statink/wiki/api-docs)** for more information.
 
 ### Manual
 
