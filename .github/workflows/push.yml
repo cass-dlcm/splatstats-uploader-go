@@ -23,9 +23,9 @@ jobs:
 
       - name: Create Tag
         run: |
-          - go get github.com/caarlos0/svu
-          - git tag "$(svu next)"
-          - git push --tags
+          go get github.com/caarlos0/svu
+          git tag "$(svu next)"
+          git push --tags
 
       - name: Import GPG key
         id: import_gpg
