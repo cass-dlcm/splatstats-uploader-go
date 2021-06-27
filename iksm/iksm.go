@@ -150,7 +150,7 @@ type flapgApiData struct {
 type flapgApiDataResult struct {
 	F  string `json:"f"`
 	P1 string `json:"p1"`
-	P2 string    `json:"p2"`
+	P2 string `json:"p2"`
 	P3 string `json:"p3"`
 }
 
@@ -363,8 +363,8 @@ func getUserInfo(userLang string, idResponse idResponseS, client *http.Client) u
 }
 
 type splatoonTokenS struct {
-	Correlationid  string `json:"correlationId"`
-	Result struct {
+	Correlationid string `json:"correlationId"`
+	Result        struct {
 		Firebasecredential struct {
 			Accesstoken interface{} `json:"accessToken"`
 			Expiresin   int         `json:"expiresIn"`
@@ -486,8 +486,8 @@ func getSplatoonAccessToken(splatoonToken splatoonTokenS, guid string, timestamp
 		"Connection":       []string{"Keep-Alive"},
 		"Authorization":    []string{"Bearer " + idToken},
 		"Content-Length":   []string{"37"},
-		"X-Platform":      []string{"Android"},
-		"Accept-Encoding": []string{"gzip deflate"},
+		"X-Platform":       []string{"Android"},
+		"Accept-Encoding":  []string{"gzip deflate"},
 	}
 
 	resp, err := client.Do(req)
@@ -521,7 +521,7 @@ func getCookie(version string, client *http.Client) (string, string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, "GET", "https://app.splatoon2.nintendo.net/?lang=" + userLang, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://app.splatoon2.nintendo.net/?lang="+userLang, nil)
 	if err != nil {
 		panic(err)
 	}

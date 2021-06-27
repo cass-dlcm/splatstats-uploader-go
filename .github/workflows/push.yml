@@ -23,7 +23,7 @@ jobs:
 
       - name: Create Tag
         run: |
-          go get github.com/caarlos0/svu
+          go install github.com/caarlos0/svu
           git tag "$(svu next)"
           git push --tags
 
