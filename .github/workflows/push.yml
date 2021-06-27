@@ -23,7 +23,7 @@ jobs:
 
       - name: Create Tag
         run: |
-          go install github.com/caarlos0/svu
+          curl -sfL https://install.goreleaser.com/github.com/caarlos0/svu.sh | bash -s -- -b /usr/local/bin
           git tag "$(svu next)"
           git push --tags
 
