@@ -1,4 +1,4 @@
-name: Update Report Card
+name: Builds
 
 on:
   push:
