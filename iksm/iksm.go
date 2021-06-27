@@ -49,40 +49,28 @@ func enterCookie() string {
 
 // Helper function for logIn().
 func getSessionToken(sessionTokenCode string, authCodeVerifier string, client *http.Client) interface{} {
-	appHead := map[string]string{
-		"User-Agent":      "OnlineLounge/1.11.0 NASDKAPI Android",
-		"Accept-Language": "en-US",
-		"Accept":          "application/json",
-		"Content-Type":    "application/x-www-form-urlencoded",
-		"Content-Length":  "540",
-		"Host":            "accounts.nintendo.com",
-		"Connection":      "Keep-Alive",
-		"Accept-Encoding": "gzip",
-	}
-	body := map[string]string{
-		"client_id":                   "71b963c1b7b6d119",
-		"session_token_code":          sessionTokenCode,
-		"session_token_code_verifier": strings.ReplaceAll(authCodeVerifier, "=", ""),
-	}
-	reqData := url.Values{}
-
-	for key, element := range body {
-		reqData.Set(key, element)
-	}
-
-	bodyMarshalled := strings.NewReader(reqData.Encode())
-	reqUrl := "https://accounts.nintendo.com/connect/1.0.0/api/session_token"
-
+	bodyMarshalled := strings.NewReader(url.Values{
+		"client_id":                   []string{"71b963c1b7b6d119"},
+		"session_token_code":          []string{sessionTokenCode},
+		"session_token_code_verifier": []string{strings.ReplaceAll(authCodeVerifier, "=", "")},
+	}.Encode())
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, "POST", reqUrl, bodyMarshalled)
+	req, err := http.NewRequestWithContext(ctx, "POST", "https://accounts.nintendo.com/connect/1.0.0/api/session_token", bodyMarshalled)
 	if err != nil {
 		panic(err)
 	}
 
-	for key, element := range appHead {
-		req.Header.Add(key, element)
+	req.Header = http.Header{
+		"User-Agent":      []string{"OnlineLounge/1.11.0 NASDKAPI Android"},
+		"Accept-Language": []string{"en-US"},
+		"Accept":          []string{"application/json"},
+		"Content-Type":    []string{"application/x-www-form-urlencoded"},
+		"Content-Length":  []string{"540"},
+		"Host":            []string{"accounts.nintendo.com"},
+		"Connection":      []string{"Keep-Alive"},
+		"Accept-Encoding": []string{"gzip"},
 	}
 
 	resp, err := client.Do(req)
@@ -112,12 +100,9 @@ func getSessionToken(sessionTokenCode string, authCodeVerifier string, client *h
 
 // Passes an idToken and timestamp to the s2s API and fetches the resultant hash from the response.
 func getHashFromS2sApi(idToken string, timestamp int, version string, client *http.Client) string {
-	apiAppHead := map[string]string{"Content-Type": "application/x-www-form-urlencoded", "User-Agent": "splatstatsuploader/" + version}
-	apiBody := map[string]string{"naIdToken": idToken, "timestamp": fmt.Sprint(timestamp)}
-	reqData := url.Values{}
-
-	for key, element := range apiBody {
-		reqData.Set(key, element)
+	reqData := url.Values{
+		"naIdToken": []string{idToken},
+		"timestamp": []string{fmt.Sprint(timestamp)},
 	}
 
 	bodyMarshalled := strings.NewReader(reqData.Encode())
@@ -130,8 +115,9 @@ func getHashFromS2sApi(idToken string, timestamp int, version string, client *ht
 		panic(err)
 	}
 
-	for key, element := range apiAppHead {
-		req.Header.Add(key, element)
+	req.Header = http.Header{
+		"Content-Type": []string{"application/x-www-form-urlencoded"},
+		"User-Agent":   []string{"splatstatsuploader/" + version},
 	}
 
 	resp, err := client.Do(req)
@@ -158,25 +144,18 @@ func getHashFromS2sApi(idToken string, timestamp int, version string, client *ht
 }
 
 type flapgApiData struct {
-	Result struct {
-		F  string `json:"f"`
-		P1 string `json:"p1"`
-		P2 int    `json:"p2"`
-		P3 string `json:"p3"`
-	} `json:"result"`
+	Result flapgApiDataResult `json:"result"`
+}
+
+type flapgApiDataResult struct {
+	F  string `json:"f"`
+	P1 string `json:"p1"`
+	P2 string    `json:"p2"`
+	P3 string `json:"p3"`
 }
 
 // Passes in headers to the flapg API (Android emulator) and fetches the response.
 func callFlapgApi(idToken string, guid string, timestamp int, fType string, version string, client *http.Client) flapgApiData {
-	apiAppHead := map[string]string{
-		"x-token": idToken,
-		"x-time":  fmt.Sprint(timestamp),
-		"x-guid":  guid,
-		"x-hash":  getHashFromS2sApi(idToken, timestamp, version, client),
-		"x-ver":   "3",
-		"x-iid":   fType,
-	}
-
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -185,29 +164,32 @@ func callFlapgApi(idToken string, guid string, timestamp int, fType string, vers
 		panic(err)
 	}
 
-	for key, element := range apiAppHead {
-		req.Header.Add(key, element)
+	req.Header = http.Header{
+		"x-token": []string{idToken},
+		"x-time":  []string{fmt.Sprint(timestamp)},
+		"x-guid":  []string{guid},
+		"x-hash":  []string{getHashFromS2sApi(idToken, timestamp, version, client)},
+		"x-ver":   []string{"3"},
+		"x-iid":   []string{fType},
 	}
 
-	// resp, err := client.Do(req)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	//
-	// defer func() {
-	// 	if err := resp.Body.Close(); err != nil {
-	// 		panic(err)
-	// 	}
-	// }()
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
 
-	// var data flapgApiData
-	// if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-	// 	panic(err)
-	// }
-	//
-	// return data
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
 
-	panic("Cookie generation not yet implemented.")
+	resultData := flapgApiData{}
+	if err := json.NewDecoder(resp.Body).Decode(&resultData); err != nil {
+		panic(err)
+	}
+
+	return resultData
 }
 
 type idResponseS struct {
@@ -219,39 +201,32 @@ type idResponseS struct {
 }
 
 func getIdResponse(userLang string, sessionToken string, client *http.Client) idResponseS {
-	appHead := map[string]string{
-		"Host":            "accounts.nintendo.com",
-		"Accept-Encoding": "gzip deflate",
-		"Content-Type":    "application/json; charset=utf-8",
-		"Accept-Language": userLang,
-		"Content-Length":  "439",
-		"Accept":          "application/json",
-		"Connection":      "Keep-Alive",
-		"User-Agent":      "OnlineLounge/1.11.0 NASDKAPI Android",
-	}
-	body := map[string]string{
+	body, err := json.Marshal(map[string]string{
 		"client_id":     "71b963c1b7b6d119", // Splatoon 2 service
 		"session_token": sessionToken,
 		"grant_type":    "urn:ietf:params:oauth:grant-type:jwt-bearer-session-token",
-	}
-
-	bodyMarshalled, err := json.Marshal(body)
+	})
 	if err != nil {
 		panic(err)
 	}
-
-	reqUrl := "https://accounts.nintendo.com/connect/1.0.0/api/token"
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, "POST", reqUrl, bytes.NewReader(bodyMarshalled))
+	req, err := http.NewRequestWithContext(ctx, "POST", "https://accounts.nintendo.com/connect/1.0.0/api/token", bytes.NewReader(body))
 	if err != nil {
 		panic(err)
 	}
 
-	for key, element := range appHead {
-		req.Header.Add(key, element)
+	req.Header = http.Header{
+		"Host":            []string{"accounts.nintendo.com"},
+		"Accept-Encoding": []string{"gzip deflate"},
+		"Content-Type":    []string{"application/json; charset=utf-8"},
+		"Accept-Language": []string{userLang},
+		"Content-Length":  []string{"439"},
+		"Accept":          []string{"application/json"},
+		"Connection":      []string{"Keep-Alive"},
+		"User-Agent":      []string{"OnlineLounge/1.11.0 NASDKAPI Android"},
 	}
 
 	resp, err := client.Do(req)
@@ -350,27 +325,22 @@ type userInfoS struct {
 }
 
 func getUserInfo(userLang string, idResponse idResponseS, client *http.Client) userInfoS {
-	appHead := map[string]string{
-		"User-Agent":      "OnlineLounge/1.11.0 NASDKAPI Android",
-		"Accept-Language": userLang,
-		"Accept":          "application/json",
-		"Authorization":   "Bearer " + idResponse.AccessToken,
-		"Host":            "api.accounts.nintendo.com",
-		"Connection":      "Keep-Alive",
-		"Accept-Encoding": "gzip deflate",
-	}
-	reqUrl := "https://api.accounts.nintendo.com/2.0.0/users/me"
-
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, "GET", reqUrl, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://api.accounts.nintendo.com/2.0.0/users/me", nil)
 	if err != nil {
 		panic(err)
 	}
 
-	for key, element := range appHead {
-		req.Header.Add(key, element)
+	req.Header = http.Header{
+		"User-Agent":      []string{"OnlineLounge/1.11.0 NASDKAPI Android"},
+		"Accept-Language": []string{userLang},
+		"Accept":          []string{"application/json"},
+		"Authorization":   []string{"Bearer " + idResponse.AccessToken},
+		"Host":            []string{"api.accounts.nintendo.com"},
+		"Connection":      []string{"Keep-Alive"},
+		"Accept-Encoding": []string{"gzip deflate"},
 	}
 
 	resp, err := client.Do(req)
@@ -393,8 +363,7 @@ func getUserInfo(userLang string, idResponse idResponseS, client *http.Client) u
 }
 
 type splatoonTokenS struct {
-	Correlationid struct {
-	} `json:"correlationId"`
+	Correlationid  string `json:"correlationId"`
 	Result struct {
 		Firebasecredential struct {
 			Accesstoken interface{} `json:"accessToken"`
@@ -414,39 +383,23 @@ type splatoonTokenS struct {
 			Expiresin   int    `json:"expiresIn"`
 		} `json:"webApiServerCredential"`
 	} `json:"result"`
-	Status struct {
-	} `json:"status"`
+	Status int `json:"status"`
 }
 
 func getSplatoonToken(userLang string, idResponse idResponseS, userInfo userInfoS, guid string, timestamp int, version string, client *http.Client) splatoonTokenS {
-	appHead := map[string]string{
-		"Host":             "api-lp1.znc.srv.nintendo.net",
-		"Accept-Language":  userLang,
-		"User-Agent":       "com.nintendo.znca/1.11.0 (Android/7.1.2)",
-		"Accept":           "application/json",
-		"X-ProductVersion": "1.11.0",
-		"Content-Type":     "application/json; charset=utf-8",
-		"Connection":       "Keep-Alive",
-		"Authorization":    "Bearer",
-		"X-Platform":       "Android",
-		"Accept-Encoding":  "gzip",
-	}
 	idToken := idResponse.AccessToken
 	flapgNso := callFlapgApi(idToken, guid, timestamp, "nso", version, client).Result
-	parameter := map[string]interface{}{
-		"f":          flapgNso.F,
-		"naIdToken":  flapgNso.P1,
-		"timestamp":  flapgNso.P2,
-		"requestId":  flapgNso.P3,
-		"naCountry":  userInfo.Country,
-		"naBirthday": userInfo.Birthday,
-		"language":   userInfo.Language,
-	}
-	newBody := make(map[string]interface{})
-	newBody["parameter"] = parameter
-	reqUrl := "https://api-lp1.znc.srv.nintendo.net/v1/Account/Login"
-
-	newBodyJson, err := json.Marshal(newBody)
+	bodyJson, err := json.Marshal(map[string]map[string]interface{}{
+		"parameter": {
+			"f":          flapgNso.F,
+			"naIdToken":  flapgNso.P1,
+			"timestamp":  flapgNso.P2,
+			"requestId":  flapgNso.P3,
+			"naCountry":  userInfo.Country,
+			"naBirthday": userInfo.Birthday,
+			"language":   userInfo.Language,
+		},
+	})
 	if err != nil {
 		panic(err)
 	}
@@ -454,13 +407,22 @@ func getSplatoonToken(userLang string, idResponse idResponseS, userInfo userInfo
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, "POST", reqUrl, bytes.NewReader(newBodyJson))
+	req, err := http.NewRequestWithContext(ctx, "POST", "https://api-lp1.znc.srv.nintendo.net/v1/Account/Login", bytes.NewReader(bodyJson))
 	if err != nil {
 		panic(err)
 	}
 
-	for key, element := range appHead {
-		req.Header.Add(key, element)
+	req.Header = http.Header{
+		"Host":             []string{"api-lp1.znc.srv.nintendo.net"},
+		"Accept-Language":  []string{userLang},
+		"User-Agent":       []string{"com.nintendo.znca/1.11.0 (Android/7.1.2)"},
+		"Accept":           []string{"application/json"},
+		"X-ProductVersion": []string{"1.11.0"},
+		"Content-Type":     []string{"application/json; charset=utf-8"},
+		"Connection":       []string{"Keep-Alive"},
+		"Authorization":    []string{"Bearer"},
+		"X-Platform":       []string{"Android"},
+		"Accept-Encoding":  []string{"gzip deflate"},
 	}
 
 	resp, err := client.Do(req)
@@ -483,42 +445,26 @@ func getSplatoonToken(userLang string, idResponse idResponseS, userInfo userInfo
 }
 
 type splatoonAccessTokenS struct {
-	Correlationid map[string]interface{} `json:"correlationId"`
+	Correlationid string `json:"correlationId"`
 	Result        struct {
 		Accesstoken string `json:"accessToken"`
 		Expiresin   int    `json:"expiresIn"`
 	} `json:"result"`
-	Status map[string]interface{} `json:"status"`
+	Status int `json:"status"`
 }
 
-func getSplatoonAccessToken(userLang string, splatoonToken splatoonTokenS, guid string, timestamp int, version string, client *http.Client) splatoonAccessTokenS {
+func getSplatoonAccessToken(splatoonToken splatoonTokenS, guid string, timestamp int, version string, client *http.Client) splatoonAccessTokenS {
 	idToken := splatoonToken.Result.Webapiservercredential.Accesstoken
 	flapgApp := callFlapgApi(idToken, guid, timestamp, "app", version, client).Result
-	appHead := map[string]string{
-		"Host":             "api-lp1.znc.srv.nintendo.net",
-		"User-Agent":       "com.nintendo.znca/1.11.0 (Android/7.1.2)",
-		"Accept":           "application/json",
-		"X-ProductVersion": "1.11.0",
-		"Content-Type":     "application/json; charset=utf-8",
-		"Connection":       "Keep-Alive",
-		"Authorization":    "Bearer " + idToken,
-		//"Content-Length":   "37",
-		"X-Platform":      "Android",
-		"Accept-Encoding": "gzip deflate",
-		"Accept-Language": userLang,
-	}
-	newBody2 := map[string]map[string]interface{}{}
-	parameter := map[string]interface{}{
-		"id":                5741031244955648,
-		"f":                 flapgApp.F,
-		"registrationToken": flapgApp.P1,
-		"timestamp":         flapgApp.P2,
-		"requestId":         flapgApp.P3,
-	}
-	newBody2["parameter"] = parameter
-	reqUrl := "https://api-lp1.znc.srv.nintendo.net/v2/Game/GetWebServiceToken"
-
-	bodyJson, err := json.Marshal(newBody2)
+	bodyJson, err := json.Marshal(map[string]map[string]interface{}{
+		"parameter": {
+			"id":                5741031244955648,
+			"f":                 flapgApp.F,
+			"registrationToken": flapgApp.P1,
+			"timestamp":         flapgApp.P2,
+			"requestId":         flapgApp.P3,
+		},
+	})
 	if err != nil {
 		panic(err)
 	}
@@ -526,13 +472,22 @@ func getSplatoonAccessToken(userLang string, splatoonToken splatoonTokenS, guid 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, "POST", reqUrl, bytes.NewReader(bodyJson))
+	req, err := http.NewRequestWithContext(ctx, "POST", "https://api-lp1.znc.srv.nintendo.net/v2/Game/GetWebServiceToken", bytes.NewReader(bodyJson))
 	if err != nil {
 		panic(err)
 	}
 
-	for key, element := range appHead {
-		req.Header.Add(key, element)
+	req.Header = http.Header{
+		"Host":             []string{"api-lp1.znc.srv.nintendo.net"},
+		"User-Agent":       []string{"com.nintendo.znca/1.11.0 (Android/7.1.2)"},
+		"Accept":           []string{"application/json"},
+		"X-ProductVersion": []string{"1.11.0"},
+		"Content-Type":     []string{"application/json; charset=utf-8"},
+		"Connection":       []string{"Keep-Alive"},
+		"Authorization":    []string{"Bearer " + idToken},
+		"Content-Length":   []string{"37"},
+		"X-Platform":      []string{"Android"},
+		"Accept-Encoding": []string{"gzip deflate"},
 	}
 
 	resp, err := client.Do(req)
@@ -562,33 +517,29 @@ func getCookie(version string, client *http.Client) (string, string) {
 	idResponse := getIdResponse(userLang, viper.GetString("session_token"), client)
 	userInfo := getUserInfo(userLang, idResponse, client)
 	nickname := userInfo.Nickname
-	splatoonToken := getSplatoonToken(userLang, idResponse, userInfo, guid, timestamp, version, client)
-	splatoonAccessToken := getSplatoonAccessToken(userLang, splatoonToken, guid, timestamp, version, client)
-	appHead := map[string]string{
-		"Host":                    "app.splatoon2.nintendo.net",
-		"X-IsAppAnalyticsOptedIn": "false",
-		"Accept":                  "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-		"Accept-Encoding":         "gzip deflate",
-		"X-GameWebToken":          splatoonAccessToken.Result.Accesstoken,
-		"Accept-Language":         userLang,
-		"X-IsAnalyticsOptedIn":    "false",
-		"Connection":              "keep-alive",
-		"DNT":                     "0",
-		"User-Agent":              "Mozilla/5.0 (Linux; Android 7.1.2; Pixel Build/NJH47D; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/59.0.3071.125 Mobile Safari/537.36",
-		"X-Requested-With":        "com.nintendo.znca",
-	}
-	reqUrl := "https://app.splatoon2.nintendo.net/?lang=" + userLang
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, "GET", reqUrl, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://app.splatoon2.nintendo.net/?lang=" + userLang, nil)
 	if err != nil {
 		panic(err)
 	}
 
-	for key, element := range appHead {
-		req.Header.Add(key, element)
+	req.Header = http.Header{
+		"Host":                    []string{"app.splatoon2.nintendo.net"},
+		"X-IsAppAnalyticsOptedIn": []string{"false"},
+		"Accept":                  []string{"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"},
+		"Accept-Encoding":         []string{"gzip deflate"},
+		"X-GameWebToken": []string{getSplatoonAccessToken(getSplatoonToken(
+			userLang, idResponse, userInfo, guid, timestamp, version, client,
+		), guid, timestamp, version, client).Result.Accesstoken},
+		"Accept-Language":      []string{userLang},
+		"X-IsAnalyticsOptedIn": []string{"false"},
+		"Connection":           []string{"keep-alive"},
+		"DNT":                  []string{"0"},
+		"User-Agent":           []string{"Mozilla/5.0 (Linux; Android 7.1.2; Pixel Build/NJH47D; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/59.0.3071.125 Mobile Safari/537.36"},
+		"X-Requested-With":     []string{"com.nintendo.znca"},
 	}
 
 	resp, err := client.Do(req)
@@ -714,52 +665,36 @@ func logIn(client *http.Client) *string {
 	authCodeVerifier := base64.RawURLEncoding.EncodeToString(authCodeVerifierUnencoded)
 	authCodeHash := sha256.Sum256([]byte(strings.ReplaceAll(authCodeVerifier, "=", "")))
 	authCodeChallenge := base64.RawURLEncoding.EncodeToString(authCodeHash[:])
-	appHead := map[string]string{
-		"Host":                      "accounts.nintendo.com",
-		"Connection":                "keep-alive",
-		"Cache-Control":             "max-age=0",
-		"Upgrade-Insecure-Requests": "1",
-		"User-Agent":                "Mozilla/5.0 (Linux; Android 7.1.2; Pixel Build/NJH47D; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/59.0.3071.125 Mobile Safari/537.36",
-		"Accept":                    "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8n",
-		"DNT":                       "1",
-		"Accept-Encoding":           "gzip,deflate,br",
+	body := url.Values{
+		"state":                               []string{authState},
+		"redirect_uri":                        []string{"npf71b963c1b7b6d119://auth"},
+		"client_id":                           []string{"71b963c1b7b6d119"},
+		"scope":                               []string{"openid user user.birthday user.mii user.screenName"},
+		"response_type":                       []string{"session_token_code"},
+		"session_token_code_challenge":        []string{strings.ReplaceAll(authCodeChallenge, "=", "")},
+		"session_token_code_challenge_method": []string{"S256"},
+		"theme":                               []string{"login_form"},
 	}
-	body := map[string]string{
-		"state":                               authState,
-		"redirect_uri":                        "npf71b963c1b7b6d119://auth",
-		"client_id":                           "71b963c1b7b6d119",
-		"scope":                               "openid user user.birthday user.mii user.screenName",
-		"response_type":                       "session_token_code",
-		"session_token_code_challenge":        strings.ReplaceAll(authCodeChallenge, "=", ""),
-		"session_token_code_challenge_method": "S256",
-		"theme":                               "login_form",
-	}
-	data := url.Values{}
-
-	for key, element := range body {
-		data.Set(key, element)
-	}
-
-	reqUrl := "https://accounts.nintendo.com/connect/1.0.0/authorize"
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, "GET", reqUrl, strings.NewReader(data.Encode()))
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://accounts.nintendo.com/connect/1.0.0/authorize", strings.NewReader(body.Encode()))
 	if err != nil {
 		panic(err)
 	}
 
-	q := req.URL.Query()
+	req.URL.RawQuery = body.Encode()
 
-	for key, element := range body {
-		q.Add(key, element)
-	}
-
-	req.URL.RawQuery = q.Encode()
-
-	for key, element := range appHead {
-		req.Header.Add(key, element)
+	req.Header = http.Header{
+		"Host":                      []string{"accounts.nintendo.com"},
+		"Connection":                []string{"keep-alive"},
+		"Cache-Control":             []string{"max-age=0"},
+		"Upgrade-Insecure-Requests": []string{"1"},
+		"User-Agent":                []string{"Mozilla/5.0 (Linux; Android 7.1.2; Pixel Build/NJH47D; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/59.0.3071.125 Mobile Safari/537.36"},
+		"Accept":                    []string{"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8n"},
+		"DNT":                       []string{"1"},
+		"Accept-Encoding":           []string{"gzip,deflate,br"},
 	}
 
 	postLogin := req.URL.String()

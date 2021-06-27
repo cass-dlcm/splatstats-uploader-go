@@ -18,7 +18,7 @@ import (
 	"golang.org/x/term"
 )
 
-var progVersion = "4.0.0"
+var progVersion = "5.0.0"
 
 func doSelfUpdate() {
 	v := semver.MustParse(progVersion)
@@ -221,7 +221,11 @@ func main() {
 	viper.SetDefault("user_lang", "")
 	viper.SetDefault("statink_api_key", "")
 
-	client := &http.Client{}
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
 
 	if !(viper.IsSet("api_key")) || viper.GetString("api_key") == "" {
 		setApiToken(client)
@@ -233,16 +237,16 @@ func main() {
 
 	_, timezone := time.Now().Zone()
 	timezone = -timezone / 60
-	appHead := map[string]string{
-		"Host":              "app.splatoon2.nintendo.net",
-		"x-unique-id":       "32449507786579989235",
-		"x-requested-with":  "XMLHttpRequest",
-		"x-timezone-offset": fmt.Sprint(timezone),
-		"User-Agent":        "Mozilla/5.0 (Linux; Android 7.1.2; Pixel Build/NJH47D; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/59.0.3071.125 Mobile Safari/537.36",
-		"Accept":            "*/*",
-		"Referer":           "https://app.splatoon2.nintendo.net/home",
-		"Accept-Encoding":   "gzip deflate",
-		"Accept-Language":   viper.GetString("user_lang"),
+	appHead := http.Header{
+		"Host":              []string{"app.splatoon2.nintendo.net"},
+		"x-unique-id":       []string{"32449507786579989235"},
+		"x-requested-with":  []string{"XMLHttpRequest"},
+		"x-timezone-offset": []string{fmt.Sprint(timezone)},
+		"User-Agent":        []string{"Mozilla/5.0 (Linux; Android 7.1.2; Pixel Build/NJH47D; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/59.0.3071.125 Mobile Safari/537.36"},
+		"Accept":            []string{"*/*"},
+		"Referer":           []string{"https://app.splatoon2.nintendo.net/home"},
+		"Accept-Encoding":   []string{"gzip deflate"},
+		"Accept-Language":   []string{viper.GetString("user_lang")},
 	}
 
 	m, f, s, salmon, statink := getFlags()
@@ -250,7 +254,7 @@ func main() {
 		data.Monitor(m, s, salmon, viper.GetString("api_key"), progVersion, appHead, client)
 	} else if f {
 		if statink {
-
+			statink2splatstats.File(salmon, viper.GetString("api_key"), client)
 		} else {
 			data.File(salmon, viper.GetString("api_key"), client)
 		}

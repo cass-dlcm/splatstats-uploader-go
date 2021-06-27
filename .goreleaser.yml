@@ -1,0 +1,75 @@
+# This is an example .goreleaser.yml file with some sane defaults.
+# Make sure to check the documentation at http://goreleaser.com
+project_name: splatstatsuploader
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+    # you may remove this if you don't need go generate
+    - go generate ./...
+builds:
+  env:
+    - CGO_ENABLED=0
+  goos:
+    - linux
+    - freebsd
+    - netbsd
+    - windows
+    - darwin
+  goarch:
+    - amd64
+    - mips64
+    - mips64le
+    - x390x
+  mod_timestamp: '{{ .CommitTimestamp }}'
+archives:
+  builds:
+    - default
+  format: zip
+  name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
+  files:
+    - LICENSE
+    - README.md
+    - data/*
+    - iksm/*
+    - statink2splatstats/*
+    - types/*
+    - go.mod
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+release:
+  # Repo in which the release will be created.
+  # Default is extracted from the origin remote URL or empty if its private hosted.
+  # Note: it can only be one: either github, gitlab or gitea
+  github:
+    owner: cass-dlcm
+    name: splatstats-uploader-go
+  # If set to auto, will mark the release as not ready for production
+  # in case there is an indicator for this in the tag e.g. v1.0.0-rc1
+  # If set to true, will mark the release as not ready for production.
+  # Default is false.
+  prerelease: auto
+signs:
+  - artifacts: checksum
+    args: [ "--batch", "-u", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}", "--detach-sign", "${artifact}" ]
+source:
+  # Whether this pipe is enabled or not.
+  # Defaults to `false`
+  enabled: true
+
+  # Name template of the final archive.
+  # Defaults to `{{ .ProjectName }}-{{ .Version }}`
+  name_template: '{{ .ProjectName }}'
+
+  # Format of the archive.
+  # Any format git-archive supports, this supports too.
+  # Defaults to `tar.gz`
+  format: 'zip'
