@@ -5,36 +5,37 @@ before:
   hooks:
     # You may remove this if you don't use go modules.
     - go mod tidy
-    # you may remove this if you don't need go generate
-    - go generate ./...
 builds:
-  env:
-    - CGO_ENABLED=0
-  goos:
-    - linux
-    - freebsd
-    - netbsd
-    - windows
-    - darwin
-  goarch:
-    - amd64
-    - mips64
-    - mips64le
-    - x390x
-  mod_timestamp: '{{ .CommitTimestamp }}'
+  -
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - freebsd
+      - netbsd
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - mips64
+      - mips64le
+      - x390x
+    mod_timestamp: '{{ .CommitTimestamp }}'
 archives:
-  builds:
-    - default
-  format: zip
-  name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
-  files:
-    - LICENSE
-    - README.md
-    - data/*
-    - iksm/*
-    - statink2splatstats/*
-    - types/*
-    - go.mod
+  -
+    builds:
+      - default
+    format: zip
+    name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
+    files:
+      - COPYING
+      - README.md
+      - data/*
+      - enums/*
+      - iksm/*
+      - statink2splatstats/*
+      - types/*
+      - go.mod
 checksum:
   name_template: 'checksums.txt'
 snapshot:
