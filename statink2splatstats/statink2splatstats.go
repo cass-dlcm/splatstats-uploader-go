@@ -239,10 +239,13 @@ func transformWaves(statInkShift *types.ShiftStatInk, shiftUpload *types.Shift) 
 		(*shiftUpload).Wave1GoldenAppear = (*statInkShift).Waves[0].GoldenEggAppearances
 		(*shiftUpload).Wave1Quota = (*statInkShift).Waves[0].GoldenEggQuota
 		(*shiftUpload).Wave1PowerEggs = (*statInkShift).Waves[0].PowerEggCollected
-		(*shiftUpload).Wave1WaterLevel = (*(*statInkShift).Waves[0].WaterLevel).Splatnet
+		(*shiftUpload).Wave1WaterLevel = (*statInkShift).Waves[0].WaterLevel.Splatnet
+		waterLevels := "water-levels"
 
 		if (*statInkShift).Waves[0].KnownOccurrence != nil {
 			(*shiftUpload).Wave1EventType = (*(*statInkShift).Waves[0].KnownOccurrence).Splatnet
+		} else {
+			(*shiftUpload).Wave1EventType = waterLevels
 		}
 
 		if len((*statInkShift).Waves) > 1 {
@@ -253,7 +256,9 @@ func transformWaves(statInkShift *types.ShiftStatInk, shiftUpload *types.Shift) 
 			(*shiftUpload).Wave2WaterLevel = &(*statInkShift).Waves[1].WaterLevel.Splatnet
 
 			if (*statInkShift).Waves[1].KnownOccurrence != nil {
-				(*shiftUpload).Wave2EventType = &(*(*statInkShift).Waves[1].KnownOccurrence).Splatnet
+				(*shiftUpload).Wave2EventType = &statInkShift.Waves[1].KnownOccurrence.Splatnet
+			} else {
+				shiftUpload.Wave2EventType = &waterLevels
 			}
 
 			if len((*statInkShift).Waves) > 2 {
@@ -265,6 +270,8 @@ func transformWaves(statInkShift *types.ShiftStatInk, shiftUpload *types.Shift) 
 
 				if (*statInkShift).Waves[2].KnownOccurrence != nil {
 					(*shiftUpload).Wave3EventType = &(*(*statInkShift).Waves[2].KnownOccurrence).Splatnet
+				} else {
+					shiftUpload.Wave3EventType = &waterLevels
 				}
 			}
 		}
@@ -296,13 +303,15 @@ func transformPlayerDataSalmon(statInkShift *types.ShiftStatInk, shiftUpload *ty
 	}
 
 	if len((*statInkShift).MyData.Weapons) > 0 {
-		(*shiftUpload).PlayerW1Weapon = enums.SalmonWeaponEnum((*statInkShift).MyData.Weapons[0].Name.EnUS)
+		(*shiftUpload).PlayerW1Weapon = enums.SalmonWeaponEnum(fmt.Sprint((*statInkShift).MyData.Weapons[0].Splatnet))
 
 		if len((*statInkShift).MyData.Weapons) > 1 {
-			(*shiftUpload).PlayerW2Weapon = (*enums.SalmonWeaponEnum)(&(*statInkShift).MyData.Weapons[1].Name.EnUS)
+			w2Weapon := (enums.SalmonWeaponEnum)(fmt.Sprint((*statInkShift).MyData.Weapons[1].Splatnet))
+			(*shiftUpload).PlayerW2Weapon = &w2Weapon
 
 			if len((*statInkShift).MyData.Weapons) > 2 {
-				(*shiftUpload).PlayerW3Weapon = (*enums.SalmonWeaponEnum)(&(*statInkShift).MyData.Weapons[2].Name.EnUS)
+				w3Weapon := (enums.SalmonWeaponEnum)(fmt.Sprint((*statInkShift).MyData.Weapons[2].Splatnet))
+				(*shiftUpload).PlayerW3Weapon = &w3Weapon
 			}
 		}
 	}
@@ -368,13 +377,16 @@ func transformTeammate0Salmon(statInkShift *types.ShiftStatInk, shiftUpload *typ
 	}
 
 	if len((*statInkShift).Teammates[0].Weapons) > 0 {
-		(*shiftUpload).Teammate0W1Weapon = (*enums.SalmonWeaponEnum)(&(*statInkShift).Teammates[0].Weapons[0].Name.EnUS)
+		w1Weapon := (enums.SalmonWeaponEnum)(fmt.Sprint((*statInkShift).Teammates[0].Weapons[0].Splatnet))
+		(*shiftUpload).Teammate0W1Weapon = &w1Weapon
 
 		if len((*statInkShift).Teammates[0].Weapons) > 1 {
-			(*shiftUpload).Teammate0W2Weapon = (*enums.SalmonWeaponEnum)(&(*statInkShift).Teammates[0].Weapons[1].Name.EnUS)
+			w2Weapon := (enums.SalmonWeaponEnum)(fmt.Sprint((*statInkShift).Teammates[0].Weapons[1].Splatnet))
+			(*shiftUpload).Teammate0W2Weapon = &w2Weapon
 
 			if len((*statInkShift).Teammates[0].Weapons) > 2 {
-				(*shiftUpload).Teammate0W3Weapon = (*enums.SalmonWeaponEnum)(&(*statInkShift).Teammates[0].Weapons[2].Name.EnUS)
+				w3Weapon := (enums.SalmonWeaponEnum)(fmt.Sprint((*statInkShift).Teammates[0].Weapons[2].Splatnet))
+				(*shiftUpload).Teammate0W3Weapon = &w3Weapon
 			}
 		}
 	}
@@ -437,13 +449,16 @@ func transformTeammate1Salmon(statInkShift *types.ShiftStatInk, shiftUpload *typ
 	}
 
 	if len((*statInkShift).Teammates[1].Weapons) > 0 {
-		(*shiftUpload).Teammate1W1Weapon = (*enums.SalmonWeaponEnum)(&(*statInkShift).Teammates[1].Weapons[0].Name.EnUS)
+		w1Weapon := (enums.SalmonWeaponEnum)(fmt.Sprint((*statInkShift).Teammates[1].Weapons[0].Splatnet))
+		(*shiftUpload).Teammate1W1Weapon = &w1Weapon
 
 		if len((*statInkShift).Teammates[1].Weapons) > 1 {
-			(*shiftUpload).Teammate1W2Weapon = (*enums.SalmonWeaponEnum)(&(*statInkShift).Teammates[1].Weapons[1].Name.EnUS)
+			w2Weapon := (enums.SalmonWeaponEnum)(fmt.Sprint((*statInkShift).Teammates[1].Weapons[1].Splatnet))
+			(*shiftUpload).Teammate1W2Weapon = &w2Weapon
 
 			if len((*statInkShift).Teammates[1].Weapons) > 2 {
-				(*shiftUpload).Teammate1W3Weapon = (*enums.SalmonWeaponEnum)(&(*statInkShift).Teammates[1].Weapons[2].Name.EnUS)
+				w3Weapon := (enums.SalmonWeaponEnum)(fmt.Sprint((*statInkShift).Teammates[1].Weapons[2].Splatnet))
+				(*shiftUpload).Teammate1W3Weapon = &w3Weapon
 			}
 		}
 	}
@@ -496,13 +511,16 @@ func transformTeammate2Salmon(statInkShift *types.ShiftStatInk, shiftUpload *typ
 	(*shiftUpload).Teammate2SplatnetId = &(*statInkShift).Teammates[2].SplatnetId
 
 	if len((*statInkShift).Teammates[2].Weapons) > 0 {
-		(*shiftUpload).Teammate2W1Weapon = (*enums.SalmonWeaponEnum)(&(*statInkShift).Teammates[2].Weapons[0].Name.EnUS)
+		w1Weapon := (enums.SalmonWeaponEnum)(fmt.Sprint((*statInkShift).Teammates[2].Weapons[0].Splatnet))
+		(*shiftUpload).Teammate2W1Weapon = &w1Weapon
 
 		if len((*statInkShift).Teammates[2].Weapons) > 1 {
-			(*shiftUpload).Teammate2W2Weapon = (*enums.SalmonWeaponEnum)(&(*statInkShift).Teammates[2].Weapons[1].Name.EnUS)
+			w2Weapon := (enums.SalmonWeaponEnum)(fmt.Sprint((*statInkShift).Teammates[2].Weapons[1].Splatnet))
+			(*shiftUpload).Teammate2W2Weapon = &w2Weapon
 
 			if len((*statInkShift).Teammates[2].Weapons) > 2 {
-				(*shiftUpload).Teammate2W3Weapon = (*enums.SalmonWeaponEnum)(&(*statInkShift).Teammates[2].Weapons[2].Name.EnUS)
+				w3Weapon := (enums.SalmonWeaponEnum)(fmt.Sprint((*statInkShift).Teammates[2].Weapons[0].Splatnet))
+				(*shiftUpload).Teammate2W3Weapon = &w3Weapon
 			}
 		}
 	}
