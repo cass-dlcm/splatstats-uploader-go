@@ -95,7 +95,7 @@ func createAccount(client *http.Client) {
 	type User struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
-		Email string `json:"email"`
+		Email    string `json:"email"`
 	}
 
 	user := User{}
