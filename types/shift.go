@@ -377,7 +377,7 @@ type ShiftStatInkBossDataBoss struct {
 
 type ShiftStatInkWave struct {
 	KnownOccurrence      *ShiftStatInkTripleString `json:"known_occurrence,omitempty"`
-	WaterLevel           ShiftStatInkTripleString `json:"water_level,omitempty"`
+	WaterLevel           ShiftStatInkTripleString  `json:"water_level,omitempty"`
 	GoldenEggQuota       int                       `json:"golden_egg_quota"`
 	GoldenEggAppearances int                       `json:"golden_egg_appearances"`
 	GoldenEggDelivered   int                       `json:"golden_egg_delivered"`
