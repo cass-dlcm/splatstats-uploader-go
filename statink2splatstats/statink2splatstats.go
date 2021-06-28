@@ -695,7 +695,7 @@ func transformBattle(statInkBattle *types.BattleStatInk) types.Battle {
 		case "fest":
 			battle.MatchType = "fes_solo"
 		case "regular":
-			battle.MatchType = "turf_war"
+			battle.MatchType = "regular"
 		}
 	case "private":
 		battle.MatchType = "private"
