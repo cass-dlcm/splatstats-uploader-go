@@ -9,6 +9,7 @@ import (
 	"github.com/cass-dlcm/splatstatsuploader/statink2splatstats"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/blang/semver"
@@ -18,7 +19,7 @@ import (
 	"golang.org/x/term"
 )
 
-var progVersion = "5.0.0"
+var progVersion = "5.1.0"
 
 func doSelfUpdate() {
 	v := semver.MustParse(progVersion)
@@ -90,7 +91,80 @@ func setLanguage() {
 	}
 }
 
+func createAccount(client *http.Client) {
+	type User struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Email string `json:"email"`
+	}
+
+	user := User{}
+
+	if _, err := fmt.Println("SplatStats username: "); err != nil {
+		panic(err)
+	}
+
+	if _, err := fmt.Scanln(&user.Username); err != nil {
+		panic(err)
+	}
+
+	if _, err := fmt.Println("Password: "); err != nil {
+		panic(err)
+	}
+
+	pw, err := term.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		fmt.Println(err)
+	}
+	user.Password = string(pw)
+
+	if _, err := fmt.Println("Email address: "); err != nil {
+		panic(err)
+	}
+
+	if _, err := fmt.Scanln(&user.Email); err != nil {
+		panic(err)
+	}
+
+	url := "https://splatstats.cass-dlcm.dev/api/auth/signin/"
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	bodyJson, err := json.Marshal(user)
+	if err != nil {
+		panic(err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(bodyJson))
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	if _, err = client.Do(req); err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println("Check your email to confirm your account registration.")
+
+	os.Exit(0)
+}
+
 func setApiToken(client *http.Client) {
+	var status string
+
+	if _, err := fmt.Println("Do you already have an account (Y/n):"); err != nil {
+		panic(err)
+	}
+
+	if _, err := fmt.Scanln(&status); err != nil {
+		panic(err)
+	}
+
+	if strings.ToLower(status) == "n" {
+		createAccount(client)
+	}
+
 	var username string
 
 	if _, err := fmt.Println("SplatStats username: "); err != nil {
@@ -101,12 +175,16 @@ func setApiToken(client *http.Client) {
 		panic(err)
 	}
 
+	if _, err := fmt.Println("Password: "); err != nil {
+		panic(err)
+	}
+
 	password, err := term.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	url := "https://splatstats.cass-dlcm.dev/auth/api-token/"
+	url := "https://splatstats.cass-dlcm.dev/api/auth/signin"
 
 	authJson, err := json.Marshal(map[string]string{
 		"username": username, "password": string(password),
@@ -115,12 +193,10 @@ func setApiToken(client *http.Client) {
 		fmt.Println(err)
 	}
 
-	authBody := bytes.NewReader(authJson)
-
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, "POST", url, authBody)
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(authJson))
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -132,19 +208,13 @@ func setApiToken(client *http.Client) {
 		fmt.Println(err)
 	}
 
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			panic(err)
-		}
-	}()
-
-	buf := new(bytes.Buffer)
-	if _, err := buf.ReadFrom(resp.Body); err != nil {
+	if err := resp.Body.Close(); err != nil {
 		panic(err)
 	}
 
-	newStr := buf.String()
-	viper.Set("api_key", newStr[10:len(newStr)-2])
+	fmt.Println(resp.Cookies())
+
+	viper.Set("api_key", resp.Cookies()[0].Value)
 
 	if err := viper.WriteConfig(); err != nil {
 		panic(err)
