@@ -10,5 +10,6 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.4.0 // indirect
 	golang.org/x/term v0.0.0-20210503060354-a79de5458b56
+	golang.org/x/text v0.3.5
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

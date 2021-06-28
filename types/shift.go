@@ -199,9 +199,9 @@ type ShiftSplatnetPlayerWeaponList struct {
 }
 
 type ShiftSplatnetPlayerWeaponListWeapon struct {
-	Id        string                 `json:"id"`
+	Id        enums.SalmonWeaponEnum `json:"id"`
 	Image     string                 `json:"image"`
-	Name      enums.SalmonWeaponEnum `json:"name"`
+	Name      string                 `json:"name"`
 	Thumbnail string                 `json:"thumbnail"`
 }
 

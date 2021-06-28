@@ -527,14 +527,14 @@ func UploadSalmon(shiftUpload *types.Shift, apiKey string, client *http.Client) 
 }
 
 func salmonPlayerWeaponSpecials(shift *types.ShiftSplatnet, shiftUpload *types.Shift) {
-	(*shiftUpload).PlayerW1Weapon = (*shift).MyResult.WeaponList[0].Weapon.Name
+	(*shiftUpload).PlayerW1Weapon = (*shift).MyResult.WeaponList[0].Weapon.Id
 	(*shiftUpload).PlayerW1Specials = (*shift).MyResult.SpecialCounts[0]
 
 	if len((*shift).MyResult.WeaponList) > 1 {
-		(*shiftUpload).PlayerW2Weapon = &(*shift).MyResult.WeaponList[1].Weapon.Name
+		(*shiftUpload).PlayerW2Weapon = &(*shift).MyResult.WeaponList[1].Weapon.Id
 
 		if len((*shift).MyResult.WeaponList) > 2 {
-			(*shiftUpload).PlayerW3Weapon = &(*shift).MyResult.WeaponList[2].Weapon.Name
+			(*shiftUpload).PlayerW3Weapon = &(*shift).MyResult.WeaponList[2].Weapon.Id
 		}
 	}
 
@@ -580,13 +580,13 @@ func shiftSetTeammate0(shift *types.ShiftSplatnet, shiftUpload *types.Shift) {
 	(*shiftUpload).Teammate0W1Specials = &(*shift).OtherResults[0].SpecialCounts[0]
 
 	if len((*shift).OtherResults[0].WeaponList) > 0 {
-		(*shiftUpload).Teammate0W1Weapon = &(*shift).OtherResults[0].WeaponList[0].Weapon.Name
+		(*shiftUpload).Teammate0W1Weapon = &(*shift).OtherResults[0].WeaponList[0].Weapon.Id
 
 		if len((*shift).OtherResults[0].WeaponList) > 1 {
-			(*shiftUpload).Teammate0W2Weapon = &(*shift).OtherResults[0].WeaponList[1].Weapon.Name
+			(*shiftUpload).Teammate0W2Weapon = &(*shift).OtherResults[0].WeaponList[1].Weapon.Id
 
 			if len((*shift).OtherResults[0].WeaponList) > 2 {
-				(*shiftUpload).Teammate0W3Weapon = &(*shift).OtherResults[0].WeaponList[2].Weapon.Name
+				(*shiftUpload).Teammate0W3Weapon = &(*shift).OtherResults[0].WeaponList[2].Weapon.Id
 			}
 		}
 	}
@@ -633,13 +633,13 @@ func shiftSetTeammate1(shift *types.ShiftSplatnet, shiftUpload *types.Shift) {
 	}
 
 	if len((*shift).OtherResults[1].WeaponList) > 0 {
-		(*shiftUpload).Teammate1W1Weapon = &(*shift).OtherResults[1].WeaponList[0].Weapon.Name
+		(*shiftUpload).Teammate1W1Weapon = &(*shift).OtherResults[1].WeaponList[0].Weapon.Id
 
 		if len((*shift).OtherResults[1].WeaponList) > 1 {
-			(*shiftUpload).Teammate1W2Weapon = &(*shift).OtherResults[1].WeaponList[1].Weapon.Name
+			(*shiftUpload).Teammate1W2Weapon = &(*shift).OtherResults[1].WeaponList[1].Weapon.Id
 
 			if len((*shift).OtherResults[1].WeaponList) > 2 {
-				(*shiftUpload).Teammate1W3Weapon = &(*shift).OtherResults[1].WeaponList[2].Weapon.Name
+				(*shiftUpload).Teammate1W3Weapon = &(*shift).OtherResults[1].WeaponList[2].Weapon.Id
 			}
 		}
 	}
@@ -676,13 +676,13 @@ func shiftSetTeammate2(shift *types.ShiftSplatnet, shiftUpload *types.Shift) {
 		}
 
 		if len((*shift).OtherResults[2].WeaponList) > 0 {
-			(*shiftUpload).Teammate2W1Weapon = &(*shift).OtherResults[2].WeaponList[0].Weapon.Name
+			(*shiftUpload).Teammate2W1Weapon = &(*shift).OtherResults[2].WeaponList[0].Weapon.Id
 
 			if len((*shift).OtherResults[2].WeaponList) > 1 {
-				(*shiftUpload).Teammate2W2Weapon = &(*shift).OtherResults[2].WeaponList[1].Weapon.Name
+				(*shiftUpload).Teammate2W2Weapon = &(*shift).OtherResults[2].WeaponList[1].Weapon.Id
 
 				if len((*shift).OtherResults[2].WeaponList) > 2 {
-					(*shiftUpload).Teammate2W3Weapon = &(*shift).OtherResults[2].WeaponList[2].Weapon.Name
+					(*shiftUpload).Teammate2W3Weapon = &(*shift).OtherResults[2].WeaponList[2].Weapon.Id
 				}
 			}
 		}

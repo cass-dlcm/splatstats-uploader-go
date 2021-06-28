@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"golang.org/x/text/message"
 )
 
 type FailureReasonEnum string
@@ -82,61 +83,60 @@ type SalmonWeaponEnum string
 
 // List of SalmonWeaponEnum
 const (
-	SalmonSplooshOMatic      SalmonWeaponEnum = "Sploosh-o-matic"
-	SalmonSplattershotJr     SalmonWeaponEnum = "Splattershot Jr."
-	SalmonSplashOMatic       SalmonWeaponEnum = "Splash-o-matic"
-	SalmonAerosprayMg        SalmonWeaponEnum = "Aerospray MG"
-	SalmonSplattershot       SalmonWeaponEnum = "Splattershot"
-	Salmon52gal              SalmonWeaponEnum = ".52 Gal"
-	SalmonNZap85             SalmonWeaponEnum = "N-ZAP '85"
-	SalmonSplattershotPro    SalmonWeaponEnum = "Splattershot Pro"
-	Salmon96gal              SalmonWeaponEnum = ".96 Gal"
-	SalmonJetSquelcher       SalmonWeaponEnum = "Jet Squelcher"
-	SalmonLunaBlaster        SalmonWeaponEnum = "Luna Blaster"
-	SalmonBlaster            SalmonWeaponEnum = "Blaster"
-	SalmonRangeBlaster       SalmonWeaponEnum = "Range Blaster"
-	SalmonClashBlaster       SalmonWeaponEnum = "Clash Blaster"
-	SalmonRapidBlaster       SalmonWeaponEnum = "Rapid Blaster"
-	SalmonRapidBlasterPro    SalmonWeaponEnum = "Rapid Blaster Pro"
-	SalmonL3Nozzlenose       SalmonWeaponEnum = "L-3 Nozzlenose"
-	SalmonH3Nozzlenose       SalmonWeaponEnum = "H-3 Nozzlenose"
-	SalmonSqueezer           SalmonWeaponEnum = "Squeezer"
-	SalmonCarbonRoller       SalmonWeaponEnum = "Carbon Roller"
-	SalmonSplatRoller        SalmonWeaponEnum = "Splat Roller"
-	SalmonDynamoRoller       SalmonWeaponEnum = "Dynamo Roller"
-	SalmonFlingzaRoller      SalmonWeaponEnum = "Flingza Roller"
-	SalmonInkbrush           SalmonWeaponEnum = "Inkbrush"
-	SalmonOctobrush          SalmonWeaponEnum = "Octobrush"
-	SalmonClassicSquiffer    SalmonWeaponEnum = "Classic Squiffer"
-	SalmonSplatCharger       SalmonWeaponEnum = "Splat Charger"
-	SalmonSplatterscope      SalmonWeaponEnum = "Splatterscope"
-	SalmonELiter4K           SalmonWeaponEnum = "E-liter 4K"
-	SalmonELiter4KScope      SalmonWeaponEnum = "E-liter 4K Scope"
-	SalmonBamboozler14MkI    SalmonWeaponEnum = "Bamboozler 14 Mk I"
-	SalmonGooTuber           SalmonWeaponEnum = "Goo Tuber"
-	SalmonSlosher            SalmonWeaponEnum = "Slosher"
-	SalmonSodaSlosher        SalmonWeaponEnum = "Soda Slosher"
-	SalmonTriSlosher         SalmonWeaponEnum = "Tri-Slosher"
-	SalmonSloshingMachine    SalmonWeaponEnum = "Sloshing Machine"
-	SalmonBloblobber         SalmonWeaponEnum = "Bloblobber"
-	SalmonExplosher          SalmonWeaponEnum = "Explosher"
-	SalmonMiniSplatling      SalmonWeaponEnum = "Mini Splatling"
-	SalmonHeavySplatling     SalmonWeaponEnum = "Heavy Splatling"
-	SalmonHydraSplatling     SalmonWeaponEnum = "Hydra Splatling"
-	SalmonBallpointSplatling SalmonWeaponEnum = "Ballpoint Splatling"
-	SalmonNautilus47         SalmonWeaponEnum = "Nautilus 47"
-	SalmonDappleDualies      SalmonWeaponEnum = "Dapple Dualies"
-	SalmonSplatDualies       SalmonWeaponEnum = "Splat Dualies"
-	SalmonGloogaDualies      SalmonWeaponEnum = "Glooga Dualies"
-	SalmonDualieSquelchers   SalmonWeaponEnum = "Dualie Squelchers"
-	SalmonDarkTetraDualies   SalmonWeaponEnum = "Dark Tetra Dualies"
-	SalmonSplatBrella        SalmonWeaponEnum = "Splat Brella"
-	SalmonTentaBrella        SalmonWeaponEnum = "Tenta Brella"
-	SalmonUndercoverBrella   SalmonWeaponEnum = "Undercover Brella"
-	SalmonGrizzcoBlaster     SalmonWeaponEnum = "Grizzco Blaster"
-	SalmonGrizzcoBrella      SalmonWeaponEnum = "Grizzco Brella"
-	SalmonGrizzcoCharger     SalmonWeaponEnum = "Grizzco Charger"
-	SalmonGrizzcoSlosher     SalmonWeaponEnum = "Grizzco Slosher"
+	SalmonSplooshOMatic      SalmonWeaponEnum = "0"
+	SalmonSplattershotJr     SalmonWeaponEnum = "10"
+	SalmonSplashOMatic       SalmonWeaponEnum = "20"
+	SalmonAerosprayMg        SalmonWeaponEnum = "30"
+	SalmonSplattershot       SalmonWeaponEnum = "40"
+	Salmon52gal              SalmonWeaponEnum = "50"
+	SalmonNZap85             SalmonWeaponEnum = "60"
+	SalmonSplattershotPro    SalmonWeaponEnum = "70"
+	Salmon96gal              SalmonWeaponEnum = "80"
+	SalmonJetSquelcher       SalmonWeaponEnum = "90"
+	SalmonLunaBlaster        SalmonWeaponEnum = "200"
+	SalmonBlaster            SalmonWeaponEnum = "210"
+	SalmonRangeBlaster       SalmonWeaponEnum = "220"
+	SalmonClashBlaster       SalmonWeaponEnum = "230"
+	SalmonRapidBlaster       SalmonWeaponEnum = "240"
+	SalmonRapidBlasterPro    SalmonWeaponEnum = "250"
+	SalmonL3Nozzlenose       SalmonWeaponEnum = "300"
+	SalmonH3Nozzlenose       SalmonWeaponEnum = "310"
+	SalmonSqueezer           SalmonWeaponEnum = "400"
+	SalmonCarbonRoller       SalmonWeaponEnum = "1000"
+	SalmonSplatRoller        SalmonWeaponEnum = "1010"
+	SalmonDynamoRoller       SalmonWeaponEnum = "1020"
+	SalmonFlingzaRoller      SalmonWeaponEnum = "1030"
+	SalmonInkbrush           SalmonWeaponEnum = "1100"
+	SalmonOctobrush          SalmonWeaponEnum = "1110"
+	SalmonClassicSquiffer    SalmonWeaponEnum = "2000"
+	SalmonSplatCharger       SalmonWeaponEnum = "2010"
+	SalmonSplatterscope      SalmonWeaponEnum = "2020"
+	SalmonELiter4K           SalmonWeaponEnum = "2030"
+	SalmonELiter4KScope      SalmonWeaponEnum = "2040"
+	SalmonBamboozler14MkI    SalmonWeaponEnum = "2050"
+	SalmonGooTuber           SalmonWeaponEnum = "2060"
+	SalmonSlosher            SalmonWeaponEnum = "3000"
+	SalmonTriSlosher         SalmonWeaponEnum = "3010"
+	SalmonSloshingMachine    SalmonWeaponEnum = "3020"
+	SalmonBloblobber         SalmonWeaponEnum = "3030"
+	SalmonExplosher          SalmonWeaponEnum = "3040"
+	SalmonMiniSplatling      SalmonWeaponEnum = "4000"
+	SalmonHeavySplatling     SalmonWeaponEnum = "4010"
+	SalmonHydraSplatling     SalmonWeaponEnum = "4020"
+	SalmonBallpointSplatling SalmonWeaponEnum = "4030"
+	SalmonNautilus47         SalmonWeaponEnum = "4040"
+	SalmonDappleDualies      SalmonWeaponEnum = "5000"
+	SalmonSplatDualies       SalmonWeaponEnum = "5010"
+	SalmonGloogaDualies      SalmonWeaponEnum = "5020"
+	SalmonDualieSquelchers   SalmonWeaponEnum = "5030"
+	SalmonDarkTetraDualies   SalmonWeaponEnum = "5040"
+	SalmonSplatBrella        SalmonWeaponEnum = "6000"
+	SalmonTentaBrella        SalmonWeaponEnum = "6010"
+	SalmonUndercoverBrella   SalmonWeaponEnum = "6020"
+	SalmonGrizzcoBlaster     SalmonWeaponEnum = "20000"
+	SalmonGrizzcoBrella      SalmonWeaponEnum = "20010"
+	SalmonGrizzcoCharger     SalmonWeaponEnum = "20020"
+	SalmonGrizzcoSlosher     SalmonWeaponEnum = "20030"
 )
 
 func (swe *SalmonWeaponEnum) UnmarshalJSON(b []byte) error {
@@ -153,7 +153,7 @@ func (swe *SalmonWeaponEnum) UnmarshalJSON(b []byte) error {
 		SalmonRangeBlaster, SalmonClashBlaster, SalmonRapidBlaster, SalmonRapidBlasterPro, SalmonL3Nozzlenose,
 		SalmonH3Nozzlenose, SalmonSqueezer, SalmonCarbonRoller, SalmonSplatRoller, SalmonDynamoRoller, SalmonFlingzaRoller,
 		SalmonInkbrush, SalmonOctobrush, SalmonClassicSquiffer, SalmonSplatCharger, SalmonSplatterscope, SalmonELiter4K,
-		SalmonELiter4KScope, SalmonBamboozler14MkI, SalmonGooTuber, SalmonSlosher, SalmonSodaSlosher, SalmonTriSlosher,
+		SalmonELiter4KScope, SalmonBamboozler14MkI, SalmonGooTuber, SalmonSlosher, SalmonTriSlosher,
 		SalmonSloshingMachine, SalmonBloblobber, SalmonExplosher, SalmonMiniSplatling, SalmonHeavySplatling,
 		SalmonHydraSplatling, SalmonBallpointSplatling, SalmonNautilus47, SalmonDappleDualies, SalmonSplatDualies,
 		SalmonGloogaDualies, SalmonDualieSquelchers, SalmonDarkTetraDualies, SalmonSplatBrella, SalmonTentaBrella,
@@ -161,6 +161,120 @@ func (swe *SalmonWeaponEnum) UnmarshalJSON(b []byte) error {
 		return nil
 	}
 	return errors.New("Invalid SalmonWeaponEnum. Got: " + fmt.Sprint(*swe))
+}
+
+func (swe SalmonWeaponEnum) GetDisplay(printer *message.Printer) string {
+	switch swe {
+	case SalmonSplooshOMatic:
+		return printer.Sprintf("Sploosh-o-matic")
+	case SalmonSplattershotJr:
+		return printer.Sprintf("Splattershot Jr.")
+	case SalmonSplashOMatic:
+		return printer.Sprintf("Splash-o-matic")
+	case SalmonAerosprayMg:
+		return printer.Sprintf("Aerospray MG")
+	case SalmonSplattershot:
+		return printer.Sprintf("Splattershot")
+	case Salmon52gal:
+		return printer.Sprintf(".52 Gal")
+	case SalmonNZap85:
+		return printer.Sprintf("N-ZAP '85")
+	case SalmonSplattershotPro:
+		return printer.Sprintf("Splattershot Pro")
+	case Salmon96gal:
+		return printer.Sprintf(".96 Gal")
+	case SalmonJetSquelcher:
+		return printer.Sprintf("Jet Squelcher")
+	case SalmonLunaBlaster:
+		return printer.Sprintf("Luna Blaster")
+	case SalmonBlaster:
+		return printer.Sprintf("Blaster")
+	case SalmonRangeBlaster:
+		return printer.Sprintf("Range Blaster")
+	case SalmonClashBlaster:
+		return printer.Sprintf("Clash Blaster")
+	case SalmonRapidBlaster:
+		return printer.Sprintf("Rapid Blaster")
+	case SalmonRapidBlasterPro:
+		return printer.Sprintf("Rapid Blaster Pro")
+	case SalmonL3Nozzlenose:
+		return printer.Sprintf("L-3 Nozzlenose")
+	case SalmonH3Nozzlenose:
+		return printer.Sprintf("H-3 Nozzlenose")
+	case SalmonSqueezer:
+		return printer.Sprintf("Squeezer")
+	case SalmonCarbonRoller:
+		return printer.Sprintf("Carbon Roller")
+	case SalmonSplatRoller:
+		return printer.Sprintf("Splat Roller")
+	case SalmonDynamoRoller:
+		return printer.Sprintf("Dynamo Roller")
+	case SalmonFlingzaRoller:
+		return printer.Sprintf("Flingza Roller")
+	case SalmonInkbrush:
+		return printer.Sprintf("Inkbrush")
+	case SalmonOctobrush:
+		return printer.Sprintf("Octobrush")
+	case SalmonClassicSquiffer:
+		return printer.Sprintf("Classic Squiffer")
+	case SalmonSplatCharger:
+		return printer.Sprintf("Splat Charger")
+	case SalmonSplatterscope:
+		return printer.Sprintf("Splatterscope")
+	case SalmonELiter4K:
+		return printer.Sprintf("E-liter 4K")
+	case SalmonELiter4KScope:
+		return printer.Sprintf("E-liter 4K Scope")
+	case SalmonBamboozler14MkI:
+		return printer.Sprintf("Bamboozler 14 Mk I")
+	case SalmonGooTuber:
+		return printer.Sprintf("Goo Tuber")
+	case SalmonSlosher:
+		return printer.Sprintf("Slosher")
+	case SalmonTriSlosher:
+		return printer.Sprintf("Tri-Slosher")
+	case SalmonSloshingMachine:
+		return printer.Sprintf("Sloshing Machine")
+	case SalmonBloblobber:
+		return printer.Sprintf("Bloblobber")
+	case SalmonExplosher:
+		return printer.Sprintf("Explosher")
+	case SalmonMiniSplatling:
+		return printer.Sprintf("Mini Splatling")
+	case SalmonHeavySplatling:
+		return printer.Sprintf("Heavy Splatling")
+	case SalmonHydraSplatling:
+		return printer.Sprintf("Hydra Splatling")
+	case SalmonBallpointSplatling:
+		return printer.Sprintf("Ballpoint Splatling")
+	case SalmonNautilus47:
+		return printer.Sprintf("Nautilus 47")
+	case SalmonDappleDualies:
+		return printer.Sprintf("Dapple Dualies")
+	case SalmonSplatDualies:
+		return printer.Sprintf("Splat Dualies")
+	case SalmonGloogaDualies:
+		return printer.Sprintf("Glooga Dualies")
+	case SalmonDualieSquelchers:
+		return printer.Sprintf("Dualie Squelchers")
+	case SalmonDarkTetraDualies:
+		return printer.Sprintf("Dark Tetra Dualies")
+	case SalmonSplatBrella:
+		return printer.Sprintf("Splat Brella")
+	case SalmonTentaBrella:
+		return printer.Sprintf("Tenta Brella")
+	case SalmonUndercoverBrella:
+		return printer.Sprintf("Undercover Brella")
+	case SalmonGrizzcoBlaster:
+		return printer.Sprintf("Grizzco Blaster")
+	case SalmonGrizzcoBrella:
+		return printer.Sprintf("Grizzco Brella")
+	case SalmonGrizzcoCharger:
+		return printer.Sprintf("Grizzco Charger")
+	case SalmonGrizzcoSlosher:
+		return printer.Sprintf("Grizzco Slosher")
+	}
+	return ""
 }
 
 type SalmonWeaponScheduleEnum string
