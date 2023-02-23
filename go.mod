@@ -9,7 +9,7 @@ require (
 	github.com/rhysd/go-github-selfupdate v1.2.3
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.4.0 // indirect
-	golang.org/x/term v0.0.0-20210503060354-a79de5458b56
-	golang.org/x/text v0.3.5
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
+	golang.org/x/text v0.3.8
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
